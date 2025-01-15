@@ -12,13 +12,22 @@ export class AuthService {
 
   // Login with email and password
   login(email: string, password: string) {
-    return this.afAuth.signInWithEmailAndPassword(email, password);
-  }
+    return this.afAuth.signInWithEmailAndPassword(email, password)
+      .catch((error) => {
+        // Handle error codes here and return a custom error message
+        let errorMessage = '';
 
-  // Login with Google
-  loginWithGoogle() {
-    const provider = new GoogleAuthProvider();
-    return this.afAuth.signInWithPopup(provider);
+        switch (error.code) {
+          case 'auth/invalid-credential':
+            errorMessage = 'The email or password you entered \n is incorrect. Please check and try again.';
+            break;
+          default:
+            errorMessage = 'An error occurred. Please try again.';
+        }
+
+        // Throw the custom error message
+        throw new Error(errorMessage);
+      });
   }
 
   // Check if user is logged in
