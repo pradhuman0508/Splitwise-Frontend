@@ -1,2 +1,13 @@
-<router-outlet />
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <!-- Navbar brand (optional, you can add your app name or logo here) -->
+        <a class="navbar-brand" href="#">Splitwise</a>
 
+        <!-- Right-side buttons -->
+        <div class="d-flex ms-auto">
+            <button class="btn btn-outline-primary me-2" routerLink="/login">Login</button>
+            <button class="btn btn-primary" routerLink="/register">Sign Up</button>
+        </div>
+    </div>
+</nav>
+<router-outlet />

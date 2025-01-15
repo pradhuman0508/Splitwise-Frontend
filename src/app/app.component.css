@@ -1,0 +1,87 @@
+/* Styling for the navbar */
+.navbar {
+    background-color: #f8f9fa; /* Light background color */
+    border-bottom: 1px solid #e3e3e3; /* Optional border for separation */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
+    padding: 0.75rem 1rem; /* Adjust padding */
+  }
+  
+  /* Navbar brand (logo or app name) */
+  .navbar-brand {
+    color: #ff3700b9; /* Primary color */
+    text-decoration: none; /* Remove underline */
+
+    font-size: 3.125rem;
+    font-weight: 500;
+    line-height: 100%;
+    letter-spacing: -0.125rem;
+    margin: 0;
+    font-family: "Inter Tight", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+      "Segoe UI Symbol";
+  }
+  
+  .navbar-brand:hover {
+    color: #ff370076; /* Darker primary color on hover */
+  }
+  
+  /* Container inside the navbar */
+  .container-fluid {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  /* Right-aligned button container */
+  .d-flex {
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Login button styling */
+  .btn-outline-primary {
+    border: 2px solid #ff3700b9;
+    color: #ff3700b9;
+    background-color: transparent;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .btn-outline-primary:hover {
+    color: #fff;
+    background-color: #ff3700b9;
+    border-color: #ff370076;
+  }
+  
+  /* Sign Up button styling */
+  .btn-primary {
+    background-color: #ff3700b9;
+    border: none;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    transition: background-color 0.3s ease-in-out;
+  }
+  
+  .btn-primary:hover {
+    background-color: #ff370076;
+  }
+  
+  /* Margin for the Login button */
+  .me-2 {
+    margin-right: 0.5rem;
+  }
+  
+  
+  /* Heading styling */
+  h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #343a40; /* Dark gray color */
+    margin-bottom: 1rem;
+  }
+  
+  /* Paragraph styling */
+  p {
+    font-size: 1.125rem;
+    color: #6c757d; /* Medium gray color */
+    line-height: 1.6;
+  }
