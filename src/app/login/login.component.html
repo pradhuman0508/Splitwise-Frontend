@@ -1,0 +1,28 @@
+<div class="login-container">
+    <h2>Log in</h2>
+    <form [formGroup]="loginForm" (ngSubmit)="login()">
+      <div>
+        <label>Email</label>
+        <input type="email" formControlName="email" placeholder="Enter email" />
+        <div *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
+          <small *ngIf="loginForm.get('email')?.errors?.['required']">Email is required</small>
+          <small *ngIf="loginForm.get('email')?.errors?.['email']">Invalid email</small>
+        </div>
+      </div>
+      <div>
+        <label>Password</label>
+        <input type="password" formControlName="password" placeholder="Enter password" />
+        <div *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
+          <small *ngIf="loginForm.get('password')?.errors?.['required']">Password is required</small>
+          <small *ngIf="loginForm.get('password')?.errors?.['minlength']">
+            Password must be at least 6 characters
+          </small>
+        </div>
+      </div>
+      <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
+      <button type="submit" [disabled]="loginForm.invalid">Log in</button>
+    </form>
+    <div>or</div>
+    <button (click)="loginWithGoogle()">Sign in with Google</button>
+  </div>
+  
