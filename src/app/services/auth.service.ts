@@ -33,18 +33,11 @@ export class AuthService {
   register(email: string, password: string) {
     return this.afAuth.createUserWithEmailAndPassword(email, password).catch((error) => {
       // Handle error codes here and return a custom error message
-      console.log('Error message',error.code,'YYash');
       let errorMessage = '';
   
       switch (error.code) {
         case 'auth/email-already-in-use':
           errorMessage = 'This email is already registered. Please use a different email.';
-          break;
-        case 'auth/invalid-email':
-          errorMessage = 'The email address is not valid. Please check and try again.';
-          break;
-        case 'auth/weak-password':
-          errorMessage = 'The password is too weak. Please use a stronger password.';
           break;
         default:
           errorMessage = 'An error occurred. Please try again.';

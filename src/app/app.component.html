@@ -1,12 +1,16 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-        <!-- Navbar brand (optional, you can add your app name or logo here) -->
-        <a class="navbar-brand" href="#">Splitwise</a>
-
-        <!-- Right-side buttons -->
+        <a class="navbar-brand" routerLink="/dashboard">Splitwise</a>
         <div class="d-flex ms-auto">
-            <button class="btn btn-outline-primary me-2" routerLink="/login">Login</button>
-            <button class="btn btn-primary" routerLink="/register">Sign Up</button>
+            <!-- Show Log In and Sign Up if not logged in -->
+            <ng-container *ngIf="!isLoggedIn; else loggedInTemplate">
+                <button class="btn btn-outline-primary me-2" routerLink="/login">Log In</button>
+                <button class="btn btn-primary" routerLink="/register">Sign Up</button>
+            </ng-container>
+            <!-- Show Log Out if logged in -->
+            <ng-template #loggedInTemplate>
+                <button class="btn btn-primary" (click)="logout()">Log Out</button>
+            </ng-template>
         </div>
     </div>
 </nav>

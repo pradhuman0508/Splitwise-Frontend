@@ -14,19 +14,32 @@ import { onAuthStateChanged } from 'firebase/auth';
 export class AuthGuard implements CanActivate {
   constructor(private firebaseService: FirebaseService, private router: Router) {}
 
-  canActivate(
+  async canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Promise<boolean> {
-    return new Promise((resolve) => {
-      onAuthStateChanged(this.firebaseService.auth, (user) => {
-        if (user) {
-          resolve(true);
-        } else {
-          this.router.navigate(['/login']);
-          resolve(false);
-        }
-      });
+    try {
+      const user = await this.getUserAuthState();
+      if (user) {
+        return true; // Allow access if the user is authenticated
+      } else {
+        this.router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+        return false; // Redirect to login if not authenticated
+      }
+    } catch (error) {
+      console.error('AuthGuard Error:', error);
+      this.router.navigate(['/login']);
+      return false;
+    }
+  }
+
+  private getUserAuthState(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      onAuthStateChanged(
+        this.firebaseService.auth,
+        (user) => resolve(user),
+        (error) => reject(error)
+      );
     });
   }
 }
