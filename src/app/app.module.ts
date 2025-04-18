@@ -8,18 +8,16 @@ import { AngularFireAuthModule } from '@angular/fire/compat/auth';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { LoginComponent } from './login/login.component';
+import { LoginComponent } from './pages/login/login.component';
 
 import { environment } from '../environments/environment';
-import { DashboardComponent } from './dashboard/dashboard.component';
-import { RegisterComponent } from './register/register.component';
+import { RegisterComponent } from './pages/register/register.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    DashboardComponent,
     RegisterComponent
   ],
   imports: [
