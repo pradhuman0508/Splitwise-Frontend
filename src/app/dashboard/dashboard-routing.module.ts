@@ -14,7 +14,7 @@ const routes: Routes = [ {
     { path: 'groups', component: GroupListComponent },
     { path: 'expenses', component: ExpenseListComponent },
     { path: 'balances', component: BalanceSummaryComponent },
-    { path: '', redirectTo: 'friends', pathMatch: 'full' }
+    // { path: '', redirectTo: 'friends', pathMatch: 'full' }
   ]
 }];
 
