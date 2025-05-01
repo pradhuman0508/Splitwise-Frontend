@@ -1,92 +1,187 @@
-<div class="min-h-screen bg-gray-50 p-4">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <!-- Overview Panel -->
-      <div class="md:col-span-2 bg-white rounded-lg shadow p-4">
-        <h2 class="text-xl font-semibold mb-4">Overview</h2>
-        <div class="grid grid-cols-3 gap-4 mb-6">
-          <div class="bg-blue-50 p-4 rounded-lg">
-            <p class="text-sm text-gray-600">Total Expenses</p>
-            <p class="text-2xl font-bold">${{totalExpenses}}</p>
-          </div>
-          <div class="bg-green-50 p-4 rounded-lg">
-            <p class="text-sm text-gray-600">You're Owed</p>
-            <p class="text-2xl font-bold text-green-600">${{youAreOwed}}</p>
-          </div>
-          <div class="bg-red-50 p-4 rounded-lg">
-            <p class="text-sm text-gray-600">You Owe</p>
-            <p class="text-2xl font-bold text-red-600">${{youOwe}}</p>
-          </div>
-        </div>
-        <div class="h-64">
-          <apx-chart [series]="chartSeries" [chart]="chartConfig" [labels]="chartLabels" [theme]="chartTheme"></apx-chart>
-        </div>
+<nav class="bg-white shadow-lg p-4">
+  <div class="container mx-auto flex justify-between items-center">
+    <div class="flex items-center space-x-2">
+      <img src="assets/logo.png" alt="Logo" class="h-8 w-8">
+      <span class="text-xl font-bold text-blue-600">Warikan</span>
+    </div>
+    <div class="relative z-50">
+      <button (click)="toggleDropdown()" class="flex items-center space-x-2 focus:outline-none">
+        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e" alt="Profile" class="h-8 w-8 rounded-full">
+        <span class="text-gray-700">John Doe</span>
+        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      <div *ngIf="isDropdownOpen" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1">
+        <a href="/settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Account Settings</a>
+        <a href="/logout" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sign Out</a>
       </div>
+    </div>
+  </div>
+</nav>
 
-      <!-- Groups Section -->
-      <div class="bg-white rounded-lg shadow p-4">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-semibold">Groups</h2>
-          <button (click)="openNewGroupModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-            New Group
-          </button>
-        </div>
-        <div class="space-y-3">
-          <div *ngFor="let group of groups" class="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-3">
-                <img [src]="group.avatar" class="w-10 h-10 rounded-full" [alt]="group.name">
-                <div>
-                  <p class="font-medium">{{group.name}}</p>
-                  <p class="text-sm text-gray-500">{{group.memberCount}} members</p>
-                </div>
-              </div>
-              <span class="text-sm font-medium" [ngClass]="{'text-green-600': group.balance > 0, 'text-red-600': group.balance < 0}">
-                {{group.balance | currency}}
-              </span>
+<div class="container mx-auto px-4 mt-4">
+  <div class="flex gap-2">
+    <div class="relative w-64">
+      <select [(ngModel)]="searchCategory" class="w-full p-2 border rounded-lg appearance-none bg-white pr-8">
+        <option value="all">All Categories</option>
+        <option value="friends">Friends</option>
+        <option value="groups">Groups</option>
+        <option value="expenses">Expenses</option>
+      </select>
+      <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
+    </div>
+    <div class="relative flex-1">
+      <input 
+        type="text" 
+        [(ngModel)]="searchQuery" 
+        (input)="onSearch()"
+        placeholder="Search..." 
+        class="w-full p-2 border rounded-lg pl-10"
+      >
+      <div class="absolute inset-y-0 left-0 flex items-center pl-3">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </div>
+    </div>
+  </div>
+  
+  <div *ngIf="searchResults.length > 0" class="absolute mt-2 w-full max-w-2xl bg-white rounded-lg shadow-lg z-40 max-h-96 overflow-y-auto">
+    <div class="p-4">
+      <div *ngFor="let result of searchResults" class="py-2">
+        <div [ngSwitch]="result.type" class="flex items-center justify-between hover:bg-gray-50 p-2 rounded-lg cursor-pointer">
+          <div class="flex items-center space-x-3">
+            <img [src]="result.avatar" class="w-10 h-10 rounded-full" [alt]="result.name">
+            <div>
+              <p class="font-medium">{{result.name}}</p>
+              <p class="text-sm text-gray-500">{{result.type | titlecase}}</p>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Recent Transactions -->
-      <div class="md:col-span-3 bg-white rounded-lg shadow p-4">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-semibold">Recent Transactions</h2>
-          <button (click)="openNewExpenseModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
-            Add Expense
-          </button>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full">
-            <thead>
-              <tr class="text-left bg-gray-50">
-                <th class="p-3">Date</th>
-                <th class="p-3">Description</th>
-                <th class="p-3">Group</th>
-                <th class="p-3">Amount</th>
-                <th class="p-3">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let transaction of transactions" class="border-b hover:bg-gray-50">
-                <td class="p-3">{{transaction.date | date:'shortDate'}}</td>
-                <td class="p-3">{{transaction.description}}</td>
-                <td class="p-3">{{transaction.group}}</td>
-                <td class="p-3" [ngClass]="{'text-green-600': transaction.amount > 0, 'text-red-600': transaction.amount < 0}">
-                  {{transaction.amount | currency}}
-                </td>
-                <td class="p-3">
-                  <span [ngClass]="{
-                    'bg-green-100 text-green-800': transaction.status === 'Settled',
-                    'bg-yellow-100 text-yellow-800': transaction.status === 'Pending'
-                  }" class="px-2 py-1 rounded-full text-sm">
-                    {{transaction.status}}
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <span *ngIf="result.balance !== undefined" class="text-sm font-medium" 
+            [ngClass]="{'text-green-600': result.balance > 0, 'text-red-600': result.balance < 0}">
+            {{result.balance | currency}}
+          </span>
         </div>
       </div>
     </div>
   </div>
+</div>
+
+<div class="min-h-screen bg-gray-50 p-4">
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <div class="lg:col-span-2 bg-white rounded-lg shadow-sm p-6">
+      <h2 class="text-2xl font-semibold mb-6">Overview</h2>
+      <div class="grid grid-cols-3 gap-6 mb-8">
+        <div class="bg-blue-50 p-4 rounded-lg">
+          <p class="text-sm text-gray-600">Total Expenses</p>
+          <p class="text-2xl font-bold">${{totalExpenses}}</p>
+        </div>
+        <div class="bg-green-50 p-4 rounded-lg">
+          <p class="text-sm text-gray-600">You're Owed</p>
+          <p class="text-2xl font-bold text-green-600">${{youAreOwed}}</p>
+        </div>
+        <div class="bg-red-50 p-4 rounded-lg">
+          <p class="text-sm text-gray-600">You Owe</p>
+          <p class="text-2xl font-bold text-red-600">${{youOwe}}</p>
+        </div>
+      </div>
+      <div class="h-72">
+        <apx-chart [series]="chartSeries" [chart]="chartConfig" [labels]="chartLabels" [theme]="chartTheme"></apx-chart>
+      </div>
+    </div>
+    <div class="bg-white rounded-lg shadow-sm p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Groups</h2>
+        <button (click)="openNewGroupModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+          New Group
+        </button>
+      </div>
+      <div class="space-y-3">
+        <div *ngFor="let group of groups.slice(0, 3)" class="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <img [src]="group.avatar" class="w-10 h-10 rounded-full" [alt]="group.name">
+              <div>
+                <p class="font-medium">{{group.name}}</p>
+                <p class="text-sm text-gray-500">{{group.memberCount}} members</p>
+              </div>
+            </div>
+            <span class="text-sm font-medium" [ngClass]="{'text-green-600': group.balance > 0, 'text-red-600': group.balance < 0}">
+              {{group.balance | currency}}
+            </span>
+          </div>
+        </div>
+        <a href="/groups" class="block text-center text-blue-600 hover:text-blue-800 mt-2">Show More Groups</a>
+      </div>
+    </div>
+    <div class="bg-white rounded-lg shadow-sm p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Friends</h2>
+        <button (click)="addNewFriend()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+          Add Friend
+        </button>
+      </div>
+      <div class="space-y-3">
+        <div *ngFor="let friend of friends.slice(0, 3)" class="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <img [src]="friend.avatar" class="w-10 h-10 rounded-full" [alt]="friend.name">
+              <div>
+                <p class="font-medium">{{friend.name}}</p>
+                <p class="text-sm text-gray-500">{{friend.email}}</p>
+              </div>
+            </div>
+            <span class="text-sm font-medium" [ngClass]="{'text-green-600': friend.balance > 0, 'text-red-600': friend.balance < 0}">
+              {{friend.balance | currency}}
+            </span>
+          </div>
+        </div>
+        <a href="/friends" class="block text-center text-blue-600 hover:text-blue-800 mt-2">Show More Friends</a>
+      </div>
+    </div>
+    <div class="lg:col-span-4 bg-white rounded-lg shadow-sm p-6 mt-6">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-semibold">Recent Expenses</h2>
+        <button (click)="openNewExpenseModal()" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors">
+          Add Expense
+        </button>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="text-left bg-gray-50">
+              <th class="p-4">Date</th>
+              <th class="p-4">Description</th>
+              <th class="p-4">Group</th>
+              <th class="p-4">Amount</th>
+              <th class="p-4">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let expense of transactions" class="border-b hover:bg-gray-50">
+              <td class="p-4">{{expense.date | date:'shortDate'}}</td>
+              <td class="p-4">{{expense.description}}</td>
+              <td class="p-4">{{expense.group}}</td>
+              <td class="p-4" [ngClass]="{'text-green-600': expense.amount > 0, 'text-red-600': expense.amount < 0}">
+                {{expense.amount | currency}}
+              </td>
+              <td class="p-4">
+                <span [ngClass]="{
+                  'bg-green-100 text-green-800': expense.status === 'Settled',
+                  'bg-yellow-100 text-yellow-800': expense.status === 'Pending'
+                }" class="px-3 py-1 rounded-full text-sm">
+                  {{expense.status}}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
