@@ -1,13 +1,13 @@
 import { RouterOutlet } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
+import { ChartModule } from 'primeng/chart';
 import { CommonModule } from "@angular/common";
-import { NgApexchartsModule } from "ng-apexcharts";
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [RouterOutlet,CommonModule,NgApexchartsModule,FormsModule],
+  imports: [RouterOutlet,CommonModule,ChartModule,FormsModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
@@ -22,19 +22,6 @@ export class DashboardComponent implements OnInit {
   youAreOwed: number = 450;
   youOwe: number = 200;
 
-  chartSeries: number[] = [44, 55, 13, 43];
-  chartConfig: any = {
-    type: "donut",
-    height: 250
-  };
-
-  chartLabels: string[] = ["Groceries", "Rent", "Utilities", "Entertainment"];
-  chartTheme: any = {
-    monochrome: {
-      enabled: true,
-      color: "#2563eb"
-    }
-  };
 
   groups = [
     {
@@ -105,7 +92,41 @@ export class DashboardComponent implements OnInit {
 
   constructor() {}
 
-  ngOnInit(): void {}
+  doughnutData: any;
+  doughnutOptions: any;
+
+  ngOnInit(): void {
+    this.doughnutData = {
+      labels: ['Groceries', 'Rent', 'Utilities', 'Entertainment'],
+      datasets: [
+        {
+          data: [44, 55, 13, 43],
+          backgroundColor: [
+            '#2563eb', // Blue
+            '#22c55e', // Green
+            '#f59e0b', // Amber
+            '#ef4444'  // Red
+          ],
+          hoverBackgroundColor: [
+            '#1d4ed8',
+            '#16a34a',
+            '#d97706',
+            '#dc2626'
+          ]
+        }
+      ]
+    };
+
+    this.doughnutOptions = {
+      responsive: true,
+      maintainAspectRatio: false, 
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      }
+    };
+  }
 
   onSearch(): void {
     if (!this.searchQuery.trim()) {
