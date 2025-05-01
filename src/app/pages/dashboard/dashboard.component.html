@@ -36,11 +36,11 @@
       </div>
     </div>
     <div class="relative flex-1">
-      <input 
-        type="text" 
-        [(ngModel)]="searchQuery" 
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
         (input)="onSearch()"
-        placeholder="Search..." 
+        placeholder="Search..."
         class="w-full p-2 border rounded-lg pl-10"
       >
       <div class="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -50,7 +50,7 @@
       </div>
     </div>
   </div>
-  
+
   <div *ngIf="searchResults.length > 0" class="absolute mt-2 w-full max-w-2xl bg-white rounded-lg shadow-lg z-40 max-h-96 overflow-y-auto">
     <div class="p-4">
       <div *ngFor="let result of searchResults" class="py-2">
@@ -62,7 +62,7 @@
               <p class="text-sm text-gray-500">{{result.type | titlecase}}</p>
             </div>
           </div>
-          <span *ngIf="result.balance !== undefined" class="text-sm font-medium" 
+          <span *ngIf="result.balance !== undefined" class="text-sm font-medium"
             [ngClass]="{'text-green-600': result.balance > 0, 'text-red-600': result.balance < 0}">
             {{result.balance | currency}}
           </span>
@@ -185,3 +185,5 @@
     </div>
   </div>
 </div>
+
+<router-outlet></router-outlet>

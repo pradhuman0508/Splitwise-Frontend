@@ -1,3 +1,4 @@
+import { RouterOutlet } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from "@angular/common";
 import { NgApexchartsModule } from "ng-apexcharts";
@@ -6,7 +7,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule,NgApexchartsModule,FormsModule],
+  imports: [RouterOutlet,CommonModule,NgApexchartsModule,FormsModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
