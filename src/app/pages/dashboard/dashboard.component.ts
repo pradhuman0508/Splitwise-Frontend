@@ -1,15 +1,17 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { NgApexchartsModule } from "ng-apexcharts";
+import { CommonModule } from "@angular/common";
+// import { NgApexchartsModule } from "ng-apexcharts";
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule,NgApexchartsModule],
+  imports: [CommonModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
-export class DashboardComponent implements OnInit{
+
+
+export class DashboardComponent implements OnInit {
   totalExpenses: number = 1250;
   youAreOwed: number = 450;
   youOwe: number = 200;
@@ -19,7 +21,7 @@ export class DashboardComponent implements OnInit{
     type: "donut",
     height: 250
   };
-
+  
   chartLabels: string[] = ["Groceries", "Rent", "Utilities", "Entertainment"];
   chartTheme: any = {
     monochrome: {
