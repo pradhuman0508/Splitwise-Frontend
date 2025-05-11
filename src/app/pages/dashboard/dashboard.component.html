@@ -3729,7 +3729,7 @@
 <div class="container mx-auto px-4 mt-4">
   <div class="flex gap-2">
     <div class="relative w-64">
-      <select [(ngModel)]="searchCategory" class="w-full p-2 border rounded-lg appearance-none bg-white pr-8">
+      <select [(ngModel)]="searchCategory" class="w-full p-2 border rounded-lg appearance-none pr-8">
         <option value="all">All Categories</option>
         <option value="friends">Friends</option>
         <option value="groups">Groups</option>
@@ -3757,15 +3757,15 @@
     </div>
   </div>
 
-  <div *ngIf="searchResults.length > 0" class="absolute mt-2 w-full max-w-2xl bg-white rounded-lg shadow-lg z-40 max-h-96 overflow-y-auto">
-    <div class="p-4">
+  <div *ngIf="searchResults.length > 0" class="absolute mt-2 w-full max-w-2xl  rounded-lg shadow-lg z-40 max-h-96 overflow-y-auto">
+    <div class="p-4 card" >
       <div *ngFor="let result of searchResults" class="py-2">
-        <div [ngSwitch]="result.type" class="flex items-center justify-between hover:bg-gray-50 p-2 rounded-lg cursor-pointer">
+        <div [ngSwitch]="result.type" class="flex items-center justify-between p-2 rounded-lg cursor-pointer">
           <div class="flex items-center space-x-3">
             <img [src]="result.avatar" class="w-10 h-10 rounded-full" [alt]="result.name">
             <div>
               <p class="font-medium">{{result.name}}</p>
-              <p class="text-sm text-gray-500">{{result.type | titlecase}}</p>
+              <p class="text-sm ">{{result.type | titlecase}}</p>
             </div>
           </div>
           <span *ngIf="result.balance !== undefined" class="text-sm font-medium"
@@ -3778,29 +3778,29 @@
   </div>
 </div>
 
-<div class="min-h-screen bg-gray-50 p-4">
+<div class="min-h-screen  p-4">
   <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-    <div class="lg:col-span-2 bg-white rounded-lg shadow-sm p-6">
+    <div class="lg:col-span-2 card rounded-lg shadow-sm p-6">
       <h2 class="text-2xl font-semibold mb-6">Overview</h2>
-      <div class="grid grid-cols-3 gap-6 mb-8">
-        <div class="bg-blue-50 p-4 rounded-lg">
-          <p class="text-sm text-gray-600">Total Expenses</p>
-          <p class="text-2xl font-bold">${{totalExpenses}}</p>
+      <div class="grid grid-cols-3 gap-6 mb-5">
+        <div class="bg-blue-500/15 p-4 rounded-lg">
+          <p class="text-sm">Total Expenses</p>
+          <p class="text-2xl font-bold text-gray-600">${{totalExpenses}}</p>
         </div>
-        <div class="bg-green-50 p-4 rounded-lg">
-          <p class="text-sm text-gray-600">You're Owed</p>
+        <div class="bg-green-500/15 p-4 rounded-lg">
+          <p class="text-sm">You're Owed</p>
           <p class="text-2xl font-bold text-green-600">${{youAreOwed}}</p>
         </div>
-        <div class="bg-red-50 p-4 rounded-lg">
-          <p class="text-sm text-gray-600">You Owe</p>
+        <div class="bg-red-500/15 p-4 rounded-lg">
+          <p class="text-sm">You Owe</p>
           <p class="text-2xl font-bold text-red-600">${{youOwe}}</p>
         </div>
       </div>
-      <div class="h-72">
+      <div class="h-80">
         <p-chart type="doughnut" [data]="doughnutData" [options]="doughnutOptions" styleClass="width: 100%; height: 100%;"></p-chart>        
       </div>
     </div>
-    <div class="bg-white rounded-lg shadow-sm p-6">
+    <div class="card rounded-lg shadow-sm p-6">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-semibold">Groups</h2>
         <button (click)="openNewGroupModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
@@ -3808,7 +3808,7 @@
         </button>
       </div>
       <div class="space-y-3">
-        <div *ngFor="let group of groups.slice(0, 3)" class="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+        <div *ngFor="let group of groups.slice(0, 3)" class="p-3 border rounded-lg cursor-pointer hover:bg-[var(--surface-hover)]">
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-3">
               <img [src]="group.avatar" class="w-10 h-10 rounded-full" [alt]="group.name">
@@ -3825,7 +3825,7 @@
         <a href="/groups" class="block text-center text-blue-600 hover:text-blue-800 mt-2">Show More Groups</a>
       </div>
     </div>
-    <div class="bg-white rounded-lg shadow-sm p-6">
+    <div class="card rounded-lg shadow-sm p-6">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-semibold">Friends</h2>
         <button (click)="addNewFriend()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
@@ -3833,7 +3833,8 @@
         </button>
       </div>
       <div class="space-y-3">
-        <div *ngFor="let friend of friends.slice(0, 3)" class="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+        
+        <div *ngFor="let friend of friends.slice(0, 3)" class="p-3 border rounded-lg cursor-pointer hover:bg-[var(--surface-hover)]">
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-3">
               <img [src]="friend.avatar" class="w-10 h-10 rounded-full" [alt]="friend.name">
@@ -3850,7 +3851,7 @@
         <a href="/friends" class="block text-center text-blue-600 hover:text-blue-800 mt-2">Show More Friends</a>
       </div>
     </div>
-    <div class="lg:col-span-4 bg-white rounded-lg shadow-sm p-6 mt-6">
+    <div class="lg:col-span-4 card rounded-lg shadow-sm p-6">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-semibold">Recent Expenses</h2>
         <button (click)="openNewExpenseModal()" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors">
@@ -3858,35 +3859,47 @@
         </button>
       </div>
       <div class="overflow-x-auto">
-        <table class="w-full">
-          <thead>
-            <tr class="text-left bg-gray-50">
-              <th class="p-4">Date</th>
-              <th class="p-4">Description</th>
-              <th class="p-4">Group</th>
-              <th class="p-4">Amount</th>
-              <th class="p-4">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let expense of transactions" class="border-b hover:bg-gray-50">
-              <td class="p-4">{{expense.date | date:'shortDate'}}</td>
-              <td class="p-4">{{expense.description}}</td>
-              <td class="p-4">{{expense.group}}</td>
-              <td class="p-4" [ngClass]="{'text-green-600': expense.amount > 0, 'text-red-600': expense.amount < 0}">
-                {{expense.amount | currency}}
-              </td>
-              <td class="p-4">
-                <span [ngClass]="{
+        <p-table
+        #dt1
+        [value]="transactions"
+        dataKey="id"
+        [rows]="10"
+        [rowHover]="true"
+        [globalFilterFields]="['description', 'group', 'status']"
+        responsiveLayout="scroll"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Group</th>
+            <th>Amount</th>
+            <th>Status</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-expense>
+          <tr>
+            <td>{{ expense.date | date:'shortDate' }}</td>
+            <td>{{ expense.description }}</td>
+            <td>{{ expense.group }}</td>
+            <td [ngClass]="{'text-green-600': expense.amount > 0, 'text-red-600': expense.amount < 0}">
+              {{ expense.amount | currency }}
+            </td>
+            <td>
+              <span
+                [ngClass]="{
                   'bg-green-100 text-green-800': expense.status === 'Settled',
                   'bg-yellow-100 text-yellow-800': expense.status === 'Pending'
-                }" class="px-3 py-1 rounded-full text-sm">
-                  {{expense.status}}
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                }"
+                class="px-3 py-1 rounded-full text-sm"
+              >
+                {{ expense.status }}
+              </span>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+      
       </div>
     </div>
   </div>

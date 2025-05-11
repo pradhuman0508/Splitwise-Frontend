@@ -13,7 +13,7 @@ import { LayoutService } from '../service/layout.service';
     imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, AppFooter],
     template: `<div class="layout-wrapper" [ngClass]="containerClass">
         <app-topbar></app-topbar>
-        <app-sidebar></app-sidebar>
+        <!--<app-sidebar></app-sidebar>-->
         <div class="layout-main-container">
             <div class="layout-main">
                 <router-outlet></router-outlet>
@@ -100,7 +100,7 @@ export class AppLayout {
     get containerClass() {
         return {
             'layout-overlay': this.layoutService.layoutConfig().menuMode === 'overlay',
-            'layout-static': this.layoutService.layoutConfig().menuMode === 'static',
+            // 'layout-static': this.layoutService.layoutConfig().menuMode === 'static',
             'layout-static-inactive': this.layoutService.layoutState().staticMenuDesktopInactive && this.layoutService.layoutConfig().menuMode === 'static',
             'layout-overlay-active': this.layoutService.layoutState().overlayMenuActive,
             'layout-mobile-active': this.layoutService.layoutState().staticMenuMobileActive
