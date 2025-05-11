@@ -6,7 +6,7 @@ export const routes: Routes = [{
 },
 {
   path: 'dashboard',
-  loadChildren: () => import('./pages/pages.module').then(m => m.PagesModule)
+  loadChildren: () => import('./pages/pages.routes').then(m => m.routes)
 },
 { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
 { path: '**', redirectTo: '/dashboard' }];

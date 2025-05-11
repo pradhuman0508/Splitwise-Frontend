@@ -1,5 +1,5 @@
-import { Component, Renderer2, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Inject, PLATFORM_ID, Component, Renderer2, ViewChild } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { AppTopbar } from './app.topbar';
@@ -35,7 +35,9 @@ export class AppLayout {
     constructor(
         public layoutService: LayoutService,
         public renderer: Renderer2,
-        public router: Router
+        public router: Router,
+        @Inject(PLATFORM_ID) private platformId: Object 
+
     ) {
         this.overlayMenuOpenSubscription = this.layoutService.overlayOpen$.subscribe(() => {
             if (!this.menuOutsideClickListener) {
@@ -65,27 +67,33 @@ export class AppLayout {
     }
 
     hideMenu() {
-        this.layoutService.layoutState.update((prev) => ({ ...prev, overlayMenuActive: false, staticMenuMobileActive: false, menuHoverActive: false }));
-        if (this.menuOutsideClickListener) {
-            this.menuOutsideClickListener();
-            this.menuOutsideClickListener = null;
+        if (isPlatformBrowser(this.platformId)) {   
+            this.layoutService.layoutState.update((prev) => ({ ...prev, overlayMenuActive: false, staticMenuMobileActive: false, menuHoverActive: false }));
+            if (this.menuOutsideClickListener) {
+                this.menuOutsideClickListener();
+                this.menuOutsideClickListener = null;
+            }
+            this.unblockBodyScroll();
         }
-        this.unblockBodyScroll();
     }
 
     blockBodyScroll(): void {
-        if (document.body.classList) {
-            document.body.classList.add('blocked-scroll');
-        } else {
-            document.body.className += ' blocked-scroll';
+        if (isPlatformBrowser(this.platformId)) {   
+            if (document.body.classList) {
+                document.body.classList.add('blocked-scroll');
+            } else {
+                document.body.className += ' blocked-scroll';
+            }
         }
     }
 
     unblockBodyScroll(): void {
-        if (document.body.classList) {
-            document.body.classList.remove('blocked-scroll');
-        } else {
-            document.body.className = document.body.className.replace(new RegExp('(^|\\b)' + 'blocked-scroll'.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+        if (isPlatformBrowser(this.platformId)) {   
+            if (document.body.classList) {
+                document.body.classList.remove('blocked-scroll');
+            } else {
+                document.body.className = document.body.className.replace(new RegExp('(^|\\b)' + 'blocked-scroll'.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+            }
         }
     }
 
