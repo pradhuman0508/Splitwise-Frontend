@@ -1,4 +1,9 @@
-<div class="flex items-center justify-center h-screen bg-gray-100">
+<div class="flex items-center justify-center h-screen">
+  <div class="absolute right-10 top-10">
+    <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
+      <i [ngClass]="{ 'pi': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
+    </button>
+  </div>
   <p-card class="w-full max-w-md">
     <ng-template pTemplate="header">
       <h2 class="text-xl font-semibold text-center py-4">Register</h2>

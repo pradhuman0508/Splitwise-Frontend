@@ -1,0 +1,39 @@
+<div class="layout-topbar">
+    <a class="layout-topbar-logo" routerLink="/">
+        <div class="w-16 h-16">
+            <img src="assets/demo/logo.svg" alt="Logo"/>
+        </div>
+        <span style="position: relative; right: 17px;">ARIKAN</span>
+    </a>
+
+    <div class="layout-topbar-actions">
+        <div class="layout-config-menu">
+            <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
+                <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
+            </button>
+            <!-- <div class="relative">
+                <button
+                    class="layout-topbar-action layout-topbar-action-highlight"
+                    pStyleClass="@next"
+                    enterFromClass="hidden"
+                    enterActiveClass="animate-scalein"
+                    leaveToClass="hidden"
+                    leaveActiveClass="animate-fadeout"
+                    [hideOnOutsideClick]="true"
+                >
+                    <i class="pi pi-palette"></i>
+                </button>
+                <app-configurator />
+            </div> -->
+        </div>
+
+        <div class="layout-topbar-menu hidden lg:block">
+            <div class="layout-topbar-menu-content">
+                <button type="button" class="layout-topbar-action">
+                    <i class="pi pi-user"></i>
+                    <span>Profile</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

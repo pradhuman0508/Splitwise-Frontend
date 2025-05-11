@@ -4,12 +4,13 @@ import { ChartModule } from 'primeng/chart';
 import { CommonModule } from "@angular/common";
 import { FormsModule } from '@angular/forms';
 import { AppTopbar } from '../../layout/component/app.topbar';
+import { TableModule } from 'primeng/table';
 // import { LayoutService } from '../../layout/service/layout.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [RouterOutlet,CommonModule,ChartModule,FormsModule,AppTopbar],
+  imports: [TableModule, RouterOutlet,CommonModule,ChartModule,FormsModule,AppTopbar],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
