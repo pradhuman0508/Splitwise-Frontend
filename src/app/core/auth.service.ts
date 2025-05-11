@@ -1,13 +1,11 @@
-import { AngularFireAuth } from './../../../node_modules/@angular/fire/compat/auth/auth.d';
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import firebase from 'firebase/compat/app';
-import { Auth, authState, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from '@angular/fire/auth';
+import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, authState, signOut } from '@angular/fire/auth';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
+
   private auth: Auth = inject(Auth);
 
 
