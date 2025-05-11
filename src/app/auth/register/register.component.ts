@@ -1,45 +1,64 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../../core/auth.service';
+import { getAuth, GoogleAuthProvider, signInWithPopup } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-register',
-  standalone: true,
-  imports: [],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
 export class RegisterComponent {
-  title = 'Register';
-
   registerForm: FormGroup;
-  errorMessage: string = '';
+  loading = false;
+  errorMessage = '';
 
-  constructor(private fb: FormBuilder, private authService: AuthService,    private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) {
     this.registerForm = this.fb.group({
+      fullName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required],
-    });
+      confirmPassword: ['', Validators.required]
+    },
+    { validators: this.passwordMatchValidator });
   }
 
-  // Check if passwords match
-  passwordsMatch(): boolean {
-    const password = this.registerForm.get('password')?.value;
-    const confirmPassword = this.registerForm.get('confirmPassword')?.value;
-    return password === confirmPassword;
+  onRegister(): void {
+    if (this.registerForm.invalid) return;
+
+    const { email, password } = this.registerForm.value;
+    this.loading = true;
+    this.errorMessage = '';
+
+    this.authService
+      .register(email, password)
+      .then(() => {
+        this.router.navigate(['/auth/login']); // Update if needed
+      })
+      .catch((err) => {
+        this.errorMessage = err.message || 'Registration failed';
+      })
+      .finally(() => {
+        this.loading = false;
+      });
   }
 
-  onRegister() {
-    if (this.registerForm.valid && this.passwordsMatch()) {
-
-      this.authService
-        .register(this.registerForm.get('email')?.value, this.registerForm.get('password')?.value)
-        .then(() => this.router.navigate(['/login']))
-        .catch((error: { message: string; }) => (this.errorMessage = error.message));
-    } else {
-      this.errorMessage = 'Please fill out the form correctly.';
-    }
+  registerWithGoogle() {
+    const provider = new GoogleAuthProvider();
+        const auth=getAuth();
+        signInWithPopup(auth, provider)
+          .then(() => this.router.navigate(['/dashboard']))
+          .catch((error) => (this.errorMessage = error.message));
   }
+  // Custom validator
+passwordMatchValidator(formGroup: FormGroup) {
+  const password = formGroup.get('password')?.value;
+  const confirm = formGroup.get('confirmPassword')?.value;
+  return password === confirm ? null : { passwordMismatch: true };
+}
 }

@@ -1,77 +1,49 @@
-import { Component, Renderer2 } from '@angular/core';
-import { GoogleAuthProvider, signInWithPopup } from '@angular/fire/auth';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { AuthService } from '../auth.service';
+import { Component } from '@angular/core';
+import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
-import { getAuth } from '@firebase/auth';
-import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple'; // Ripple is now separated
-import { CommonModule } from '@angular/common';
+import { AuthService } from '../../core/auth.service';
+import { getAuth, GoogleAuthProvider, signInWithPopup } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-login',
-  standalone: true,
-  imports: [CommonModule, ButtonModule, RippleModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
 export class LoginComponent {
-  isDarkMode = false;
-  title = 'Login';
-
   loginForm: FormGroup;
-  errorMessage: string = '';
+  loading = false;
+  errorMessage = '';
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router,
-    private renderer: Renderer2,
+    private router: Router
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      password: ['', Validators.required],
     });
   }
 
-  ngOnInit() {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    this.isDarkMode = prefersDark;
-    if (prefersDark) {
-      this.renderer.addClass(document.body, 'app-dark');
-    } else {
-      this.renderer.removeClass(document.body, 'app-dark');
-    }
+  onLogin(): void {
+    if (this.loginForm.invalid) return;
 
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-      this.isDarkMode = e.matches;
-      if (e.matches) {
-        this.renderer.addClass(document.body, 'app-dark');
-      } else {
-        this.renderer.removeClass(document.body, 'app-dark');
-      }
-    });
-  }
+    const { email, password } = this.loginForm.value;
 
-  toggleDarkMode() {
-    if (document.body.classList.contains('app-dark')) {
-      this.renderer.removeClass(document.body, 'app-dark');
-      this.isDarkMode = false;
-    } else {
-      this.renderer.addClass(document.body, 'app-dark');
-      this.isDarkMode = true;
-    }
-  }
+    this.loading = true;
+    this.errorMessage = '';
 
-
-  login() {
-    if (this.loginForm.valid) {
-      const { email, password } = this.loginForm.value;
-      this.authService
-        .login(email, password)
-        .then(() => this.router.navigate(['/dashboard']))
-        .catch((error) => (this.errorMessage = error.message));
-    }
+    this.authService
+      .login(email, password)
+      .then(() => {
+        this.router.navigate(['/dashboard']);
+      })
+      .catch((error) => {
+        this.errorMessage = error.message || 'Login failed';
+      })
+      .finally(() => {
+        this.loading = false;
+      });
   }
 
   loginWithGoogle() {
@@ -81,6 +53,4 @@ export class LoginComponent {
       .then(() => this.router.navigate(['/dashboard']))
       .catch((error) => (this.errorMessage = error.message));
   }
-
 }
-
