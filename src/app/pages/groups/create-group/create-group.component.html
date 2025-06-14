@@ -16,32 +16,49 @@
                 <label for="groupName">Group Name</label>
             </p-floatlabel>
 
-
-            <!-- Members -->
+            <!-- Members Section -->
             <div class="mt-6">
                 <h1 class="text-lg font-bold text-gray-750">Group Members</h1>
+                
+                <!-- Current User Card -->
+                <div *ngIf="currentUser" class="p-1 rounded-lg cursor-pointer hover:bg-[var(--surface-hover)]">
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 rounded-full bg-blue-200 flex items-center justify-center">
+                            <i class="pi pi-user text-blue-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-lg mb-0">You</p>
+                            <p class="text-sm text-blue-600">{{ currentUser.email }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Other Members -->
                 <div formArrayName="members" class="space-y-4">
                     <div *ngFor="let member of members.controls; let i = index" [formGroupName]="i"
                         class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                        <!-- Member Name -->
-                        <p-floatlabel variant="on" class="w-full">
-                            <input pInputText [id]="'memberName' + i" type="text" formControlName="name" class="w-full"
-                                [ngClass]="{'border-red-300': isArrayFieldInvalid(i, 'name')}" />
-                            <label [for]="'memberName' + i">Member Name</label>
-                        </p-floatlabel>
+                        <!-- Skip the first member as it's the current user -->
+                        <ng-container *ngIf="i > 0">
+                            <!-- Member Name -->
+                            <p-floatlabel variant="on" class="w-full">
+                                <input pInputText [id]="'memberName' + i" type="text" formControlName="name" class="w-full"
+                                    [ngClass]="{'border-red-300': isArrayFieldInvalid(i, 'name')}" />
+                                <label [for]="'memberName' + i">Member Name</label>
+                            </p-floatlabel>
 
-                        <!-- Member Email -->
-                        <p-floatlabel variant="on" class="w-full">
-                            <input pInputText [id]="'memberEmail' + i" type="email" formControlName="email"
-                                class="w-full" [ngClass]="{'border-red-300': isArrayFieldInvalid(i, 'email')}" />
-                            <label [for]="'memberEmail' + i">Member Email</label>
-                        </p-floatlabel>
+                            <!-- Member Email -->
+                            <p-floatlabel variant="on" class="w-full">
+                                <input pInputText [id]="'memberEmail' + i" type="email" formControlName="email"
+                                    class="w-full" [ngClass]="{'border-red-300': isArrayFieldInvalid(i, 'email')}" />
+                                <label [for]="'memberEmail' + i">Member Email</label>
+                            </p-floatlabel>
 
-                        <!-- Remove Button -->
-                        <button type="button" *ngIf="i >= 0" (click)="removeMember(i)"
-                            class="mt-1 text-red-600 hover:text-red-800">
-                            <i class="pi pi-trash" style="font-size: 1.1rem"></i>
-                        </button>
+                            <!-- Remove Button -->
+                            <button type="button" (click)="removeMember(i)"
+                                class="mt-1 text-red-600 hover:text-red-800">
+                                <i class="pi pi-trash" style="font-size: 1.1rem"></i>
+                            </button>
+                        </ng-container>
                     </div>
                 </div>
 

@@ -61,15 +61,14 @@
             <span *ngIf="group.balance > 0">You are owed</span>
             <span *ngIf="group.balance < 0">You owe</span>
             <span *ngIf="group.balance === 0">Settled up</span>
-            <span *ngIf="group.balance !== 0"> {{ group.balance | currency }}</span>
+            <span *ngIf="group.balance !== 0"> {{ group.balance | currency:'INR':'symbol':'1.2-2' }}</span>
           </div>
         </div>
 
         <!-- Total expenses and last activity -->
         <div class="flex justify-between text-sm text-gray-500 dark:text-gray-400">
           <div class="flex items-center">
-            <i class="pi pi-dollar mr-1"></i>
-            <span>{{ group.totalExpenses | currency }}</span>
+            <span>{{ group.totalExpenses | currency:'INR':'symbol':'1.2-2' }}</span>
       </div>
           <div class="flex items-center">
             <i class="pi pi-calendar mr-1"></i>
