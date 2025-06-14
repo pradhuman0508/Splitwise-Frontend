@@ -8,6 +8,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { CardModule } from 'primeng/card';
 import { TooltipModule } from 'primeng/tooltip';
 import { DropdownModule } from 'primeng/dropdown';
+import { CreateGroupComponent } from '../create-group/create-group.component';
 
 @Component({
   selector: 'app-group-list',
@@ -17,6 +18,7 @@ import { DropdownModule } from 'primeng/dropdown';
     FormsModule,
     ButtonModule,
     InputTextModule,
+    CreateGroupComponent,
     CardModule,
     TooltipModule,
     DropdownModule
@@ -139,6 +141,6 @@ export class GroupListComponent implements OnInit {
   }
 
   createNewGroup(): void {
-    this.router.navigate(['/groups/create']);
+    this.router.navigate(['/groups/new']);
   }
 }

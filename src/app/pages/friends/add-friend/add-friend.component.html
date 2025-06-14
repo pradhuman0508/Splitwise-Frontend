@@ -1,1 +1,36 @@
-<p>add-friend works!</p>
+<button pButton label="Add Friend" icon="pi pi-plus" severity="info" class="p-button-primary w-full sm:w-auto"
+    (click)="visible = true"></button>
+<p-dialog maskStyleClass="backdrop-blur-sm" header="Invite Friends" [modal]="true" [(visible)]="visible"
+    [style]="{ width: '28rem' }">
+    <form [formGroup]="friendForm" (ngSubmit)="onSubmit()" class="space-y-6" (keydown.enter)="$event.preventDefault()">
+        <!-- Error messages -->
+        <div *ngIf="formErrors.length > 0" class="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
+            <ul class="list-disc pl-5">
+                <li *ngFor="let error of formErrors" class="text-sm text-red-600">{{ error }}</li>
+            </ul>
+        </div>
+
+        <!-- Email input -->
+        <p-inputgroup>
+            <p-inputgroup-addon>To:</p-inputgroup-addon>
+            <input pInputText formControlName="email" 
+                   placeholder="Enter email addresses" 
+                   (keyup)="handleEmailInput($event)" />
+        </p-inputgroup>
+
+        <!-- Email chips -->
+        <div *ngIf="emailList.length > 0" class="flex flex-wrap gap-2">
+            <div *ngFor="let email of emailList; let i = index" 
+                 class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full flex items-center gap-2">
+                {{ email }}
+                <button type="button" class="text-blue-500 hover:text-blue-700" (click)="removeEmail(i)">
+                    <i class="pi pi-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="flex justify-end">
+            <p-button type="submit" label="Send invites" severity="warn" [loading]="isSubmitting"></p-button>
+        </div>
+    </form>
+</p-dialog>
