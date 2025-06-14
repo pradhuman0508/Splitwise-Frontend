@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, PLATFORM_ID, Inject } from '@angular/core';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from '@angular/fire/auth';
 import { LayoutService } from '../../layout/service/layout.service';
+import { isPlatformBrowser } from '@angular/common';
 
 @Component({
   selector: 'app-login',
@@ -14,13 +15,16 @@ export class LoginComponent {
   loginForm: FormGroup;
   loading = false;
   errorMessage = '';
+  isBrowser: boolean;
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    public layoutService: LayoutService
+    public layoutService: LayoutService,
+    @Inject(PLATFORM_ID) platformId: Object
   ) {
+    this.isBrowser = isPlatformBrowser(platformId);
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
@@ -28,10 +32,13 @@ export class LoginComponent {
   }
 
   toggleDarkMode() {
-    this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
-}
+    if (this.isBrowser) {
+      this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
+    }
+  }
 
   onLogin(): void {
+    if (!this.isBrowser) return;
     if (this.loginForm.invalid) return;
 
     const { email, password } = this.loginForm.value;
@@ -53,8 +60,9 @@ export class LoginComponent {
   }
 
   loginWithGoogle() {
+    if (!this.isBrowser) return;
     const provider = new GoogleAuthProvider();
-    const auth=getAuth();
+    const auth = getAuth();
     signInWithPopup(auth, provider)
       .then(() => this.router.navigate(['/dashboard']))
       .catch((error) => (this.errorMessage = error.message));
