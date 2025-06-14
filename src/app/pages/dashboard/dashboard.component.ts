@@ -5,12 +5,14 @@ import { CommonModule } from "@angular/common";
 import { FormsModule } from '@angular/forms';
 import { AppTopbar } from '../../layout/component/app.topbar';
 import { TableModule } from 'primeng/table';
+import { CreateGroupComponent } from '../groups/create-group/create-group.component';
+import { AddFriendComponent } from '../friends/add-friend/add-friend.component';
 // import { LayoutService } from '../../layout/service/layout.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [TableModule, RouterOutlet,CommonModule,ChartModule,FormsModule,AppTopbar],
+  imports: [TableModule, RouterOutlet,CommonModule,ChartModule,CreateGroupComponent,AddFriendComponent,FormsModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
@@ -165,9 +167,7 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  openNewGroupModal(): void {
-    console.log("Opening new group modal");
-  }
+
 
   openNewExpenseModal(): void {
     console.log("Opening new expense modal");

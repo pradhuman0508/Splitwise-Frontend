@@ -1,1 +1,60 @@
-<p>create-group works!</p>
+<button pButton label="New Group" icon="pi pi-plus" severity="info" class="p-button-primary w-full sm:w-auto"
+    (click)="openNewGroupModal()"></button>
+<p-dialog maskStyleClass="backdrop-blur-sm" header="Create New Group" [modal]="true" [(visible)]="visible">
+    <div class="max-w-2xl mx-auto">
+        <form [formGroup]="groupForm" (ngSubmit)="onSubmit()" class="space-y-6">
+            <!-- Error messages -->
+            <div *ngIf="formErrors.length > 0" class="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
+                <ul class="list-disc pl-5">
+                    <li *ngFor="let error of formErrors" class="text-red-600 text-sm">{{ error }}</li>
+                </ul>
+            </div>
+
+            <!-- Group Name -->
+            <p-floatlabel variant="on" class="w-full mt-2">
+                <input pInputText id="groupName" formControlName="groupName" class="w-full" />
+                <label for="groupName">Group Name</label>
+            </p-floatlabel>
+
+
+            <!-- Members -->
+            <div class="mt-6">
+                <h1 class="text-lg font-bold text-gray-750">Group Members</h1>
+                <div formArrayName="members" class="space-y-4">
+                    <div *ngFor="let member of members.controls; let i = index" [formGroupName]="i"
+                        class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                        <!-- Member Name -->
+                        <p-floatlabel variant="on" class="w-full">
+                            <input pInputText [id]="'memberName' + i" type="text" formControlName="name" class="w-full"
+                                [ngClass]="{'border-red-300': isArrayFieldInvalid(i, 'name')}" />
+                            <label [for]="'memberName' + i">Member Name</label>
+                        </p-floatlabel>
+
+                        <!-- Member Email -->
+                        <p-floatlabel variant="on" class="w-full">
+                            <input pInputText [id]="'memberEmail' + i" type="email" formControlName="email"
+                                class="w-full" [ngClass]="{'border-red-300': isArrayFieldInvalid(i, 'email')}" />
+                            <label [for]="'memberEmail' + i">Member Email</label>
+                        </p-floatlabel>
+
+                        <!-- Remove Button -->
+                        <button type="button" *ngIf="i >= 0" (click)="removeMember(i)"
+                            class="mt-1 text-red-600 hover:text-red-800">
+                            <i class="pi pi-trash" style="font-size: 1.1rem"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Add Member Button -->
+                <p-button label="Add a person" icon="pi pi-plus" variant="text" severity="secondary" styleClass="mt-5"
+                    (click)="addMember()" [disabled]="members.length >= 10" />
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-end">
+                <p-button type="submit" label="Create Group" [disabled]="!groupForm.valid || isSubmitting"
+                severity="warn"></p-button>
+            </div>
+        </form>
+    </div>
+</p-dialog>
