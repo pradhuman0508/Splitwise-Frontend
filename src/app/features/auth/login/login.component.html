@@ -1,0 +1,81 @@
+<div class="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
+  <p-card class="w-full max-w-md">
+    <ng-template pTemplate="header">
+      <h2 class="text-xl font-semibold text-center py-2 text-teal-600 dark:text-teal-300">
+        Login to Warikan
+      </h2>
+    </ng-template>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="space-y-4">
+      <!-- Email Field -->
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+        <input
+          id="email"
+          type="email"
+          pInputText
+          formControlName="email"
+          placeholder="Enter your email"
+          class="w-full mt-1"
+        />
+        <small *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="text-red-500">
+          Valid email is required.
+        </small>
+      </div>
+
+      <!-- Password Field -->
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+        <input
+          id="password"
+          type="password"
+          pInputText
+          formControlName="password"
+          placeholder="Enter your password"
+          class="w-full mt-1"
+        />
+        <small *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="text-red-500">
+          Password is required.
+        </small>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="text-red-500 text-sm">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Login Button -->
+      <button
+        pButton
+        type="submit"
+        label="Login"
+        class="w-full"
+        [disabled]="loginForm.invalid || loading"
+        [loading]="loading"
+      ></button>
+
+      <!-- Divider -->
+      <div class="flex items-center my-4">
+        <hr class="flex-grow border-t border-gray-300 dark:border-gray-700" />
+        <span class="mx-4 text-gray-500 dark:text-gray-400 text-sm">OR</span>
+        <hr class="flex-grow border-t border-gray-300 dark:border-gray-700" />
+      </div>
+
+      <!-- Google Sign-In -->
+      <button
+        pButton
+        type="button"
+        icon="pi pi-google"
+        label="Sign in with Google"
+        class="w-full p-button-outlined p-button-secondary"
+        (click)="loginWithGoogle()"
+      ></button>
+
+      <!-- Register Link -->
+      <div class="text-center text-sm mt-4 text-gray-600 dark:text-gray-400">
+        Don't have an account?
+        <a routerLink="/register" class="text-teal-600 hover:underline dark:text-teal-400">Register here</a>
+      </div>
+    </form>
+  </p-card>
+</div>

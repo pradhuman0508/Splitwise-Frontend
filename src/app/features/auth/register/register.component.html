@@ -1,0 +1,117 @@
+<div class="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
+  <p-card class="w-full max-w-md shadow-md">
+    <ng-template pTemplate="header">
+      <h2 class="text-xl font-semibold text-center text-teal-600 dark:text-teal-300">Register</h2>
+    </ng-template>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="space-y-4 mt-4">
+      <!-- Full Name -->
+      <div>
+        <label for="fullName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
+        <input
+          id="fullName"
+          type="text"
+          pInputText
+          formControlName="fullName"
+          class="w-full"
+          [ngClass]="{'p-invalid': registerForm.get('fullName')?.invalid && registerForm.get('fullName')?.touched}"
+        />
+        <small *ngIf="registerForm.get('fullName')?.touched && registerForm.get('fullName')?.hasError('required')" class="p-error text-red-500">
+          Full name is required.
+        </small>
+      </div>
+
+      <!-- Email -->
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+        <input
+          id="email"
+          type="email"
+          pInputText
+          formControlName="email"
+          class="w-full"
+          [ngClass]="{'p-invalid': registerForm.get('email')?.invalid && registerForm.get('email')?.touched}"
+        />
+        <small *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.hasError('required')" class="p-error text-red-500">
+          Email is required.
+        </small>
+        <small *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.hasError('email')" class="p-error text-red-500">
+          Enter a valid email address.
+        </small>
+      </div>
+
+      <!-- Password -->
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+        <input
+          id="password"
+          type="password"
+          pInputText
+          formControlName="password"
+          class="w-full"
+          [ngClass]="{'p-invalid': registerForm.get('password')?.invalid && registerForm.get('password')?.touched}"
+        />
+        <small *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.hasError('required')" class="p-error text-red-500">
+          Password is required.
+        </small>
+        <small *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.hasError('minlength')" class="p-error text-red-500">
+          Password must be at least 6 characters.
+        </small>
+      </div>
+
+      <!-- Confirm Password -->
+      <div>
+        <label for="confirmPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Confirm Password</label>
+        <input
+          id="confirmPassword"
+          type="password"
+          pInputText
+          formControlName="confirmPassword"
+          class="w-full"
+          [ngClass]="{
+            'p-invalid':
+              (registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched) ||
+              registerForm.errors?.['passwordMismatch']
+          }"
+        />
+        <small *ngIf="registerForm.get('confirmPassword')?.touched && registerForm.get('confirmPassword')?.hasError('required')" class="p-error text-red-500">
+          Please confirm your password.
+        </small>
+        <small *ngIf="registerForm.errors?.['passwordMismatch'] && registerForm.get('confirmPassword')?.touched" class="p-error text-red-500">
+          Passwords do not match.
+        </small>
+      </div>
+
+      <!-- Error Message -->
+      <p *ngIf="errorMessage" class="text-sm text-red-600 dark:text-red-400">{{ errorMessage }}</p>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        pButton
+        label="Register"
+        [disabled]="loading || registerForm.invalid"
+        [loading]="loading"
+        class="w-full"
+      ></button>
+
+      <!-- Google Auth -->
+      <div class="text-center">
+        <span class="text-gray-500 dark:text-gray-400">or</span>
+        <button
+          pButton
+          icon="pi pi-google"
+          label="Sign up with Google"
+          (click)="registerWithGoogle()"
+          class="w-full mt-2 p-button-outlined p-button-secondary"
+        ></button>
+      </div>
+
+      <!-- Already have account -->
+      <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-2">
+        Already have an account?
+        <a routerLink="/login" class="text-teal-600 hover:underline dark:text-teal-400">Login</a>
+      </p>
+    </form>
+  </p-card>
+</div>

@@ -1,0 +1,66 @@
+<nav class="flex items-center justify-between bg-white px-6 py-3 shadow-md">
+  <!-- Logo -->
+  <div class="text-2xl font-bold text-teal-600">
+    <a routerLink="/">Warikan</a>
+  </div>
+
+  <!-- Right Side: Navigation Links + User Menu -->
+  <div class="flex items-center space-x-6">
+
+    <!-- Authenticated View -->
+    <ng-container *ngIf="loggedInUser$ | async as user; else guest">
+      <!-- Feature Navigation -->
+      <a
+        routerLink="/"
+        routerLinkActive="text-teal-600 font-semibold"
+        class="transition hover:text-teal-500 text-gray-700"
+      >Dashboard</a>
+
+      <a
+        routerLink="/friends"
+        routerLinkActive="text-teal-600 font-semibold"
+        class="transition hover:text-teal-500 text-gray-700"
+      >Friends</a>
+
+      <a
+        routerLink="/groups"
+        routerLinkActive="text-teal-600 font-semibold"
+        class="transition hover:text-teal-500 text-gray-700"
+      >Groups</a>
+
+      <a
+        routerLink="/transactions"
+        routerLinkActive="text-teal-600 font-semibold"
+        class="transition hover:text-teal-500 text-gray-700"
+      >Transactions</a>
+
+      <!-- User Avatar Dropdown -->
+      <div class="relative">
+        <p-avatar
+          class="cursor-pointer"
+          shape="circle"
+          [label]="user.displayName ? user.displayName[0].toUpperCase() : '?'"
+          styleClass="bg-teal-600 text-white"
+          (click)="toggleMenu($event)">
+        </p-avatar>
+
+        <p-menu #menu [popup]="true" [model]="userMenu" appendTo="body"></p-menu>
+      </div>
+    </ng-container>
+
+    <!-- Guest View -->
+    <ng-template #guest>
+      <a
+        routerLink="/login"
+        routerLinkActive="text-teal-600 font-semibold"
+        class="transition hover:text-teal-500 text-gray-700"
+      >Login</a>
+
+      <a
+        routerLink="/register"
+        routerLinkActive="text-teal-600 font-semibold"
+        class="transition hover:text-teal-500 text-gray-700"
+      >Register</a>
+    </ng-template>
+  </div>
+</nav>

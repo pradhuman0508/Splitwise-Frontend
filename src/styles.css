@@ -1,1 +1,16 @@
-/* You can add global styles to this file, and also import other style files */
+/* ✅ Tailwind directives after @import */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ✅ Global styles come last */
+*, ::before, ::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f9fafb;
+  margin: 0;
+  padding: 0;
+}
