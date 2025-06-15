@@ -83,23 +83,26 @@
       </div>
       <div class="space-y-3">
         <ng-container *ngIf="!isLoading; else groupsLoading">
-          <div *ngFor="let group of groups.slice(0, 3)" class="p-3 border rounded-lg cursor-pointer hover:bg-[var(--surface-hover)]">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-3">
-                <img [src]="group.avatar" loading="lazy" class="w-10 h-10 rounded-full" [alt]="group.name">
-                <div>
-                  <p class="font-medium">{{group.name}}</p>
-                  <p class="text-sm text-gray-500">{{group.memberCount}} members</p>
+          <div *ngFor="let group of groups.slice(0, 4)">
+            <p-card
+              styleClass="hover:bg-[var(--surface-hover)] shadow-lg hover:shadow-lg transition-shadow duration-900">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                  <img [src]="group.avatar" loading="lazy" class="w-10 h-10 rounded-full" [alt]="group.name">
+                  <div>
+                    <p class="font-medium">{{group.name}}</p>
+                  </div>
                 </div>
+                <span class="text-sm font-medium"
+                  [ngClass]="{'text-green-600': group.balance > 0, 'text-red-600': group.balance < 0}">
+                  {{group.balance | currency:'INR':'symbol':'1.2-2'}}
+                </span>
               </div>
-              <span class="text-sm font-medium" [ngClass]="{'text-green-600': group.balance > 0, 'text-red-600': group.balance < 0}">
-                {{group.balance | currency:'INR':'symbol':'1.2-2'}}
-              </span>
-            </div>
+            </p-card>
           </div>
         </ng-container>
         <ng-template #groupsLoading>
-          <div *ngFor="let i of [1,2,3]" class="p-3 border rounded-lg">
+          <div *ngFor="let i of [1,2,3,4]" class="p-3 border rounded-lg">
             <p-skeleton height="4rem"></p-skeleton>
           </div>
         </ng-template>
@@ -113,19 +116,23 @@
       </div>
       <div class="space-y-3">
         <ng-container *ngIf="!isLoading; else friendsLoading">
-          <div *ngFor="let friend of friends.slice(0, 3)" class="p-3 border rounded-lg cursor-pointer hover:bg-[var(--surface-hover)]">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-3">
-                <img [src]="friend.avatar" loading="lazy" class="w-10 h-10 rounded-full" [alt]="friend.name">
-                <div>
-                  <p class="font-medium">{{friend.name}}</p>
-                  <p class="text-sm text-gray-500">{{friend.email}}</p>
+          <div *ngFor="let friend of friends.slice(0, 3)">
+            <p-card
+              styleClass="hover:bg-[var(--surface-hover)] shadow-lg hover:shadow-lg transition-shadow duration-900">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                  <img [src]="friend.avatar" loading="lazy" class="w-10 h-10 rounded-full" [alt]="friend.name">
+                  <div>
+                    <p class="font-medium mb-0">{{friend.name}}</p>
+                    <p class="text-sm text-gray-500">{{friend.email}}</p>
+                  </div>
                 </div>
+                <span class="text-sm font-medium"
+                  [ngClass]="{'text-green-600': friend.balance > 0, 'text-red-600': friend.balance < 0}">
+                  {{friend.balance | currency:'INR':'symbol':'1.2-2'}}
+                </span>
               </div>
-              <span class="text-sm font-medium" [ngClass]="{'text-green-600': friend.balance > 0, 'text-red-600': friend.balance < 0}">
-                {{friend.balance | currency:'INR':'symbol':'1.2-2'}}
-              </span>
-            </div>
+            </p-card>
           </div>
         </ng-container>
         <ng-template #friendsLoading>

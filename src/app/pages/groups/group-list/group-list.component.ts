@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { GroupsService } from '../groups.service';
+import { GroupsService, Group } from '../groups.service';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -9,6 +9,7 @@ import { CardModule } from 'primeng/card';
 import { TooltipModule } from 'primeng/tooltip';
 import { DropdownModule } from 'primeng/dropdown';
 import { CreateGroupComponent } from '../create-group/create-group.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-group-list',
@@ -26,10 +27,11 @@ import { CreateGroupComponent } from '../create-group/create-group.component';
   templateUrl: './group-list.component.html',
   styleUrl: './group-list.component.scss'
 })
-export class GroupListComponent implements OnInit {
-  groups: any[] = [];
-  filteredGroups: any[] = [];
+export class GroupListComponent implements OnInit, OnDestroy {
+  groups: Group[] = [];
+  filteredGroups: Group[] = [];
   searchQuery: string = '';
+  private subscription!: Subscription;
   sortOptions = [
     { label: 'Name (A-Z)', value: 'name-asc' },
     { label: 'Name (Z-A)', value: 'name-desc' },
@@ -46,51 +48,16 @@ export class GroupListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // In a real app, this would come from the service
-    this.groups = [
-      {
-        id: 1,
-        name: 'Roommates',
-        description: 'Expenses for our apartment',
-        memberCount: 4,
-        balance: 120,
-        totalExpenses: 2450,
-        avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61',
-        lastActivity: new Date('2023-06-15')
-      },
-      {
-        id: 2,
-        name: 'Trip to Paris',
-        description: 'Our amazing vacation',
-        memberCount: 6,
-        balance: -45,
-        totalExpenses: 3200,
-        avatar: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a',
-        lastActivity: new Date('2023-05-20')
-      },
-      {
-        id: 3,
-        name: 'Office Lunch',
-        description: 'Weekly team lunches',
-        memberCount: 8,
-        balance: 25,
-        totalExpenses: 960,
-        avatar: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205',
-        lastActivity: new Date('2023-06-10')
-      },
-      {
-        id: 4,
-        name: 'Book Club',
-        description: 'Monthly book purchases and snacks',
-        memberCount: 5,
-        balance: 15,
-        totalExpenses: 350,
-        avatar: 'https://images.unsplash.com/photo-1495446815901-a7297e633e8d',
-        lastActivity: new Date('2023-06-01')
-      }
-    ];
+    this.subscription = this.groupsService.getGroups().subscribe(groups => {
+      this.groups = groups;
+      this.applyFilters();
+    });
+  }
 
-    this.applyFilters();
+  ngOnDestroy(): void {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 
   applyFilters(): void {
