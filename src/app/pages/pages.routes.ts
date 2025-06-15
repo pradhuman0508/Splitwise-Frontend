@@ -11,13 +11,10 @@ export const routes: Routes = [
     component: AppLayout,
     canActivate: [authGuard],
     children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'empty', component: Empty },
       { path: 'dashboard', component: DashboardComponent },
-      // { path: 'friends', component: FriendListComponent },
-      { path: 'groups', component: GroupListComponent },
-      // { path: 'expenses', component: ExpenseListComponent },
-      // { path: 'balances', component: BalanceSummaryComponent },
-      // { path: '', redirectTo: 'friends', pathMatch: 'full' }  // optional default route
+      { path: 'groups', component: GroupListComponent }
     ]
   },
 ];

@@ -1,7 +1,7 @@
 <div class="flex items-center justify-center h-screen">
   <div class="absolute right-10 top-10">
     <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
-      <i [ngClass]="{ 'pi': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
+      <i class="pi" [class.pi-moon]="layoutService.isDarkTheme()" [class.pi-sun]="!layoutService.isDarkTheme()"></i>
     </button>
   </div>
   <p-card class="w-full max-w-md">
@@ -20,7 +20,7 @@
           formControlName="fullName"
           class="w-full"
           placeholder="Your Name"
-          [ngClass]="{'p-invalid': registerForm.get('fullName')?.invalid && registerForm.get('fullName')?.touched}"
+          [class.p-invalid]="registerForm.get('fullName')?.invalid && registerForm.get('fullName')?.touched"
         />
         <small
           *ngIf="registerForm.get('fullName')?.invalid && registerForm.get('fullName')?.touched"
@@ -40,7 +40,7 @@
           formControlName="email"
           class="w-full"
           placeholder="you@example.com"
-          [ngClass]="{'p-invalid': registerForm.get('email')?.invalid && registerForm.get('email')?.touched}"
+          [class.p-invalid]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
         />
         <small
           *ngIf="registerForm.get('email')?.invalid && (registerForm.get('email')?.dirty || registerForm.get('email')?.touched)"
@@ -61,7 +61,7 @@
           formControlName="password"
           class="w-full"
           placeholder="••••••••"
-          [ngClass]="{'p-invalid': registerForm.get('password')?.invalid && registerForm.get('password')?.touched}"
+          [class.p-invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
         />
         <small
           *ngIf="registerForm.get('password')?.invalid && (registerForm.get('password')?.dirty || registerForm.get('password')?.touched)"
@@ -82,11 +82,7 @@
           formControlName="confirmPassword"
           class="w-full"
           placeholder="••••••••"
-          [ngClass]="{
-            'p-invalid':
-              registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched ||
-              registerForm.hasError('passwordMismatch')
-          }"
+          [class.p-invalid]="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched || registerForm.hasError('passwordMismatch')"
         />
         <small
           *ngIf="registerForm.get('confirmPassword')?.touched && registerForm.hasError('passwordMismatch')"

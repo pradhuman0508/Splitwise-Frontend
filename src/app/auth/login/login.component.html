@@ -1,7 +1,7 @@
 <div class="flex items-center justify-center h-screen">
   <div class="absolute right-10 top-10">
     <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
-      <i [ngClass]="{ 'pi': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
+      <i class="pi" [class.pi-moon]="layoutService.isDarkTheme()" [class.pi-sun]="!layoutService.isDarkTheme()"></i>
     </button>
   </div>
   
@@ -19,7 +19,7 @@
           formControlName="email"
           class="w-full"
           placeholder="you@example.com"
-          [ngClass]="{'p-invalid': loginForm.get('email')?.invalid && loginForm.get('email')?.touched}"
+          [class.p-invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
         />
         <small
           *ngIf="loginForm.get('email')?.invalid && (loginForm.get('email')?.dirty || loginForm.get('email')?.touched)"
@@ -39,7 +39,7 @@
           formControlName="password"
           class="w-full"
           placeholder="••••••••"
-          [ngClass]="{'p-invalid': loginForm.get('password')?.invalid && loginForm.get('password')?.touched}"
+          [class.p-invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
         />
         <small
           *ngIf="loginForm.get('password')?.invalid && (loginForm.get('password')?.dirty || loginForm.get('password')?.touched)"

@@ -1,4 +1,4 @@
-import Aura  from '@primeng/themes/aura';
+import Aura from '@primeng/themes/aura';
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideHttpClient, withFetch } from '@angular/common/http';
 import { provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScrolling  } from '@angular/router';
@@ -7,8 +7,11 @@ import { provideClientHydration } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import { definePreset } from "@primeng/themes";
-import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
-import { getAuth, provideAuth, browserLocalPersistence, setPersistence } from '@angular/fire/auth';
+import { initializeApp, provideFirebaseApp, getApp } from '@angular/fire/app';
+import { getAuth, provideAuth, browserLocalPersistence, initializeAuth, indexedDBLocalPersistence } from '@angular/fire/auth';
+import { PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { inject } from '@angular/core';
 
 export const appConfig: ApplicationConfig = {
   providers: [provideAnimationsAsync(),
@@ -26,10 +29,8 @@ export const appConfig: ApplicationConfig = {
         routes, 
         withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }), 
         withEnabledBlockingInitialNavigation()
-        
     ),
     provideClientHydration(),
-
     provideFirebaseApp(() => 
         initializeApp({
             "projectId":"splitwiseclone-49479",
@@ -41,8 +42,13 @@ export const appConfig: ApplicationConfig = {
             "measurementId":"G-MR1W4X880F"
         })),
     provideAuth(() => {
-        const auth = getAuth();
-        setPersistence(auth, browserLocalPersistence);
-        return auth;
+        const platformId = inject(PLATFORM_ID);
+        const app = getApp();
+        if (isPlatformBrowser(platformId)) {
+            return initializeAuth(app, {
+                persistence: [indexedDBLocalPersistence, browserLocalPersistence]
+            });
+        }
+        return getAuth(app);
     })]
 };

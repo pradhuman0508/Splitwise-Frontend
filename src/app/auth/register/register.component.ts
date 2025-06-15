@@ -1,14 +1,29 @@
 import { Component } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Validators, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from '@angular/fire/auth';
 import { LayoutService } from '../../layout/service/layout.service';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
+import { MessageModule } from 'primeng/message';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
-  styleUrl: './register.component.scss'
+  styleUrl: './register.component.scss',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterModule,
+    CardModule,
+    InputTextModule,
+    ButtonModule,
+    MessageModule
+  ]
 })
 export class RegisterComponent {
   registerForm: FormGroup;
