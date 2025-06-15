@@ -34,9 +34,9 @@ export class RegisterComponent {
     private router: Router
   ) {
     this.registerForm = this.fb.group({
-      fullName: ['', Validators.required],
+      fullName: ['', Validators.required,Validators.pattern('^[a-zA-Z ]+$')],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      password: ['', [Validators.required, Validators.minLength(8), Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$')]], // At least 8 characters, one uppercase, one lowercase, one number
       confirmPassword: ['', Validators.required]
     },
     { validators: this.passwordMatchValidator });
