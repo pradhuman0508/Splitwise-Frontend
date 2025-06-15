@@ -1,5 +1,5 @@
 import { inject, Injectable, PLATFORM_ID, Inject } from '@angular/core';
-import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, authState, signOut, browserLocalPersistence, setPersistence } from '@angular/fire/auth';
+import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, authState, signOut } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { of } from 'rxjs';
@@ -16,14 +16,6 @@ export class AuthService {
     @Inject(PLATFORM_ID) platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
-    
-    // Only set persistence in browser environment
-    if (this.isBrowser) {
-      setPersistence(this.auth, browserLocalPersistence)
-        .catch((error) => {
-          console.error('Error setting persistence:', error);
-        });
-    }
   }
 
   // Login with email and password
