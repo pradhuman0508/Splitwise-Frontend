@@ -12,14 +12,43 @@
 
             <!-- Group Name -->
             <p-floatlabel variant="on" class="w-full mt-2">
-                <input pInputText id="groupName" formControlName="groupName" class="w-full" />
-                <label for="groupName">Group Name</label>
+                <input pInputText id="name" formControlName="name" class="w-full" />
+                <label for="name">Group Name</label>
             </p-floatlabel>
+
+            <!-- Group Description -->
+            <p-floatlabel variant="on" class="w-full mt-2">
+                <textarea pTextarea id="description" formControlName="description" class="w-full" rows="3"></textarea>
+                <label for="description">Description</label>
+            </p-floatlabel>
+
+            <!-- Group Poster Image -->
+            <div class="mt-4">
+                <div class="flex items-center gap-4">
+
+                    <p-fileUpload #fileUpload mode="basic" [auto]="true" chooseLabel="Choose group photo" chooseIcon="pi pi-upload" variant="text" accept="image/*"
+                        [maxFileSize]="1000000" (onSelect)="onImageSelect($event)" [showCancelButton]="false"
+                        pTooltip="Max file size: 1MB. Supported formats: JPG, PNG" tooltipPosition="right"
+                        placeholder="Right">
+                    </p-fileUpload>
+
+                    <!-- Image Preview -->
+                    <div *ngIf="selectedImage" class="relative">
+                        <img [src]="selectedImage" class="h-24 w-24 object-cover rounded-lg border">
+                        <button type="button" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
+                            (click)="removeImage()">
+                            <i class="pi pi-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <!-- <input type="text" pInputText pTooltip="Max file size: 1MB. Supported formats: JPG, PNG" tooltipPosition="bottom" placeholder="Bottom" /> -->
+
+            </div>
 
             <!-- Members Section -->
             <div class="mt-6">
                 <h1 class="text-lg font-bold text-gray-750">Group Members</h1>
-                
+
                 <!-- Current User Card -->
                 <div *ngIf="currentUser" class="p-1 rounded-lg cursor-pointer hover:bg-[var(--surface-hover)]">
                     <div class="flex items-center gap-4">
@@ -70,7 +99,7 @@
             <!-- Submit Button -->
             <div class="flex justify-end">
                 <p-button type="submit" label="Create Group" [disabled]="!groupForm.valid || isSubmitting"
-                severity="warn"></p-button>
+                    severity="warn"></p-button>
             </div>
         </form>
     </div>

@@ -2,12 +2,16 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { InputTextModule } from 'primeng/inputtext';
+import { Tooltip } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { FloatLabelModule } from "primeng/floatlabel"
 import { Router } from '@angular/router';
 import { Dialog } from 'primeng/dialog';
 import { AuthService } from '../../../core/auth.service';
 import { getAuth, User } from '@angular/fire/auth';
+import { FileUploadModule } from 'primeng/fileupload';
+import { TextareaModule } from 'primeng/textarea';
+import { GroupsService, Group } from '../groups.service';
 
 @Component({
   selector: 'app-create-group',
@@ -18,7 +22,10 @@ import { getAuth, User } from '@angular/fire/auth';
     ReactiveFormsModule,
     InputTextModule,
     ButtonModule,
-    FloatLabelModule
+    Tooltip,
+    FloatLabelModule,
+    FileUploadModule,
+    TextareaModule
   ],
   templateUrl: './create-group.component.html'
 })
@@ -28,14 +35,18 @@ export class CreateGroupComponent implements OnInit {
   formErrors: string[] = [];
   isSubmitting = false;
   currentUser: User | null = null;
+  selectedImage: string | null = null;
+  imageFile: File | null = null;
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private groupsService: GroupsService
   ) {
     this.groupForm = this.fb.group({
-      groupName: ['', Validators.required],
+      name: ['', Validators.required],
+      description: [''],
       members: this.fb.array([])
     });
   }
@@ -106,6 +117,24 @@ export class CreateGroupComponent implements OnInit {
     return '';
   }
 
+  onImageSelect(event: any): void {
+    const file = event.files[0];
+    if (file) {
+      this.imageFile = file;
+      // Create a preview URL
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.selectedImage = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  removeImage(): void {
+    this.selectedImage = null;
+    this.imageFile = null;
+  }
+
   onSubmit() {
     this.formErrors = [];
     if (this.groupForm.invalid) {
@@ -122,20 +151,26 @@ export class CreateGroupComponent implements OnInit {
     this.isSubmitting = true;
 
     try {
-      // Get the form value including the current user
-      const formValue = {
-        ...this.groupForm.value,
-        members: this.members.getRawValue()
+      // Create the group object with the desired structure
+      const group: Group = {
+        id: this.groupsService.getNextId(),
+        name: this.groupForm.value.name,
+        description: this.groupForm.value.description || '',
+        memberCount: this.members.length,
+        balance: 0, // Initial balance
+        totalExpenses: 0, // Initial expenses
+        avatar: this.selectedImage || '', // Use the uploaded image URL
+        lastActivity: new Date() // Current date as the creation date
       };
 
-      // Simulate API call
-      setTimeout(() => {
-        // On success:
-        this.isSubmitting = false;
-        this.visible = false; // Close the dialog
-        this.resetForm();
-        console.log('Group created successfully:', formValue);
-      }, 1500);
+      // Add the group through the service
+      this.groupsService.addGroup(group);
+
+      // Close dialog and reset form
+      this.isSubmitting = false;
+      this.visible = false;
+      this.resetForm();
+      console.log('Group created successfully:', group);
     } catch (error) {
       this.isSubmitting = false;
       this.formErrors.push('Failed to create group. Please try again.');
@@ -145,9 +180,14 @@ export class CreateGroupComponent implements OnInit {
 
   private resetForm() {
     this.groupForm = this.fb.group({
-      groupName: ['', Validators.required],
+      name: ['', Validators.required],
+      description: [''],
       members: this.fb.array([])
     });
+    
+    // Reset image
+    this.selectedImage = null;
+    this.imageFile = null;
     
     // Re-add current user and empty member slots
     if (this.currentUser) {

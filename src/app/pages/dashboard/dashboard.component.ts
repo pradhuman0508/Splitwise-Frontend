@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 import { CommonModule } from "@angular/common";
 import { FormsModule } from '@angular/forms';
-import { AppTopbar } from '../../layout/component/app.topbar';
+import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { CreateGroupComponent } from '../groups/create-group/create-group.component';
 import { AddFriendComponent } from '../friends/add-friend/add-friend.component';
@@ -13,14 +13,15 @@ import { SkeletonModule } from 'primeng/skeleton';
   selector: 'app-dashboard',
   standalone: true,
   imports: [
-    TableModule, 
+    TableModule,
     RouterOutlet,
     CommonModule,
     ChartModule,
     CreateGroupComponent,
     AddFriendComponent,
     FormsModule,
-    SkeletonModule
+    SkeletonModule,
+    CardModule
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
@@ -100,6 +101,12 @@ export class DashboardComponent implements OnInit {
         memberCount: 8,
         balance: 25,
         avatar: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=64"
+      },
+      {
+        name: 'Book Club',
+        memberCount: 5,
+        balance: 15,
+        avatar: 'https://images.unsplash.com/photo-1495446815901-a7297e633e8d'
       }
     ];
   }
@@ -160,7 +167,7 @@ export class DashboardComponent implements OnInit {
   private async initializeChart(): Promise<void> {
     // Load chart data asynchronously
     await new Promise(resolve => setTimeout(resolve, 100));
-    
+
     this.doughnutData = {
       labels: ['Groceries', 'Rent', 'Utilities', 'Entertainment'],
       datasets: [
