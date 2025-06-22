@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 
 export interface Group {
   id: number;
@@ -10,6 +12,10 @@ export interface Group {
   totalExpenses: number;
   avatar: string;
   lastActivity: Date;
+}
+
+interface GroupAvatarResponse {
+  avatarUrl: string;
 }
 
 @Injectable({
@@ -61,7 +67,9 @@ export class GroupsService {
 
   private groupsSubject = new BehaviorSubject<Group[]>(this.groups);
 
-  constructor() { }
+  private apiUrl = '/api'; // Changed to relative URL
+
+  constructor(private router: Router, private http: HttpClient) { }
 
   getGroups(): Observable<Group[]> {
     return this.groupsSubject.asObservable();
@@ -74,5 +82,37 @@ export class GroupsService {
 
   getNextId(): number {
     return Math.max(...this.groups.map(g => g.id), 0) + 1;
+  }
+
+  navigateToGroup(groupId: string | number): void {
+    this.router.navigate(['/group', groupId]);
+  }
+
+  updateGroupAvatar(groupId: string, formData: FormData): Observable<GroupAvatarResponse> {
+    return this.http.put<GroupAvatarResponse>(`${this.apiUrl}/groups/${groupId}/avatar`, formData);
+  }
+
+  updateGroupAvatarLocally(groupId: number, avatarUrl: string): void {
+    const groupIndex = this.groups.findIndex(g => g.id === groupId);
+    if (groupIndex !== -1) {
+      this.groups[groupIndex] = {
+        ...this.groups[groupIndex],
+        avatar: avatarUrl,
+        lastActivity: new Date()
+      };
+      this.groupsSubject.next([...this.groups]);
+    }
+  }
+
+  updateGroupNameLocally(groupId: number, newName: string): void {
+    const groupIndex = this.groups.findIndex(g => g.id === groupId);
+    if (groupIndex !== -1) {
+      this.groups[groupIndex] = {
+        ...this.groups[groupIndex],
+        name: newName,
+        lastActivity: new Date()
+      };
+      this.groupsSubject.next([...this.groups]);
+    }
   }
 }

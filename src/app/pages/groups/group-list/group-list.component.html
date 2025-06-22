@@ -14,16 +14,15 @@
         <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
           <i class="pi pi-search text-gray-400"></i>
         </div>
-        <input type="text" [(ngModel)]="searchQuery"
-               (input)="onSearch()" placeholder="Search groups..."
-               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
+        <input type="text" [(ngModel)]="searchQuery" (input)="onSearch()" placeholder="Search groups..."
+          class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
       </div>
     </div>
 
     <!-- Sort dropdown -->
     <div class="w-full sm:w-auto">
       <select [(ngModel)]="selectedSort" (change)="onSortChange()"
-              class="w-full sm:w-auto pl-4 pr-8 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white">
+        class="w-full sm:w-auto pl-4 pr-8 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white">
         <option value="" disabled selected>Sort by</option>
         <option *ngFor="let option of sortOptions" [value]="option.value">
           {{ option.label }}
@@ -35,16 +34,16 @@
   <!-- Group cards grid -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     <div *ngFor="let group of filteredGroups"
-         class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden cursor-pointer"
-         (click)="viewGroupDetails(group.id)">
+      class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden cursor-pointer"
+      (click)="navigateToGroup(group.id)">
       <!-- Group image and name section -->
       <div class="relative h-40 bg-blue-100 dark:bg-blue-900">
         <img [src]="group.avatar" [alt]="group.name" class="w-full h-full object-cover" />
         <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
           <h2 class="text-white text-xl font-bold truncate">{{ group.name }}</h2>
           <p class="text-white/80 text-sm truncate">{{ group.description }}</p>
-          </div>
-          </div>
+        </div>
+      </div>
 
       <!-- Group details section -->
       <div class="p-4">
@@ -54,8 +53,7 @@
             <i class="pi pi-users mr-2 text-gray-600 dark:text-gray-300"></i>
             <span class="text-gray-600 dark:text-gray-300">{{ group.memberCount }} members</span>
           </div>
-          <div class="text-sm font-medium"
-               [ngClass]="{'text-green-600 dark:text-green-400': group.balance > 0,
+          <div class="text-sm font-medium" [ngClass]="{'text-green-600 dark:text-green-400': group.balance > 0,
                           'text-red-600 dark:text-red-400': group.balance < 0,
                           'text-gray-600 dark:text-gray-400': group.balance === 0}">
             <span *ngIf="group.balance > 0">You are owed</span>
@@ -68,23 +66,24 @@
         <!-- Total expenses and last activity -->
         <div class="flex justify-between text-sm text-gray-500 dark:text-gray-400">
           <div class="flex items-center">
-            <span>{{ group.totalExpenses | currency:'INR':'symbol':'1.2-2' }}</span>
-      </div>
-          <div class="flex items-center">
+            <span [pTooltip]="'Total expense'" showDelay="300" hideDelay="400" tooltipPosition="top">
+              {{ group.totalExpenses | currency:'INR':'symbol':'1.2-2' }}
+
+            </span>
+          </div>
+          <div class="flex items-center" [pTooltip]="'Created at'" showDelay="300" hideDelay="400" tooltipPosition="top">
             <i class="pi pi-calendar mr-1"></i>
             <span>{{ group.lastActivity | date:'mediumDate' }}</span>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-  </div>
-</div>
   </div>
 
   <!-- Empty state -->
   <div *ngIf="filteredGroups.length === 0" class="text-center py-8 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-    <i class="pi pi-search text-4xl text-gray-400 mb-4"></i>
+    <i class="pi pi-search text-gray-400"></i>
     <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-300">No groups found</h3>
     <p class="text-gray-500 dark:text-gray-400 mt-2">Try adjusting your search or create a new group</p>
-    <button pButton label="Create New Group" icon="pi pi-plus"
-            class="p-button-primary mt-4" (click)="createNewGroup()"></button>
   </div>
 </div>

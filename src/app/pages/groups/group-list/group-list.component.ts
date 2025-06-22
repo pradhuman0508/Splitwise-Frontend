@@ -103,8 +103,8 @@ export class GroupListComponent implements OnInit, OnDestroy {
     this.sortGroups();
   }
 
-  viewGroupDetails(groupId: number): void {
-    this.router.navigate(['/groups', groupId]);
+  navigateToGroup(groupId: number): void {
+    this.groupsService.navigateToGroup(groupId);
   }
 
   createNewGroup(): void {

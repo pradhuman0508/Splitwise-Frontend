@@ -8,6 +8,8 @@ import { TableModule } from 'primeng/table';
 import { CreateGroupComponent } from '../groups/create-group/create-group.component';
 import { AddFriendComponent } from '../friends/add-friend/add-friend.component';
 import { SkeletonModule } from 'primeng/skeleton';
+import { GroupsService } from '../groups/groups.service';
+import { PanelModule } from 'primeng/panel';
 
 @Component({
   selector: 'app-dashboard',
@@ -21,7 +23,8 @@ import { SkeletonModule } from 'primeng/skeleton';
     AddFriendComponent,
     FormsModule,
     SkeletonModule,
-    CardModule
+    CardModule,
+    PanelModule
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
@@ -46,7 +49,7 @@ export class DashboardComponent implements OnInit {
   doughnutData: any;
   doughnutOptions: any;
 
-  constructor() {
+  constructor(private groupsService: GroupsService) {
     // Initialize empty data structures
     this.initializeEmptyData();
   }
@@ -85,24 +88,28 @@ export class DashboardComponent implements OnInit {
     await new Promise(resolve => setTimeout(resolve, 100));
     this.groups = [
       {
+        id: 1,
         name: "Roommates",
         memberCount: 4,
         balance: 120,
         avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=64"
       },
       {
+        id: 2,
         name: "Trip to Paris",
         memberCount: 6,
         balance: -45,
         avatar: "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=64"
       },
       {
+        id: 3,
         name: "Office Lunch",
         memberCount: 8,
         balance: 25,
         avatar: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=64"
       },
       {
+        id: 4,
         name: 'Book Club',
         memberCount: 5,
         balance: 15,
@@ -241,5 +248,9 @@ export class DashboardComponent implements OnInit {
 
   addNewFriend(): void {
     console.log("Opening add friend modal");
+  }
+
+  navigateToGroup(groupId: string | number): void {
+    this.groupsService.navigateToGroup(groupId);
   }
 }

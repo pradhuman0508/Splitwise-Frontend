@@ -84,9 +84,9 @@
       <div class="space-y-3">
         <ng-container *ngIf="!isLoading; else groupsLoading">
           <div *ngFor="let group of groups.slice(0, 4)">
-            <p-card
-              styleClass="hover:bg-[var(--surface-hover)] shadow-lg hover:shadow-lg transition-shadow duration-900">
-              <div class="flex items-center justify-between">
+            <p-panel [showHeader]="false" styleClass="shadow-lg hover:shadow-lg transition-shadow duration-900 cursor-pointer"
+              (click)="navigateToGroup(group.id)">
+              <div class="flex items-center justify-between pt-4">
                 <div class="flex items-center space-x-3">
                   <img [src]="group.avatar" loading="lazy" class="w-10 h-10 rounded-full" [alt]="group.name">
                   <div>
@@ -98,7 +98,7 @@
                   {{group.balance | currency:'INR':'symbol':'1.2-2'}}
                 </span>
               </div>
-            </p-card>
+            </p-panel>
           </div>
         </ng-container>
         <ng-template #groupsLoading>
@@ -117,9 +117,8 @@
       <div class="space-y-3">
         <ng-container *ngIf="!isLoading; else friendsLoading">
           <div *ngFor="let friend of friends.slice(0, 3)">
-            <p-card
-              styleClass="hover:bg-[var(--surface-hover)] shadow-lg hover:shadow-lg transition-shadow duration-900">
-              <div class="flex items-center justify-between">
+            <p-panel [showHeader]="false" styleClass="shadow-lg hover:shadow-lg transition-shadow duration-900 cursor-pointer">
+              <div class="flex items-center justify-between pt-4">
                 <div class="flex items-center space-x-3">
                   <img [src]="friend.avatar" loading="lazy" class="w-10 h-10 rounded-full" [alt]="friend.name">
                   <div>
@@ -132,7 +131,7 @@
                   {{friend.balance | currency:'INR':'symbol':'1.2-2'}}
                 </span>
               </div>
-            </p-card>
+            </p-panel>
           </div>
         </ng-container>
         <ng-template #friendsLoading>
