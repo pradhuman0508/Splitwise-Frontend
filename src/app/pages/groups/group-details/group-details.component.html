@@ -1,0 +1,22 @@
+<div class="p-4">
+    <div class="pb-2 mx-auto">
+        <p-message size="small" severity="secondary" variant="simple">Created</p-message>
+        <p-message size="small" severity="secondary" variant="simple">{{ group?.lastActivity | date:'mediumDate' }}</p-message>
+    </div>
+    <div class="pb-2 w-[245px] mx-auto">
+        <p-message size="small" severity="secondary" variant="simple">Description</p-message>
+        <div class="flex flex-row justify-between">
+            <p-message severity="secondary" variant="simple">{{ group?.description }}</p-message>
+            <p-button icon="pi pi-pencil" size="small" variant="text" severity="secondary" (click)="startDescriptionEdit($event)"/>
+        </div>
+    </div>
+
+    <div class="border-tp">
+        <div class="flex items-center gap-2 pt-3">
+            <p-button label="Exit group" styleClass="w-[120px]" size="small" variant="text" severity="secondary"
+                [raised]="true" />
+            <p-button label="Delete group" size="small" styleClass="w-[120px]" variant="text" [raised]="true"
+                severity="danger" />
+        </div>
+    </div>
+</div>
