@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { GroupsService } from '../groups.service';
+import { Group, GroupMember, GroupsService } from '../groups.service';
 import { ExpensesService } from '../../expenses/expenses.service';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -40,14 +40,12 @@ import { GroupMemberComponent } from '../group-member/group-member.component';
 })
 export class GroupDetailComponent implements OnInit {
   groupId: number = 0;
-  group: any = null;
+  group: Group | null = null;
   showEditDialog: boolean = false;
   editedGroup: any = {};
   menuItems: MenuItem[] = [];
   activeTabIndex: number = 0;
-
-  // Mock members data
-  members: any[] = [];
+  members: GroupMember[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -58,60 +56,49 @@ export class GroupDetailComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
-      this.groupId = +params['id'];
-      this.loadGroupDetails();
+      this.groupId = 1;
+      // this.groupId = +params['id'];
+      if (this.groupId) {
+        this.loadGroupDetails();
+        this.loadGroupMembers();
+      }
     });
 
     this.setupMenuItems();
-}
+  }
 
   loadGroupDetails(): void {
-    // In a real app, this would come from the service
-    this.group = {
-      id: this.groupId,
-      name: 'Roommates',
-      description: 'Expenses for our apartment',
-      memberCount: 4,
-      balance: 120,
-      totalExpenses: 2450,
-      avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61',
-      lastActivity: new Date('2023-06-15'),
-      createdAt: new Date('2023-01-10')
-    };
-
-    // Mock members data
-    this.members = [
-      {
-        id: 1,
-        name: 'John Doe',
-        email: 'john@example.com',
-        avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36',
-        balance: 50
+    this.groupsService.getGroups().subscribe({
+      next: (groups) => {
+        const foundGroup = groups.find(g => g.id === this.groupId);
+        if (foundGroup) {
+          this.group = foundGroup;
+          this.editedGroup = { ...foundGroup };
+        } else {
+          // Handle case when group is not found
+          console.error('Group not found');
+          this.router.navigate(['/groups']);
+        }
       },
-      {
-        id: 2,
-        name: 'Jane Smith',
-        email: 'jane@example.com',
-        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
-        balance: -30
-      },
-      {
-        id: 3,
-        name: 'Mike Johnson',
-        email: 'mike@example.com',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d',
-        balance: 100
-      },
-      {
-        id: 4,
-        name: 'Sarah Williams',
-        email: 'sarah@example.com',
-        avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80',
-        balance: 0
+      error: (error) => {
+        console.error('Error loading group details:', error);
+        // Handle error appropriately
       }
-    ];
+    });
+  }
 
-    this.editedGroup = { ...this.group };
+  loadGroupMembers(): void {
+    if (!this.groupId) return;
+    
+    this.groupsService.getGroupMembers(this.groupId).subscribe({
+      next: (members) => {
+        this.members = members;
+      },
+      error: (error) => {
+        console.error('Error loading group members:', error);
+        this.members = [];
+      }
+    });
   }
 
   setupMenuItems(): void {

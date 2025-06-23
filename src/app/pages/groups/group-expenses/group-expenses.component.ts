@@ -3,29 +3,14 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { AvatarModule } from 'primeng/avatar';
 import { TagModule } from 'primeng/tag';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
-import { InplaceModule } from 'primeng/inplace';
-import { GroupsService } from '../groups.service';
+import { GroupsService, Expense, GroupedExpenses, Group, GroupMember } from '../groups.service';
 import { GroupDetailsComponent } from '../group-details/group-details.component';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
-
-interface Expense {
-  id: string;
-  description: string;
-  paidBy: string;
-  amount: number;
-  createdAt: Date;
-  updatedAt: Date;
-  status: 'settled' | 'unsettled';
-}
-
-interface GroupedExpenses {
-  month: string;
-  expenses: Expense[];
-}
+import { AvatarGroup } from 'primeng/avatargroup';
+import { Avatar } from 'primeng/avatar';  
 
 @Component({
   selector: 'app-group-expenses',
@@ -37,23 +22,20 @@ interface GroupedExpenses {
     DatePipe,
     ButtonModule,
     CardModule,
-    AvatarModule,
     TagModule,
     ScrollPanelModule,
-    InplaceModule,
     GroupDetailsComponent,
-    ToastModule
+    ToastModule,
+    AvatarGroup,
+    Avatar
   ],
   providers: [MessageService]
 })
 export class GroupExpensesComponent implements OnInit {
   groupId: string | undefined;
-  groupName: string | undefined;
-  memberCount: number | undefined;
-  groupImage: string | undefined;
-  balance: number | undefined;
-  totalExpenses: number | undefined;
+  group?: Group;
   expenses: Expense[] = [];
+  members: GroupMember[] = [];
   groupedExpenses: GroupedExpenses[] = [];
   isUploadingAvatar = false;
   isEditingName = false;
@@ -67,7 +49,6 @@ export class GroupExpensesComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    // Get the group ID from the route parameters
     this.route.params.subscribe(params => {
       this.groupId = params['id'];
       this.loadGroupData();
@@ -77,6 +58,7 @@ export class GroupExpensesComponent implements OnInit {
   isExpanded = false;
 
   @ViewChild('cardRef') cardRef!: ElementRef;
+  @ViewChild('nameInput') nameInput!: ElementRef;
 
   toggleSlide() {
     console.log('toggleSlide', this.isExpanded);
@@ -98,26 +80,19 @@ export class GroupExpensesComponent implements OnInit {
   }
 
   onClickDisableDropDown(event: Event) {
-    // Prevent the click event from bubbling up to parent elements
     event.stopPropagation();
   }
 
   startNameEdit(event: Event) {
     event.stopPropagation();
-    this.previousName = this.groupName;
+    this.previousName = this.group?.name;
     this.isEditingName = true;
-    // Focus the input element in the next tick
     setTimeout(() => {
-      const input = document.querySelector('input') as HTMLInputElement;
-      if (input) {
-        input.focus();
-        input.select();
-      }
+      this.nameInput?.nativeElement?.focus();
     });
   }
 
   saveGroupName(newName: string) {
-    // Don't save if we're not in edit mode
     if (!this.isEditingName) {
       return;
     }
@@ -132,14 +107,14 @@ export class GroupExpensesComponent implements OnInit {
       return;
     }
 
-    // Update locally first
     const trimmedName = newName.trim();
     Promise.resolve().then(() => {
-      this.groupName = trimmedName;
+      if (!this.group) return;
+      this.group.name = trimmedName;
       this.isEditingName = false;
       this.groupsService.updateGroupNameLocally(Number(this.groupId), trimmedName);
       this.cdr.detectChanges();
-      
+
       this.messageService.add({
         severity: 'success',
         summary: 'Success',
@@ -151,148 +126,72 @@ export class GroupExpensesComponent implements OnInit {
   cancelNameEdit() {
     Promise.resolve().then(() => {
       this.isEditingName = false;
-      this.groupName = this.previousName;
+      if (this.group) {
+        this.group.name = this.previousName || '';
+      }
       this.cdr.detectChanges();
     });
   }
 
   loadGroupData() {
-    // Subscribe to get the groups and find the specific group
     this.groupsService.getGroups().subscribe(groups => {
-      const group = groups.find(g => g.id === Number(this.groupId));
-      if (group) {
-        this.groupName = group.name;
-        this.memberCount = group.memberCount;
-        this.groupImage = group.avatar;
-        this.balance = group.balance;
-        this.totalExpenses = group.totalExpenses;
-      }
+      this.group = groups.find(g => g.id === Number(this.groupId));
     });
 
-    // TODO: Replace this with actual API call to fetch expense data
-    // This is dummy data for demonstration
-    this.expenses = [
-      {
-        id: '1',
-        description: 'Dinner at Italian Restaurant',
-        paidBy: 'John Doe',
-        amount: 120.50,
-        createdAt: new Date('2024-03-15'),
-        updatedAt: new Date('2024-03-15'),
-        status: 'unsettled'
-      },
-      {
-        id: '2',
-        description: 'Movie Tickets',
-        paidBy: 'Jane Smith',
-        amount: 75.00,
-        createdAt: new Date('2024-03-10'),
-        updatedAt: new Date('2024-03-10'),
-        status: 'settled'
-      },
-      {
-        id: '3',
-        description: 'Groceries',
-        paidBy: 'Mike Johnson',
-        amount: 95.30,
-        createdAt: new Date('2024-02-28'),
-        updatedAt: new Date('2024-02-28'),
-        status: 'unsettled'
-      },
-      {
-        id: '4',
-        description: 'Rent',
-        paidBy: 'Yash',
-        amount: 7000,
-        createdAt: new Date('2024-03-28'),
-        updatedAt: new Date('2024-03-28'),
-        status: 'settled'
-      },
-      {
-        id: '2',
-        description: 'Movie Tickets',
-        paidBy: 'Jane Smith',
-        amount: 75.00,
-        createdAt: new Date('2024-03-10'),
-        updatedAt: new Date('2024-03-10'),
-        status: 'settled'
-      },
-      {
-        id: '3',
-        description: 'Groceries',
-        paidBy: 'Mike Johnson',
-        amount: 95.30,
-        createdAt: new Date('2024-02-28'),
-        updatedAt: new Date('2024-02-28'),
-        status: 'unsettled'
-      },
-      {
-        id: '4',
-        description: 'Rent',
-        paidBy: 'Yash',
-        amount: 7000,
-        createdAt: new Date('2024-03-28'),
-        updatedAt: new Date('2024-03-28'),
-        status: 'settled'
-      },
-      {
-        id: '2',
-        description: 'Movie Tickets',
-        paidBy: 'Jane Smith',
-        amount: 75.00,
-        createdAt: new Date('2024-03-10'),
-        updatedAt: new Date('2024-03-10'),
-        status: 'settled'
-      },
-      {
-        id: '3',
-        description: 'Groceries',
-        paidBy: 'Mike Johnson',
-        amount: 95.30,
-        createdAt: new Date('2024-02-28'),
-        updatedAt: new Date('2024-02-28'),
-        status: 'unsettled'
-      },
-      {
-        id: '4',
-        description: 'Rent',
-        paidBy: 'Yash',
-        amount: 7000,
-        createdAt: new Date('2024-03-28'),
-        updatedAt: new Date('2024-03-28'),
-        status: 'settled'
-      }
-    ];
+    if (this.groupId) {
+      this.groupsService.getGroupExpenses(Number(this.groupId)).subscribe(expenses => {
+        // Ensure dates are properly parsed
+        this.expenses = expenses.map(expense => ({
+          ...expense,
+          createdAt: new Date(expense.createdAt),
+          updatedAt: new Date(expense.updatedAt)
+        }));
+        this.groupExpensesByMonth();
+      });
+      this.loadGroupMembers();
+    }
+  }
+  
 
-    this.groupExpensesByMonth();
+  loadGroupMembers() {
+    this.groupsService.getGroupMembers(Number(this.groupId)).subscribe(members => {
+      this.members = members;
+    });
   }
 
   groupExpensesByMonth() {
     const grouped = new Map<string, Expense[]>();
+    const monthOrder = new Map<string, number>();
 
     this.expenses.forEach(expense => {
-      const monthYear = expense.createdAt.toLocaleString('default', { month: 'long', year: 'numeric' });
+      const date = expense.createdAt;
+      const monthYear = date.toLocaleString('default', { month: 'long', year: 'numeric' });
       if (!grouped.has(monthYear)) {
         grouped.set(monthYear, []);
+        // Store a sortable value for each month-year combination
+        monthOrder.set(monthYear, date.getFullYear() * 12 + date.getMonth());
       }
       grouped.get(monthYear)?.push(expense);
     });
 
-    this.groupedExpenses = Array.from(grouped.entries()).map(([month, expenses]) => ({
-      month,
-      expenses: expenses.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-    }));
+    this.groupedExpenses = Array.from(grouped.entries())
+      .sort(([monthYearA], [monthYearB]) => {
+        // Sort by the numeric value we stored (higher values = more recent dates)
+        return monthOrder.get(monthYearB)! - monthOrder.get(monthYearA)!;
+      })
+      .map(([month, expenses]) => ({
+        month,
+        expenses: expenses.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      }));
   }
 
   addExpense() {
-    // To be implemented: Open dialog for adding new expense
     console.log('Add expense clicked for group:', this.groupId);
   }
 
   onFileSelected(event: any) {
     const file = event.target.files[0];
-    if (file && this.groupId) {
-      // Validate file type
+    if (file && this.groupId && this.group) {
       if (!file.type.startsWith('image/')) {
         this.messageService.add({
           severity: 'error',
@@ -302,7 +201,6 @@ export class GroupExpensesComponent implements OnInit {
         return;
       }
 
-      // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         this.messageService.add({
           severity: 'error',
@@ -312,34 +210,24 @@ export class GroupExpensesComponent implements OnInit {
         return;
       }
 
-      // Prevent event propagation
       event.stopPropagation();
-      
-      // Set loading state
       this.isUploadingAvatar = true;
-      
-      // Create a preview URL using FileReader
+
       const reader = new FileReader();
       reader.onload = (e: any) => {
         const imageUrl = e.target.result;
-        
-        // Update the local state
-        this.groupImage = imageUrl;
-        
-        // Update the group in the service
+        this.group!.avatar = imageUrl;
         this.groupsService.updateGroupAvatarLocally(Number(this.groupId), imageUrl);
-        
-        // Show success message
+
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
           detail: 'Group avatar updated successfully'
         });
-        
-        // Reset loading state
+
         this.isUploadingAvatar = false;
       };
-      
+
       reader.onerror = () => {
         console.error('Error reading file');
         this.messageService.add({
@@ -349,8 +237,7 @@ export class GroupExpensesComponent implements OnInit {
         });
         this.isUploadingAvatar = false;
       };
-      
-      // Read the file as a data URL
+
       reader.readAsDataURL(file);
     }
   }

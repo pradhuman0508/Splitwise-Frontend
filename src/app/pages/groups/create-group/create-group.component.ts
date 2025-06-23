@@ -160,7 +160,7 @@ export class CreateGroupComponent implements OnInit {
         balance: 0, // Initial balance
         totalExpenses: 0, // Initial expenses
         avatar: this.selectedImage || '', // Use the uploaded image URL
-        lastActivity: new Date() // Current date as the creation date
+        createdAt: new Date() // Current date as the creation date
       };
 
       // Add the group through the service

@@ -1,13 +1,22 @@
 <div class="p-4">
     <div class="pb-2 mx-auto">
         <p-message size="small" severity="secondary" variant="simple">Created</p-message>
-        <p-message size="small" severity="secondary" variant="simple">{{ group?.lastActivity | date:'mediumDate' }}</p-message>
+        <p-message size="small" severity="secondary" variant="simple">{{ group?.createdAt| date:'mediumDate'
+            }}</p-message>
     </div>
-    <div class="pb-2 w-[245px] mx-auto">
+    <div class="w-[245px] mx-auto pb-3">
         <p-message size="small" severity="secondary" variant="simple">Description</p-message>
-        <div class="flex flex-row justify-between">
-            <p-message severity="secondary" variant="simple">{{ group?.description }}</p-message>
-            <p-button icon="pi pi-pencil" size="small" variant="text" severity="secondary" (click)="startDescriptionEdit($event)"/>
+        <div class="flex flex-row gap-2">
+            <p-message *ngIf="!isEditingDescription" severity="secondary" variant="simple" class="pl-1">{{
+                group?.description
+                }}</p-message>
+            <p-button *ngIf="!isEditingDescription" icon="pi pi-pencil" size="small" variant="text" severity="secondary"
+                (click)="startDescriptionEdit($event)" />
+            <textarea #nameInput *ngIf="isEditingDescription" [value]="groupDescription"
+                class="w-full bg-color surface-border focus:outline-none rounded pl-1" rows="3"
+                (blur)="saveGroupDescription(nameInput.value)"
+                (keydown.enter)="saveGroupDescription(nameInput.value); $event.preventDefault()"
+                (keydown.escape)="cancelDescriptionEdit(); $event.preventDefault()"></textarea>
         </div>
     </div>
 

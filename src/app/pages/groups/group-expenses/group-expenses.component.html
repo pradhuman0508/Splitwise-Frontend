@@ -2,12 +2,11 @@
   <p-toast></p-toast>
   <!-- Group Header -->
   <p-card class="shadow-sm min-h-screen">
-
-
     <div class="flex flex-col md:flex-row items-center mb-2 justify-between">
       <div class="flex items-center surface-border p-2 rounded-md w-full" (click)="toggleSlide()">
         <div class="relative group mr-4" (click)="onClickDisableDropDown($event)">
-          <img [src]="groupImage" [alt]="groupName" class="w-16 h-16 rounded-full object-cover surface-border" />
+          <img *ngIf="group" [src]="group.avatar" [alt]="group.name"
+            class="w-16 h-16 rounded-full object-cover surface-border" />
           <div
             class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             <i *ngIf="!isUploadingAvatar" class="pi pi-pencil text-white text-xl z-10" (click)="fileInput.click()"></i>
@@ -21,33 +20,41 @@
 
         <div class="flex flex-col mr-auto">
           <div class="relative group flex flex-row gap-2">
-            <h1 *ngIf="!isEditingName" class="text-2xl font-bold mb-0 px-1">{{ groupName }}</h1>
+            <h1 *ngIf="!isEditingName && group" class="text-2xl font-bold mb-0 px-1">{{ group.name }}</h1>
             <p-button *ngIf="!isEditingName" size="small" icon="pi pi-pencil" severity="secondary" [text]="true"
               (click)="startNameEdit($event)"
               class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 py-0" />
-            <input *ngIf="isEditingName" #nameInput type="text" [value]="groupName"
+            <input #nameInput *ngIf="isEditingName && group" type="text" [value]="group.name"
               class="text-2xl font-bold mb-0 bg-color surface-border focus:outline-none rounded px-1"
               (blur)="saveGroupName(nameInput.value)"
               (keydown.enter)="saveGroupName(nameInput.value); $event.preventDefault()"
               (keydown.escape)="cancelNameEdit(); $event.preventDefault()" (click)="onClickDisableDropDown($event)" />
           </div>
-          <span class="text-sm font-medium px-1" [ngClass]="{
-              'text-green-600': balance && balance > 0,
-              'text-red-600': balance && balance < 0,
-              'text-gray-600': !balance || balance === 0
+          <span *ngIf="group" class="text-sm font-medium px-1" [ngClass]="{
+              'text-green-600': group.balance > 0,
+              'text-red-600': group.balance < 0,
+              'text-gray-600': !group.balance || group.balance === 0
             }">
-            <ng-container *ngIf="balance && balance > 0">You are owed</ng-container>
-            <ng-container *ngIf="balance && balance < 0">You owe</ng-container>
-            <ng-container *ngIf="!balance || balance === 0">Settled up</ng-container>
-            <span *ngIf="balance && balance !== 0">
-              {{ balance | currency:'INR':'symbol':'1.2-2' }}
+            <ng-container *ngIf="group.balance > 0">You are owed</ng-container>
+            <ng-container *ngIf="group.balance < 0">You owe</ng-container>
+            <ng-container *ngIf="!group.balance || group.balance === 0">Settled up</ng-container>
+            <span *ngIf="group.balance !== 0">
+              {{ group.balance | currency:'INR':'symbol':'1.2-2' }}
             </span>
           </span>
         </div>
+        <div class="flex justify-center" (click)="onClickDisableDropDown($event)">
+          <p-button variant="text" [rounded]="true" severity="secondary">
+            <p-avatarGroup>
+              <p-avatar *ngFor="let member of members.slice(0, 4)" [image]="member.avatar" shape="circle" />
+              <p-avatar *ngIf="members.length > 4" label="+{{ members.length - 4 }}" shape="circle" />
+            </p-avatarGroup>
+          </p-button>
+        </div>
       </div>
       <div class="flex items-center gap-2 mx-2">
-        <p-button size="small" styleClass="w-[180px]"
-          [label]="'Total Expense: ' + (totalExpenses | currency:'INR':'symbol':'1.2-2')" variant="text"
+        <p-button *ngIf="group" size="small" styleClass="w-[180px]"
+          [label]="'Total Expense: ' + (group.totalExpenses | currency:'INR':'symbol':'1.2-2')" variant="text"
           severity="secondary" />
         <p-button icon="pi pi-plus" label="Add Expense" size="small" styleClass="w-[120px]" (click)="addExpense()"
           [raised]="true" severity="info" />
@@ -59,7 +66,6 @@
       class="absolute bg-color-card surface-border rounded shadow-lg z-40 overflow-y-auto">
       <app-group-details [groupId]="groupId" [isExpanded]="isExpanded" />
     </div>
-
 
     <div class="grid grid-cols-1 md:grid-cols-2 items-center">
       <div class="border-rt">
