@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SplitterModule } from 'primeng/splitter';
 import { ButtonModule } from 'primeng/button';
@@ -15,6 +15,7 @@ import { GroupsService, Group } from '../groups.service';
 export class GroupDetailsComponent implements OnInit {
   @Input() groupId?: string;
   @Input() isExpanded: boolean = false;
+  @ViewChild('nameInput') nameInput!: ElementRef;
   group?: Group;
 
   isEditingDescription: boolean = false;
@@ -23,7 +24,10 @@ export class GroupDetailsComponent implements OnInit {
     return this.group?.description || '';
   }
 
-  constructor(private groupsService: GroupsService) {}
+  constructor(
+    private groupsService: GroupsService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     if (!this.groupId) return;
@@ -34,19 +38,47 @@ export class GroupDetailsComponent implements OnInit {
   }
 
   startDescriptionEdit(event: Event) {
-    // TODO: Implement description editing logic
     event.preventDefault();
-
     event.stopPropagation();
     this.previousDescription = this.groupDescription;
     this.isEditingDescription = true;
-    // Focus the input element in the next tick
     setTimeout(() => {
-      const input = document.querySelector('input') as HTMLInputElement;
-      if (input) {
-        input.focus();
-        input.select();
-      }
+      this.nameInput?.nativeElement?.focus();
+    });
+  }
+
+  saveGroupDescription(newDescription: string) {
+    if (!this.isEditingDescription) {
+      return;
+    }
+
+    if (!newDescription.trim() || !this.groupId) {
+      this.cancelDescriptionEdit();
+      return;
+    }
+
+    if (newDescription.trim() === this.previousDescription) {
+      this.isEditingDescription = false;
+      return;
+    }
+
+    const trimmedDescription = newDescription.trim();
+    Promise.resolve().then(() => {
+      if (!this.group) return;
+      this.group.description = trimmedDescription;
+      this.isEditingDescription = false;
+      this.groupsService.updateGroupDescriptionLocally(Number(this.groupId), trimmedDescription);
+      this.cdr.detectChanges();
+    });
+  }
+
+  cancelDescriptionEdit() {
+    if (!this.group) return;
+    Promise.resolve().then(() => {
+      if (!this.group) return;
+      this.group.description = this.previousDescription;
+      this.isEditingDescription = false;
+      this.cdr.detectChanges();
     });
   }
 }
