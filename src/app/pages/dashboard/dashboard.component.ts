@@ -8,8 +8,9 @@ import { TableModule } from 'primeng/table';
 import { CreateGroupComponent } from '../groups/create-group/create-group.component';
 import { AddFriendComponent } from '../friends/add-friend/add-friend.component';
 import { SkeletonModule } from 'primeng/skeleton';
-import { GroupsService } from '../groups/groups.service';
+import { GroupsService, Group } from '../groups/groups.service';
 import { PanelModule } from 'primeng/panel';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -42,7 +43,7 @@ export class DashboardComponent implements OnInit {
   isLoading: boolean = true;
   isChartLoading: boolean = true;
 
-  groups: any[] = [];
+  groups: Group[] = [];
   transactions: any[] = [];
   friends: any[] = [];
 
@@ -84,38 +85,7 @@ export class DashboardComponent implements OnInit {
   }
 
   private async loadGroups(): Promise<void> {
-    // Simulate API call - replace with actual API call
-    await new Promise(resolve => setTimeout(resolve, 100));
-    this.groups = [
-      {
-        id: 1,
-        name: "Roommates",
-        memberCount: 4,
-        balance: 120,
-        avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=64"
-      },
-      {
-        id: 2,
-        name: "Trip to Paris",
-        memberCount: 6,
-        balance: -45,
-        avatar: "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=64"
-      },
-      {
-        id: 3,
-        name: "Office Lunch",
-        memberCount: 8,
-        balance: 25,
-        avatar: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=64"
-      },
-      {
-        id: 4,
-        name: 'Book Club',
-        memberCount: 5,
-        balance: 15,
-        avatar: 'https://images.unsplash.com/photo-1495446815901-a7297e633e8d'
-      }
-    ];
+    this.groups = await firstValueFrom(this.groupsService.getGroups());
   }
 
   private async loadFriends(): Promise<void> {
