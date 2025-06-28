@@ -121,9 +121,10 @@ export class GroupsService {
         "email": "mike@example.com",
         "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
         "balance": 100,
-        "owesTo": [],
+        "owesTo": [
+          { "name": "John Doe", "amount": 20 }
+        ],
         "owedBy": [
-          { "name": "John Doe", "amount": 20 },
           { "name": "Sarah Williams", "amount": 80 }
         ]
       },
