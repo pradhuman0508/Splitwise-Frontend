@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { Validators, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
-import { getAuth, GoogleAuthProvider, signInWithPopup } from '@angular/fire/auth';
 import { LayoutService } from '../../layout/service/layout.service';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { CardModule } from 'primeng/card';
@@ -71,11 +70,19 @@ export class RegisterComponent {
   }
 
   registerWithGoogle() {
-    const provider = new GoogleAuthProvider();
-        const auth=getAuth();
-        signInWithPopup(auth, provider)
-          .then(() => this.router.navigate(['/dashboard']))
-          .catch((error) => (this.errorMessage = error.message));
+    this.loading = true;
+    this.errorMessage = '';
+    
+    this.authService.loginWithGoogle()
+      .then(() => {
+        this.router.navigate(['/dashboard']);
+      })
+      .catch((error) => {
+        this.errorMessage = error.message;
+      })
+      .finally(() => {
+        this.loading = false;
+      });
   }
   // Custom validator
 passwordMatchValidator(formGroup: FormGroup) {

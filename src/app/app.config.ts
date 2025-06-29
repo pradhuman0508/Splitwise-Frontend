@@ -8,7 +8,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { providePrimeNG } from 'primeng/config';
 import { definePreset } from "@primeng/themes";
 import { initializeApp, provideFirebaseApp, getApp } from '@angular/fire/app';
-import { getAuth, provideAuth, browserLocalPersistence, initializeAuth, indexedDBLocalPersistence } from '@angular/fire/auth';
+import { getAuth, provideAuth } from '@angular/fire/auth';
 import { PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { inject } from '@angular/core';
@@ -31,8 +31,8 @@ export const appConfig: ApplicationConfig = {
         withEnabledBlockingInitialNavigation()
     ),
     provideClientHydration(),
-    provideFirebaseApp(() => 
-        initializeApp({
+    provideFirebaseApp(() => {
+        const app = initializeApp({
             "projectId":"splitwiseclone-49479",
             "appId":"1:103744049747:web:e84a58ed065d00f35aeca6",
             "storageBucket":"splitwiseclone-49479.firebasestorage.app",
@@ -40,15 +40,9 @@ export const appConfig: ApplicationConfig = {
             "authDomain":"splitwiseclone-49479.firebaseapp.com",
             "messagingSenderId":"103744049747",
             "measurementId":"G-MR1W4X880F"
-        })),
-    provideAuth(() => {
-        const platformId = inject(PLATFORM_ID);
-        const app = getApp();
-        if (isPlatformBrowser(platformId)) {
-            return initializeAuth(app, {
-                persistence: [indexedDBLocalPersistence, browserLocalPersistence]
-            });
-        }
-        return getAuth(app);
-    })]
+        });
+        return app;
+    }),
+    provideAuth(() => getAuth())
+],
 };

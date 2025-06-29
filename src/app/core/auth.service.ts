@@ -1,5 +1,5 @@
 import { inject, Injectable, PLATFORM_ID, Inject } from '@angular/core';
-import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, authState, signOut } from '@angular/fire/auth';
+import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, authState, signOut, GoogleAuthProvider, signInWithPopup } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { of } from 'rxjs';
@@ -81,5 +81,46 @@ export class AuthService {
       return signOut(this.auth);
     }
     return Promise.resolve();
+  }
+
+  // Login with Google
+  loginWithGoogle() {
+    if (!this.isBrowser) {
+      return Promise.reject(new Error('Authentication is only available in browser environment'));
+    }
+    
+    if (!this.auth) {
+      return Promise.reject(new Error('Authentication service not properly initialized'));
+    }
+    
+    try {
+      const provider = new GoogleAuthProvider();
+      
+      return signInWithPopup(this.auth, provider)
+        .catch((error) => {
+          // Handle error codes here and return a custom error message
+          let errorMessage = '';
+
+          switch (error.code) {
+            case 'auth/popup-closed-by-user':
+            case 'auth/cancelled-popup-request':
+              errorMessage = 'Login was cancelled. Please try again.';
+              break;
+            case 'auth/popup-blocked':
+              errorMessage = 'Popup was blocked by browser. Please allow popups and try again.';
+              break;
+            case 'auth/unauthorized-domain':
+              errorMessage = 'This domain is not authorized for Google login. Please contact support.';
+              break;
+            default:
+              errorMessage = 'Google login failed. Please try again.';
+          }
+
+          // Throw the custom error message
+          throw new Error(errorMessage);
+        });
+    } catch (error) {
+      return Promise.reject(new Error('Failed to initialize Google authentication'));
+    }
   }
 }
