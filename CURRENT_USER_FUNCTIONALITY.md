@@ -1,149 +1,207 @@
-# Current User Functionality in Groups
+# Member Registration Check & Invite Functionality
 
-This document explains how the current user functionality is implemented in the Splitwise Frontend application.
+This document explains the new functionality that checks if members are registered in Firebase before adding them to groups, and sends invitations to non-registered users.
 
 ## Overview
 
-The application now includes functionality to identify and handle the currently logged-in user within group contexts. This allows for personalized experiences such as showing individual balances, preventing self-removal from groups, and displaying user-specific information.
+When adding members to groups, the system now:
+1. Checks if the user is registered in Firebase Authentication
+2. If registered: Adds them directly to the group
+3. If not registered: Sends an invitation to join the platform and group
 
-## Implementation Details
+## Components Updated
 
-### 1. GroupMember Interface Enhancement
+### 1. UserManagementService (`src/app/core/user-management.service.ts`)
 
-The `GroupMember` interface has been enhanced with an optional `isCurrentUser` flag:
+**Key Methods:**
+- `checkUserExists(email: string)`: Checks if a user exists in Firebase Auth
+- `sendInvitation(email, groupId?, groupName?)`: Sends invitation to non-registered users
+- `processMemberAddition(memberData, groupId?, groupName?)`: Main method that handles the logic
+- `processMembersBatch(members, groupId?, groupName?)`: Batch processing for multiple members
+
+**Features:**
+- Uses Firebase's `fetchSignInMethodsForEmail` to check user registration
+- Simulates invitation sending (can be connected to real backend API)
+- Handles both individual and batch member processing
+- Returns detailed status information for each member
+
+### 2. CreateGroupComponent (`src/app/pages/groups/create-group/`)
+
+**New Features:**
+- **Check Status Button**: Users can check if a member is registered before submitting
+- **Real-time Status Display**: Shows registration status for each member
+- **Toast Notifications**: Provides feedback on member processing
+- **Enhanced Form Validation**: Ensures proper member data before processing
+
+**UI Enhancements:**
+- Search icon button to check member status
+- Status indicators with color-coded icons
+- Member status summary section
+- Loading states during processing
+
+### 3. GroupMemberComponent (`src/app/pages/groups/group-member/`)
+
+**New Features:**
+- **Name Field**: Added member name input alongside email
+- **Status Checking**: Check if user is registered before adding
+- **Enhanced Dialog**: Better UI with status display
+- **Real-time Feedback**: Toast messages for all actions
+
+## How It Works
+
+### 1. Member Addition Flow
+
+```
+User enters member details
+         ↓
+Check if user exists in Firebase
+         ↓
+    ┌─────────────┐
+    │   Exists?   │
+    └─────────────┘
+         ↓
+    ┌─────────────┐
+    │     Yes     │  →  Add directly to group
+    └─────────────┘
+         ↓
+    ┌─────────────┐
+    │      No     │  →  Send invitation
+    └─────────────┘
+```
+
+### 2. Firebase Integration
+
+The system uses Firebase Authentication's `fetchSignInMethodsForEmail` method to check if a user exists:
 
 ```typescript
-export interface GroupMember {
-  id: number;
-  name: string;
-  email: string;
-  avatar: string;
-  balance: number;
-  owesTo: { name: string; amount: number }[];
-  owedBy: { name: string; amount: number }[];
-  isCurrentUser?: boolean; // New flag to identify current user
+async checkUserExists(email: string): Promise<boolean> {
+  try {
+    const auth = getAuth();
+    const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+    return signInMethods.length > 0;
+  } catch (error) {
+    console.error('Error checking if user exists:', error);
+    return false;
+  }
 }
 ```
 
-### 2. GroupsService Methods
+### 3. Invitation System
 
-The `GroupsService` now includes several methods to handle current user functionality:
-
-#### Core Methods:
-- `getCurrentUser()`: Returns the current authenticated user from Firebase Auth
-- `isCurrentUser(memberEmail: string)`: Checks if a member email matches the current user
-- `getCurrentUserMemberData(groupId: number)`: Gets the current user's member data for a specific group
-- `isCurrentUserInGroup(groupId: number)`: Checks if current user is a member of a group
-
-#### Data Management:
-- `updateCurrentUserInGroups()`: Updates current user identification in all groups
-- `addCurrentUserToGroup(groupId: number, user: User)`: Adds current user to a group if not present
-- `refreshCurrentUserData()`: Refreshes current user data when user logs in/out
-
-### 3. Component Updates
-
-#### GroupMemberComponent:
-- Displays current user with a "You" badge
-- Prevents removal of current user from group
-- Highlights current user row with blue background
-- Disables remove button for current user
-
-#### GroupDetailComponent:
-- Shows current user's personal balance instead of group balance
-- Displays current user status in member avatars
-- Updates menu items based on current user membership
-
-#### GroupListComponent:
-- Shows current user's balance for each group
-- Includes sorting by user balance
-- Displays personalized balance information
-
-### 4. Authentication Integration
-
-The system integrates with Firebase Authentication:
+When a user is not registered, the system creates an invitation object:
 
 ```typescript
-// Get current user from Firebase Auth
-getCurrentUser(): User | null {
-  const auth = getAuth();
-  return auth.currentUser;
-}
-
-// Check if member is current user
-isCurrentUser(memberEmail: string): boolean {
-  const currentUser = this.getCurrentUser();
-  return currentUser?.email === memberEmail;
-}
+const invite: UserInvite = {
+  email,
+  groupId,
+  groupName,
+  invitedBy: currentUser.email || '',
+  invitedAt: new Date(),
+  status: 'pending'
+};
 ```
 
 ## Usage Examples
 
-### 1. Displaying Current User in Group Members
+### 1. Creating a Group with Members
+
+1. Open "Create New Group" dialog
+2. Fill in group details
+3. Add member information (name and email)
+4. Click the search icon to check member status
+5. Submit the form
+6. System processes each member:
+   - Registered users: Added directly
+   - Non-registered users: Receive invitations
+
+### 2. Adding Members to Existing Group
+
+1. Navigate to group details
+2. Click "Add Member"
+3. Enter member name and email
+4. Optionally check user status
+5. Click "Add Member"
+6. System handles registration check and invitation
+
+## Status Indicators
+
+### Visual Status Codes:
+- 🟢 **Green Check**: User is registered
+- 🔵 **Blue Info**: User not registered, invitation will be sent
+- 🔴 **Red Warning**: Error checking user status
+
+### Toast Messages:
+- **Success**: "User is already registered"
+- **Info**: "User will receive an invitation to join"
+- **Error**: "Error checking user status"
+
+## Configuration
+
+### Firebase Setup
+Ensure Firebase Authentication is properly configured in `app.config.ts`:
 
 ```typescript
-// In component
-this.groupsService.getGroupMembers(groupId).subscribe(members => {
-  this.members = members;
-  this.currentUserMember = members.find(member => member.isCurrentUser) || null;
-});
+provideFirebaseApp(() => 
+    initializeApp({
+        "projectId":"your-project-id",
+        "appId":"your-app-id",
+        // ... other config
+    })),
+provideAuth(() => getAuth())
 ```
 
-### 2. Showing Current User's Balance
+### Backend Integration
+To connect to a real backend API, update the `sendInvitation` method in `UserManagementService`:
 
 ```typescript
-// Get current user's balance for a group
-this.groupsService.getCurrentUserMemberData(groupId).subscribe(member => {
-  if (member) {
-    console.log(`Your balance: ${member.balance}`);
-  }
-});
-```
-
-### 3. Preventing Current User Actions
-
-```typescript
-// Check if member can be removed
-canRemoveMember(member: GroupMember): boolean {
-  return !member.isCurrentUser;
+sendInvitation(email: string, groupId?: number, groupName?: string): Observable<any> {
+  // Replace the mock implementation with real API call
+  return this.http.post(`${this.apiUrl}/invitations`, {
+    email,
+    groupId,
+    groupName,
+    invitedBy: getAuth().currentUser?.email
+  });
 }
 ```
 
-## UI Features
+## Error Handling
 
-### Visual Indicators:
-- Current user is marked with a "You" badge
-- Current user row has blue background highlighting
-- Current user avatar shows "(You)" in tooltip
-- Remove button is disabled for current user
+The system handles various error scenarios:
+- Network errors during Firebase checks
+- Invalid email formats
+- Missing member information
+- API failures during invitation sending
 
-### Balance Display:
-- Shows "Your Balance" instead of "Group Balance"
-- Displays personalized balance information
-- Color-coded balance (green for owed, red for owe, gray for settled)
-
-### Menu Options:
-- Menu items are filtered based on current user membership
-- Different options shown for group members vs non-members
-
-## Testing
-
-To test the current user functionality:
-
-1. **Login with a user account** that matches one of the member emails in the group data
-2. **Navigate to groups** to see personalized balance information
-3. **View group details** to see current user highlighting
-4. **Try to remove yourself** from a group (should be prevented)
+All errors are displayed to users via toast notifications and status indicators.
 
 ## Future Enhancements
 
-1. **Group Ownership**: Add owner role with additional permissions
-2. **Invitation System**: Allow current users to invite others to groups
-3. **Permission Levels**: Different permissions for different member types
-4. **Real-time Updates**: Update current user data when authentication state changes
+1. **Email Templates**: Customizable invitation email templates
+2. **Invitation Management**: Track and manage pending invitations
+3. **Bulk Operations**: Process multiple members simultaneously
+4. **Real-time Updates**: WebSocket integration for live status updates
+5. **Analytics**: Track invitation acceptance rates
+
+## Testing
+
+To test the functionality:
+
+1. **Registered User Test**:
+   - Use an email that exists in your Firebase Auth
+   - Should show green check and add directly
+
+2. **Non-registered User Test**:
+   - Use a non-existent email
+   - Should show blue info and send invitation
+
+3. **Error Test**:
+   - Disconnect internet or use invalid Firebase config
+   - Should show red warning
 
 ## Notes
 
-- The current implementation uses Firebase Authentication
-- Current user identification is based on email matching
-- The system automatically adds current user to groups if not present
-- All current user data is refreshed when authentication state changes 
+- The current implementation uses mock invitation sending
+- Firebase Auth checks are real and functional
+- All UI feedback is implemented with PrimeNG components
+- The system is designed to be easily extensible for backend integration
