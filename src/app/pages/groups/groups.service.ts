@@ -94,48 +94,48 @@ export class GroupsService {
     1: [
       {
         "id": 1,
-        "name": "John Doe",
-        "email": "john@example.com",
+        "name": "Yash Bakadiya",
+        "email": "bakadiyayash@gmail.com",
         "avatar": "https://images.unsplash.com/photo-1599566150163-29194dcaad36",
         "balance": 50,
         "owesTo": [],
         "owedBy": [
-          { "name": "Jane Smith", "amount": 30 },
-          { "name": "Mike Johnson", "amount": 20 }
+          { "name": "Pradhuman Vaidya", "amount": 30 },
+          { "name": "yash 0098209295", "amount": 20 }
         ]
       },
       {
         "id": 2,
-        "name": "Jane Smith",
-        "email": "jane@example.com",
+        "name": "Pradhuman Vaidya",
+        "email": "pradhumanvaidya612@gmail.com",
         "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330",
         "balance": -30,
         "owesTo": [
-          { "name": "John Doe", "amount": 30 }
+          { "name": "Yash Bakadiya", "amount": 30 }
         ],
         "owedBy": []
       },
       {
         "id": 3,
-        "name": "Mike Johnson",
-        "email": "mike@example.com",
+        "name": "yash 0098209295",
+        "email": "yash0098209295@gmail.com",
         "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
         "balance": 100,
         "owesTo": [
-          { "name": "John Doe", "amount": 20 }
+          { "name": "Yash Bakadiya", "amount": 20 }
         ],
         "owedBy": [
-          { "name": "Sarah Williams", "amount": 80 }
+          { "name": "clone splitwise", "amount": 80 }
         ]
       },
       {
         "id": 4,
-        "name": "Sarah Williams",
-        "email": "sarah@example.com",
+        "name": "clone splitwise",
+        "email": "clonesplitwise@gmail.com",
         "avatar": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80",
         "balance": 0,
         "owesTo": [
-          { "name": "Mike Johnson", "amount": 80 }
+          { "name": "yash 0098209295", "amount": 80 }
         ],
         "owedBy": []
       }
@@ -148,7 +148,7 @@ export class GroupsService {
       {
         id: '1',
         description: 'Dinner at Italian Restaurant',
-        paidBy: 'John Doe',
+        paidBy: 'Yash Bakadiya',
         amount: 120.50,
         createdAt: new Date('2024-03-15'),
         updatedAt: new Date('2024-03-15'),
@@ -157,7 +157,7 @@ export class GroupsService {
       {
         id: '2',
         description: 'Movie Tickets',
-        paidBy: 'Jane Smith',
+        paidBy: 'Pradhuman Vaidya',
         amount: 75.00,
         createdAt: new Date('2024-03-10'),
         updatedAt: new Date('2024-03-10'),
@@ -166,7 +166,7 @@ export class GroupsService {
       {
         id: '3',
         description: 'Groceries',
-        paidBy: 'Mike Johnson',
+        paidBy: 'yash 0098209295',
         amount: 95.30,
         createdAt: new Date('2024-02-28'),
         updatedAt: new Date('2024-02-28'),
