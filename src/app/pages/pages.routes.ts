@@ -6,7 +6,6 @@ import { GroupListComponent } from './groups/group-list/group-list.component';
 import { authGuard } from '../core/auth.guard';
 import { GroupExpensesComponent } from './groups/group-expenses/group-expenses.component';
 import { GroupDetailComponent } from './groups/group-detail/group-detail.component';
-import { GroupDetailsComponent } from './groups/group-details/group-details.component';
 
 export const routes: Routes = [
   {
@@ -18,7 +17,7 @@ export const routes: Routes = [
       { path: 'empty', component: Empty },
       { path: 'dashboard', component: DashboardComponent },
       { path: 'groups', component: GroupListComponent },
-      { path: 'group/:id', component: GroupExpensesComponent }, 
+      { path: 'group/:id', component: GroupExpensesComponent },
       { path: 'group-detail', component: GroupDetailComponent }
     ]
   },
