@@ -6,11 +6,12 @@ import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { GroupsService, Expense, GroupedExpenses, Group, GroupMember } from '../groups.service';
-import { GroupDetailsComponent } from '../group-details/group-details.component';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { AvatarGroup } from 'primeng/avatargroup';
 import { Avatar } from 'primeng/avatar';  
+import { GroupDetailsComponent } from './group-details/group-details.component';
+import { MemberDetailsComponent } from './member-details/member-details.component';
 
 @Component({
   selector: 'app-group-expenses',
@@ -27,6 +28,7 @@ import { Avatar } from 'primeng/avatar';
     GroupDetailsComponent,
     ToastModule,
     AvatarGroup,
+    MemberDetailsComponent,
     Avatar
   ],
   providers: [MessageService]

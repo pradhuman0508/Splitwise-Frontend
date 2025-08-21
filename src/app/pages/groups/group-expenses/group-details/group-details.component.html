@@ -1,0 +1,38 @@
+<p-scrollPanel [style]="{ width: '340px', height: '164px' }" styleClass="custombar1">
+    <div class="w-full">
+        <div class="mx-auto w-[330px]">
+            <div class="py-2">
+                <p-message size="small" severity="secondary" variant="simple">Created</p-message>
+                <p-message size="small" severity="secondary" variant="simple">{{ group?.createdAt|
+                    date:'mediumDate'
+                    }}</p-message>
+            </div>
+            <div class="pb-3">
+                <p-message size="small" severity="secondary" variant="simple">Description</p-message>
+                <div class="flex flex-row">
+                    <p-message *ngIf="!isEditingDescription" severity="secondary" variant="simple"
+                        class="w-[330px] pl-1">{{
+                        group?.description
+                        }}</p-message>
+                    <p-button *ngIf="!isEditingDescription" icon="pi pi-pencil" size="small" variant="text"
+                        severity="secondary" (click)="startDescriptionEdit($event)" />
+
+                    <textarea #nameInput *ngIf="isEditingDescription" [value]="groupDescription"
+                        class="w-[323px] bg-color surface-border focus:outline-none rounded pl-1" rows="3"
+                        (blur)="saveGroupDescription(nameInput.value)"
+                        (keydown.enter)="saveGroupDescription(nameInput.value); $event.preventDefault()"
+                        (keydown.escape)="cancelDescriptionEdit(); $event.preventDefault()"></textarea>
+
+                </div>
+            </div>
+            <div class="border-tp w-full">
+                <div class="flex items-center gap-2 py-3 w-[242px] mx-auto">
+                    <p-button label="Exit group" styleClass="w-[120px]" size="small" variant="text" severity="secondary"
+                        [raised]="true" />
+                    <p-button label="Delete group" size="small" styleClass="w-[120px]" variant="text" [raised]="true"
+                        severity="danger" />
+                </div>
+            </div>
+        </div>
+    </div>
+</p-scrollPanel>

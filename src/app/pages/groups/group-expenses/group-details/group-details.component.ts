@@ -2,15 +2,16 @@ import { Component, Input, OnInit, ChangeDetectorRef, ViewChild, ElementRef } fr
 import { CommonModule } from '@angular/common';
 import { SplitterModule } from 'primeng/splitter';
 import { ButtonModule } from 'primeng/button';
+import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { Message } from 'primeng/message';
-import { GroupsService, Group } from '../groups.service';
+import { GroupsService, Group } from '../../groups.service';
 
 @Component({
   selector: 'app-group-details',
   templateUrl: './group-details.component.html',
   styleUrls: ['./group-details.component.scss'],
   standalone: true,
-  imports: [CommonModule, SplitterModule, ButtonModule, Message]
+  imports: [CommonModule, ScrollPanelModule, SplitterModule, ButtonModule, Message]
 })
 export class GroupDetailsComponent implements OnInit {
   @Input() groupId?: string;
