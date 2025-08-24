@@ -1,5 +1,5 @@
 import { inject, Injectable, PLATFORM_ID, Inject } from '@angular/core';
-import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, authState, signOut, GoogleAuthProvider, signInWithPopup } from '@angular/fire/auth';
+import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, authState, signOut, GoogleAuthProvider, signInWithPopup, setPersistence, browserLocalPersistence } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { of } from 'rxjs';
@@ -16,6 +16,7 @@ export class AuthService {
     @Inject(PLATFORM_ID) platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
+    setPersistence(this.auth, browserLocalPersistence);
   }
 
   // Login with email and password
@@ -23,7 +24,7 @@ export class AuthService {
     if (!this.isBrowser) {
       return Promise.reject(new Error('Authentication is only available in browser environment'));
     }
-    
+
     return signInWithEmailAndPassword(this.auth, email, password)
       .catch((error) => {
         // Handle error codes here and return a custom error message
@@ -88,14 +89,14 @@ export class AuthService {
     if (!this.isBrowser) {
       return Promise.reject(new Error('Authentication is only available in browser environment'));
     }
-    
+
     if (!this.auth) {
       return Promise.reject(new Error('Authentication service not properly initialized'));
     }
-    
+
     try {
       const provider = new GoogleAuthProvider();
-      
+
       return signInWithPopup(this.auth, provider)
         .catch((error) => {
           // Handle error codes here and return a custom error message
