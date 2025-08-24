@@ -1,6 +1,6 @@
 import Aura from '@primeng/themes/aura';
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
 import { provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScrolling  } from '@angular/router';
 import { routes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
@@ -9,22 +9,27 @@ import { providePrimeNG } from 'primeng/config';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getAuth, provideAuth } from '@angular/fire/auth';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
+import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideAnimationsAsync(),
+  providers: [
+    provideAnimationsAsync(),
     providePrimeNG({
         theme: {
             preset: Aura,
             options:{
-            darkModeSelector: '.app-dark',
+              darkModeSelector: '.app-dark',
             }
         }
     }),
-    provideHttpClient(withFetch()),
+    provideHttpClient(
+      withFetch(),
+      withInterceptorsFromDi()
+    ),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(
-        routes, 
-        withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }), 
+        routes,
+        withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }),
         withEnabledBlockingInitialNavigation()
     ),
     provideClientHydration(),
@@ -41,6 +46,7 @@ export const appConfig: ApplicationConfig = {
         return app;
     }),
     provideAuth(() => getAuth()),
-    provideFirestore(() => getFirestore())
-],
+    provideFirestore(() => getFirestore()),
+    AuthInterceptor
+  ],
 };
