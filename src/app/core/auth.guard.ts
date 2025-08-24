@@ -10,10 +10,12 @@ export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const platformId = inject(PLATFORM_ID);
 
+  // Allow immediate access during SSR to prevent timeouts
   if (isPlatformServer(platformId)) {
-  return of(true); // allow rendering without waiting
-}
+    return of(true);
+  }
 
+  // On client side, check authentication
   return authService.isLoggedIn().pipe(
     filter(user => user !== undefined),
     take(1),

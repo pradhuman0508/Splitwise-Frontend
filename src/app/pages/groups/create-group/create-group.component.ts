@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { InputTextModule } from 'primeng/inputtext';
 import { Tooltip } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
@@ -42,7 +42,8 @@ export class CreateGroupComponent implements OnInit {
     private fb: FormBuilder,
     private router: Router,
     private authService: AuthService,
-    private groupsService: GroupsService
+    private groupsService: GroupsService,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.groupForm = this.fb.group({
       name: ['', Validators.required],
@@ -52,15 +53,20 @@ export class CreateGroupComponent implements OnInit {
   }
 
   ngOnInit() {
+    // Skip Firebase operations during SSR
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     // Get current user
     const auth = getAuth();
     this.currentUser = auth.currentUser;
-    
+
     if (this.currentUser) {
       // Add current user as hidden first member
       this.addCurrentUserAsMember();
     }
-    
+
     // Add two empty member slots
     this.addMember();
     this.addMember();
@@ -184,18 +190,18 @@ export class CreateGroupComponent implements OnInit {
       description: [''],
       members: this.fb.array([])
     });
-    
+
     // Reset image
     this.selectedImage = null;
     this.imageFile = null;
-    
+
     // Re-add current user and empty member slots
     if (this.currentUser) {
       this.addCurrentUserAsMember();
     }
     this.addMember();
     this.addMember();
-    
+
     this.formErrors = [];
   }
 }

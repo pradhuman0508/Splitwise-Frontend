@@ -1,12 +1,13 @@
 import { RouterOutlet } from '@angular/router';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
-import { CommonModule } from "@angular/common";
+import { CommonModule, isPlatformBrowser } from "@angular/common";
 import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { CreateGroupComponent } from '../groups/create-group/create-group.component';
 import { AddFriendComponent } from '../friends/add-friend/add-friend.component';
+import { AddExpenseComponent } from '../expenses/add-expense/add-expense.component';
 import { SkeletonModule } from 'primeng/skeleton';
 import { GroupsService, Group } from '../groups/groups.service';
 import { PanelModule } from 'primeng/panel';
@@ -22,6 +23,7 @@ import { firstValueFrom } from 'rxjs';
     ChartModule,
     CreateGroupComponent,
     AddFriendComponent,
+    AddExpenseComponent,
     FormsModule,
     SkeletonModule,
     CardModule,
@@ -50,7 +52,10 @@ export class DashboardComponent implements OnInit {
   doughnutData: any;
   doughnutOptions: any;
 
-  constructor(private groupsService: GroupsService) {
+  constructor(
+    private groupsService: GroupsService,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
     // Initialize empty data structures
     this.initializeEmptyData();
   }
@@ -62,6 +67,13 @@ export class DashboardComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
+    // Skip heavy operations during SSR
+    if (!isPlatformBrowser(this.platformId)) {
+      this.isLoading = false;
+      this.isChartLoading = false;
+      return;
+    }
+
     try {
       // Load data asynchronously
       await Promise.all([
@@ -213,7 +225,9 @@ export class DashboardComponent implements OnInit {
   }
 
   openNewExpenseModal(): void {
-    console.log("Opening new expense modal");
+    // This method is now handled by the AddExpenseComponent
+    // The button in the template will trigger the component's modal
+    console.log("Add expense functionality is now handled by AddExpenseComponent");
   }
 
   addNewFriend(): void {
@@ -222,5 +236,12 @@ export class DashboardComponent implements OnInit {
 
   navigateToGroup(groupId: string | number): void {
     this.groupsService.navigateToGroup(groupId);
+  }
+
+  onExpenseAdded(): void {
+    // Refresh dashboard data when a new expense is added
+    this.loadGroups();
+    this.loadTransactions();
+    this.loadOverviewData();
   }
 }

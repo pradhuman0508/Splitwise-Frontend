@@ -16,7 +16,10 @@ export class AuthService {
     @Inject(PLATFORM_ID) platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
-    setPersistence(this.auth, browserLocalPersistence);
+    // Only set persistence in browser environment
+    if (this.isBrowser) {
+      setPersistence(this.auth, browserLocalPersistence);
+    }
   }
 
   // Login with email and password

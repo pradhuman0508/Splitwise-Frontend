@@ -22,6 +22,7 @@ export interface GroupMember {
   balance: number;
   owesTo: { name: string; amount: number }[];
   owedBy: { name: string; amount: number }[];
+  involved?: boolean; // Optional property for expense involvement
 }
 
 export interface Expense {
@@ -152,7 +153,7 @@ export class GroupsService {
         ]
       }
     ]
-    
+
 
   };
 
@@ -307,6 +308,24 @@ export class GroupsService {
       this.groups[groupIndex] = {
         ...this.groups[groupIndex],
         description: newDescription
+      };
+      this.groupsSubject.next([...this.groups]);
+    }
+  }
+
+  addExpenseToGroup(groupId: number, expense: Expense): void {
+    if (!this.groupExpenses[groupId]) {
+      this.groupExpenses[groupId] = [];
+    }
+    this.groupExpenses[groupId].push(expense);
+  }
+
+  updateGroupTotalExpenses(groupId: number, amount: number): void {
+    const groupIndex = this.groups.findIndex(g => g.id === groupId);
+    if (groupIndex !== -1) {
+      this.groups[groupIndex] = {
+        ...this.groups[groupIndex],
+        totalExpenses: this.groups[groupIndex].totalExpenses + amount
       };
       this.groupsSubject.next([...this.groups]);
     }

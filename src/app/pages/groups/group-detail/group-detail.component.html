@@ -17,8 +17,7 @@
         </div>
       </div>
       <div class="flex gap-2">
-        <button pButton label="Add Expense" icon="pi pi-plus"
-                class="p-button-primary" (click)="addExpense()"></button>
+        <app-add-expense [groupId]="groupId" [showButton]="true" (expenseAdded)="onExpenseAdded()"></app-add-expense>
         <button pButton label="Settle Up" icon="pi pi-check-circle"
                 class="p-button-success" (click)="settleUp()"></button>
         <button pButton icon="pi pi-ellipsis-v" class="p-button-rounded p-button-text"

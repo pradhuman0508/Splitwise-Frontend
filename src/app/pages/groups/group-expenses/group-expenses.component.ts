@@ -12,6 +12,7 @@ import { AvatarGroup } from 'primeng/avatargroup';
 import { Avatar } from 'primeng/avatar';  
 import { GroupDetailsComponent } from './group-details/group-details.component';
 import { MemberDetailsComponent } from './member-details/member-details.component';
+import { AddExpenseComponent } from '../../expenses/add-expense/add-expense.component';
 
 @Component({
   selector: 'app-group-expenses',
@@ -29,7 +30,8 @@ import { MemberDetailsComponent } from './member-details/member-details.componen
     ToastModule,
     AvatarGroup,
     MemberDetailsComponent,
-    Avatar
+    Avatar,
+    AddExpenseComponent
   ],
   providers: [MessageService]
 })
@@ -53,7 +55,9 @@ export class GroupExpensesComponent implements OnInit {
   ngOnInit() {
     this.route.params.subscribe(params => {
       this.groupId = params['id'];
-      this.loadGroupData();
+      if (this.groupId) {
+        this.loadGroupData();
+      }
     });
   }
 
@@ -193,54 +197,39 @@ export class GroupExpensesComponent implements OnInit {
 
   onFileSelected(event: any) {
     const file = event.target.files[0];
-    if (file && this.groupId && this.group) {
-      if (!file.type.startsWith('image/')) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Please select an image file'
-        });
-        return;
-      }
-
-      if (file.size > 5 * 1024 * 1024) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Image size should be less than 5MB'
-        });
-        return;
-      }
-
-      event.stopPropagation();
+    if (file) {
       this.isUploadingAvatar = true;
-
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        const imageUrl = e.target.result;
-        this.group!.avatar = imageUrl;
-        this.groupsService.updateGroupAvatarLocally(Number(this.groupId), imageUrl);
-
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Group avatar updated successfully'
+      const formData = new FormData();
+      formData.append('avatar', file);
+      
+      if (this.groupId) {
+        this.groupsService.updateGroupAvatar(this.groupId, formData).subscribe({
+          next: (response) => {
+            this.groupsService.updateGroupAvatarLocally(Number(this.groupId), response.avatarUrl);
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: 'Group avatar updated successfully!'
+            });
+          },
+          error: (error) => {
+            console.error('Error updating avatar:', error);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Failed to update group avatar. Please try again.'
+            });
+          },
+          complete: () => {
+            this.isUploadingAvatar = false;
+          }
         });
-
-        this.isUploadingAvatar = false;
-      };
-
-      reader.onerror = () => {
-        console.error('Error reading file');
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to read the image file. Please try again.'
-        });
-        this.isUploadingAvatar = false;
-      };
-
-      reader.readAsDataURL(file);
+      }
     }
+  }
+
+  onExpenseAdded(): void {
+    // Refresh group data when a new expense is added
+    this.loadGroupData();
   }
 } 

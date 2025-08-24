@@ -59,8 +59,7 @@
         <p-button *ngIf="group" size="small" styleClass="w-[180px]"
           [label]="'Total Expense: ' + (group.totalExpenses | currency:'INR':'symbol':'1.2-2')" variant="text"
           severity="secondary" />
-        <p-button icon="pi pi-plus" label="Add Expense" size="small" styleClass="w-[120px]" (click)="addExpense()"
-          [raised]="true" severity="info" />
+        <app-add-expense [groupId]="groupId ? +groupId : undefined" [showButton]="true" (expenseAdded)="onExpenseAdded()"></app-add-expense>
       </div>
     </div>
 

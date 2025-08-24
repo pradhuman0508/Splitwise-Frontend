@@ -5,9 +5,9 @@ import { GroupsService, Group } from '../groups.service';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
 import { CardModule } from 'primeng/card';
 import { TooltipModule } from 'primeng/tooltip';
-import { DropdownModule } from 'primeng/dropdown';
 import { CreateGroupComponent } from '../create-group/create-group.component';
 import { Subscription } from 'rxjs';
 
@@ -19,10 +19,10 @@ import { Subscription } from 'rxjs';
     FormsModule,
     ButtonModule,
     InputTextModule,
+    SelectModule,
     CreateGroupComponent,
     CardModule,
-    TooltipModule,
-    DropdownModule
+    TooltipModule
   ],
   templateUrl: './group-list.component.html',
   styleUrl: './group-list.component.scss'

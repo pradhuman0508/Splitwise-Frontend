@@ -145,9 +145,7 @@
     <div class="lg:col-span-4 card rounded-lg shadow-sm p-6">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-semibold">Recent Expenses</h2>
-        <button (click)="openNewExpenseModal()" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors">
-          Add Expense
-        </button>
+        <app-add-expense (expenseAdded)="onExpenseAdded()"></app-add-expense>
       </div>
       <div class="overflow-x-auto">
         <ng-container *ngIf="!isLoading; else expensesLoading">
