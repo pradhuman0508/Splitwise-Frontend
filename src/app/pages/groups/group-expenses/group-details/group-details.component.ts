@@ -15,7 +15,7 @@ import { GroupsService, Group } from '../../groups.service';
 })
 export class GroupDetailsComponent implements OnInit {
   @Input() groupId?: string;
-  @Input() isExpanded: boolean = false;
+  @Input() isIExpanded: boolean = false;
   @ViewChild('nameInput') nameInput!: ElementRef;
   group?: Group;
 

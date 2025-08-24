@@ -1,7 +1,6 @@
 <!-- Add Expense Button -->
-<button *ngIf="showButton" pButton label="Add Expense" icon="pi pi-plus"
-        severity="success" class="p-button-primary w-full sm:w-auto"
-        (click)="openNewExpenseModal()"></button>
+<p-button icon="pi pi-plus" label="Add Expense" size="small" styleClass="w-[120px]" (click)="openNewExpenseModal()"
+        [raised]="true" severity="info" />
 
 <!-- Add Expense Dialog -->
 <p-dialog maskStyleClass="backdrop-blur-sm" header="Add New Expense" [modal]="true" [(visible)]="visible"

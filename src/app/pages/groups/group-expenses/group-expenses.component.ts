@@ -9,9 +9,10 @@ import { GroupsService, Expense, GroupedExpenses, Group, GroupMember } from '../
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { AvatarGroup } from 'primeng/avatargroup';
-import { Avatar } from 'primeng/avatar';  
+import { Avatar } from 'primeng/avatar';
 import { GroupDetailsComponent } from './group-details/group-details.component';
 import { MemberDetailsComponent } from './member-details/member-details.component';
+import { ManageMembersComponent } from './manage-members/manage-members.component';
 import { AddExpenseComponent } from '../../expenses/add-expense/add-expense.component';
 
 @Component({
@@ -31,6 +32,7 @@ import { AddExpenseComponent } from '../../expenses/add-expense/add-expense.comp
     AvatarGroup,
     MemberDetailsComponent,
     Avatar,
+    ManageMembersComponent,
     AddExpenseComponent
   ],
   providers: [MessageService]
@@ -55,33 +57,50 @@ export class GroupExpensesComponent implements OnInit {
   ngOnInit() {
     this.route.params.subscribe(params => {
       this.groupId = params['id'];
-      if (this.groupId) {
-        this.loadGroupData();
-      }
+      this.loadGroupData();
     });
   }
 
-  isExpanded = false;
+  isIExpanded = false;
+  isIIExpanded = false;
 
-  @ViewChild('cardRef') cardRef!: ElementRef;
+  @ViewChild('cardIRef') cardIRef!: ElementRef;
+  @ViewChild('cardIIRef') cardIIRef!: ElementRef;
   @ViewChild('nameInput') nameInput!: ElementRef;
 
   toggleSlide() {
-    console.log('toggleSlide', this.isExpanded);
-    this.isExpanded = !this.isExpanded;
+    console.log('toggleSlide', this.isIExpanded);
+    this.isIExpanded = !this.isIExpanded;
+    if (this.isIExpanded) {
+      this.isIIExpanded = false;
+    }
+  }
+
+  toggleSlideII() {
+    console.log('toggleSlideII', this.isIIExpanded);
+    this.isIIExpanded = !this.isIIExpanded;
+    if (this.isIIExpanded) {
+      this.isIExpanded = false;
+    }
   }
 
   @HostListener('document:click', ['$event'])
   handleClickOutside(event: MouseEvent) {
-    if (this.isExpanded && this.cardRef && !this.cardRef.nativeElement.contains(event.target)) {
-      this.isExpanded = false;
+    if (this.isIExpanded && this.cardIRef && !this.cardIRef.nativeElement.contains(event.target)) {
+      this.isIExpanded = false;
+    }
+    if (this.isIIExpanded && this.cardIIRef && !this.cardIIRef.nativeElement.contains(event.target)) {
+      this.isIIExpanded = false;
     }
   }
 
   @HostListener('document:keydown.escape')
   handleEscapeKey() {
-    if (this.isExpanded) {
-      this.isExpanded = false;
+    if (this.isIExpanded) {
+      this.isIExpanded = false;
+    }
+    if (this.isIIExpanded) {
+      this.isIIExpanded = false;
     }
   }
 
@@ -157,7 +176,7 @@ export class GroupExpensesComponent implements OnInit {
       this.loadGroupMembers();
     }
   }
-  
+
 
   loadGroupMembers() {
     this.groupsService.getGroupMembers(Number(this.groupId)).subscribe(members => {
@@ -201,7 +220,7 @@ export class GroupExpensesComponent implements OnInit {
       this.isUploadingAvatar = true;
       const formData = new FormData();
       formData.append('avatar', file);
-      
+
       if (this.groupId) {
         this.groupsService.updateGroupAvatar(this.groupId, formData).subscribe({
           next: (response) => {
@@ -232,4 +251,4 @@ export class GroupExpensesComponent implements OnInit {
     // Refresh group data when a new expense is added
     this.loadGroupData();
   }
-} 
+}

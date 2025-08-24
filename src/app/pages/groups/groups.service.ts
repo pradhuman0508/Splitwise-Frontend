@@ -22,6 +22,7 @@ export interface GroupMember {
   balance: number;
   owesTo: { name: string; amount: number }[];
   owedBy: { name: string; amount: number }[];
+  createdAt: Date;
   involved?: boolean; // Optional property for expense involvement
 }
 
@@ -103,7 +104,8 @@ export class GroupsService {
         "owedBy": [
           { "name": "Pradhuman Vaidya", "amount": 30 },
           { "name": "Yash 0098209295", "amount": 20 }
-        ]
+        ],
+        "createdAt": new Date('2024-01-15')
       },
       {
         "id": 2,
@@ -114,7 +116,8 @@ export class GroupsService {
         "owesTo": [
           { "name": "Yash Bakadiya", "amount": 30 }
         ],
-        "owedBy": []
+        "owedBy": [],
+        "createdAt": new Date('2024-01-16')
       },
       {
         "id": 3,
@@ -125,7 +128,8 @@ export class GroupsService {
         "owesTo": [
           { "name": "Yash 0098209295", "amount": 80 }
         ],
-        "owedBy": []
+        "owedBy": [],
+        "createdAt": new Date('2024-01-17')
       },
       {
         "id": 4,
@@ -136,7 +140,8 @@ export class GroupsService {
         "owesTo": [
           { "name": "Yash 0098209295", "amount": 80 }
         ],
-        "owedBy": []
+        "owedBy": [],
+        "createdAt": new Date('2024-01-18')
       },
       {
         "id": 5,
@@ -150,7 +155,8 @@ export class GroupsService {
         "owedBy": [
           { "name": "Test User", "amount": 80 },
           { "name": "Clone Splitwise", "amount": 80 }
-        ]
+        ],
+        "createdAt": new Date('2024-01-19')
       }
     ]
 
@@ -237,6 +243,11 @@ export class GroupsService {
 
   getGroupMembers(groupId: number): Observable<GroupMember[]> {
     return of(this.groupMembers[groupId] || []);
+  }
+
+  removeGroupMemberLocally(groupId: number, memberId: number): void {
+    const members = this.groupMembers[groupId] || [];
+    this.groupMembers[groupId] = members.filter(m => m.id !== memberId);
   }
 
   getGroupExpenses(groupId: number): Observable<Expense[]> {
