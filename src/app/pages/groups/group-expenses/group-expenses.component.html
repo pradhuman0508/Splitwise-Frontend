@@ -1,4 +1,3 @@
-<div class="container mx-auto">
   <p-toast></p-toast>
   <!-- Group Header -->
   <p-card class="shadow-sm min-h-screen">
@@ -44,7 +43,7 @@
           </span>
         </div>
         <div class="flex justify-center surface-border rounded-full" (click)="onClickDisableDropDown($event)">
-          <div class="hover:bg-[var(--surface-hover)] p-2 rounded-l-full border-rt">
+          <div (click)="toggleSlideII()" class="hover:bg-[var(--surface-hover)] p-2 rounded-l-full border-rt">
             <p-avatarGroup>
               <p-avatar *ngFor="let member of members.slice(0, 4)" [image]="member.avatar" shape="circle" />
               <p-avatar *ngIf="members.length > 4" label="+{{ members.length - 4 }}" shape="circle" />
@@ -64,11 +63,15 @@
     </div>
 
     <!-- Card Container -->
-    <div #cardRef *ngIf="isExpanded"
+    <div #cardIRef *ngIf="isIExpanded"
       class="absolute bg-color-card surface-border rounded shadow-lg z-40 overflow-y-auto">
-      <app-group-details [groupId]="groupId" [isExpanded]="isExpanded" />
+      <app-group-details [groupId]="groupId" [isIExpanded]="isIExpanded" />
+    </div>
+    <div #cardIIRef *ngIf="isIIExpanded" class="absolute left-[48%] bg-color-card surface-border rounded shadow-lg z-40 overflow-y-auto">
+      <app-manage-members *ngIf="groupId as gid" [groupId]="gid" [isIIExpanded]="isIIExpanded" />
     </div>
 
+    
     <div class="grid grid-cols-1 md:grid-cols-2 items-center">
       <div class="border-rt">
         <p-scrollpanel [style]="{ width: '100%', height: '575px' }">
@@ -114,4 +117,3 @@
       <div></div>
     </div>
   </p-card>
-</div>

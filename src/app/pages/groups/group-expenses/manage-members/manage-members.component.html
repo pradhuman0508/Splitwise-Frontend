@@ -1,6 +1,63 @@
-<p-scrollPanel [style]="{ width: '340px', height: '164px' }" styleClass="custombar1">
-  <div class="w-full">
-      <div class="mx-auto w-[330px]">
+<p-scrollPanel [style]="{ width: '500px', height: '370px' }">
+  <div class="w-full border-bm">
+    <div class="mx-auto w-[480px]">
+      <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center pt-3">
+        <h1 class="text-lg font-bold text-gray-750 px-3 mb-0 mr-auto">Group Members</h1>
+        <p-button label="New member" icon="pi pi-plus" [style]="{'font-size': '1rem'}" variant="text" severity="secondary" (click)="addMember()" [disabled]="membersFormArray.length >= 10" />
       </div>
+      
+      <!-- Form for adding new members -->
+      <form [formGroup]="memberForm" class="space-y-4">
+        <div formArrayName="members" class="space-y-4">
+          <div *ngFor="let member of membersFormArray.controls; let i = index" [formGroupName]="i"
+              class="flex flex-col sm:flex-row gap-4 items-start sm:items-center pt-2 px-3">
+              <p-floatlabel variant="on" class="w-full">
+                  <input pInputText [id]="'memberName' + i" type="text" formControlName="name" class="w-full"
+                      [ngClass]="{'border-red-300': isArrayFieldInvalid(i, 'name')}"
+                      (blur)="onFieldBlur(i)"
+                      (keypress)="onFieldKeyPress($event, i)" />
+                  <label [for]="'memberName' + i">Member Name</label>
+              </p-floatlabel>
+
+              <p-floatlabel variant="on" class="w-full">
+                  <input pInputText [id]="'memberEmail' + i" type="email" formControlName="email"
+                      class="w-full" [ngClass]="{'border-red-300': isArrayFieldInvalid(i, 'email')}"
+                      (blur)="onFieldBlur(i)"
+                      (keypress)="onFieldKeyPress($event, i)" />
+                  <label [for]="'memberEmail' + i">Member Email</label>
+              </p-floatlabel>
+
+              <button type="button" (click)="removeMember(i)"
+                  class="mt-1 text-red-600 hover:text-red-800">
+                  <i class="pi pi-times" style="font-size: 1rem"></i>
+              </button>
+          </div>
+        </div>
+      </form>
+
+      <!-- Display existing members -->
+      <div *ngIf="members && members.length > 0" class="py-2">
+        <div *ngFor="let member of members">
+          <div class="flex items-center gap-4 p-1 rounded-lg cursor-pointer hover:bg-[var(--surface-hover)]">
+            <div class="w-16 h-16 rounded-full bg-blue-200 flex items-center justify-center">
+              <div *ngIf="!member.avatar">
+                <i class="pi pi-user text-blue-600"></i>
+              </div>
+              <img *ngIf="member.avatar" [src]="member.avatar" [alt]="member.name"
+                class="w-16 h-16 rounded-full object-cover" />
+            </div>
+            <div class="mr-auto">
+              <p class="text-lg mb-0">{{ member.name }}</p>
+              <p class="text-sm text-blue-600">{{ member.email }}</p>
+            </div>
+            <div>
+              <button type="button" class="mt-1 pr-1 text-red-600 hover:text-red-800" (click)="removeExistingMember(member)">
+                <i class="pi pi-times" style="font-size: 1rem"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </p-scrollPanel>
