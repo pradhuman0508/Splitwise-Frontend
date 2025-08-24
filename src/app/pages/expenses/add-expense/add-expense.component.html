@@ -1,1 +1,303 @@
-<p>add-expense works!</p>
+<!-- Add Expense Button -->
+<button *ngIf="showButton" pButton label="Add Expense" icon="pi pi-plus"
+        severity="success" class="p-button-primary w-full sm:w-auto"
+        (click)="openNewExpenseModal()"></button>
+
+<!-- Add Expense Dialog -->
+<p-dialog maskStyleClass="backdrop-blur-sm" header="Add New Expense" [modal]="true" [(visible)]="visible"
+    [style]="{ width: '50rem' }" [draggable]="false" [resizable]="false">
+
+    <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()" class="space-y-6">
+
+        <!-- Error Messages -->
+        <div *ngIf="formErrors.length > 0" class="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
+            <ul class="list-disc pl-5">
+                <li *ngFor="let error of formErrors" class="text-sm text-red-600">{{ error }}</li>
+            </ul>
+        </div>
+
+        <!-- Basic Expense Details -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Description -->
+            <div class="field">
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Description *</label>
+                <input pInputText id="description" formControlName="description"
+                       placeholder="What was this expense for?"
+                       class="w-full"
+                       [ngClass]="{'ng-invalid ng-dirty': expenseForm.get('description')?.invalid && expenseForm.get('description')?.touched}">
+                <small *ngIf="expenseForm.get('description')?.invalid && expenseForm.get('description')?.touched"
+                       class="text-red-500">Description is required</small>
+            </div>
+
+            <!-- Amount -->
+            <div class="field">
+                <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">Amount *</label>
+                <p-inputNumber id="amount" formControlName="amount"
+                              placeholder="0.00"
+                              mode="currency"
+                              currency="INR"
+                              class="w-full"
+                              [ngClass]="{'ng-invalid ng-dirty': expenseForm.get('amount')?.invalid && expenseForm.get('amount')?.touched}"
+                              (onInput)="onAmountChange()">
+                </p-inputNumber>
+                <small *ngIf="expenseForm.get('amount')?.invalid && expenseForm.get('amount')?.touched"
+                       class="text-red-500">Valid amount is required</small>
+            </div>
+        </div>
+
+        <!-- Group and Date -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Group Selection -->
+            <div class="field">
+                <label for="groupId" class="block text-sm font-medium text-gray-700 mb-2">Group *</label>
+                <p-select id="groupId" formControlName="groupId"
+                           [options]="groups"
+                           optionLabel="name"
+                           optionValue="id"
+                           placeholder="Select a group"
+                           class="w-full"
+                           [ngClass]="{'ng-invalid ng-dirty': expenseForm.get('groupId')?.invalid && expenseForm.get('groupId')?.touched}"
+                           (onChange)="onGroupChange()">
+                </p-select>
+                <small *ngIf="expenseForm.get('groupId')?.invalid && expenseForm.get('groupId')?.touched"
+                       class="text-red-500">Group selection is required</small>
+            </div>
+
+            <!-- Date -->
+            <div class="field">
+                <label for="date" class="block text-sm font-medium text-gray-700 mb-2">Date *</label>
+                <p-datepicker id="date" formControlName="date"
+                           dateFormat="dd/mm/yy"
+                           class="w-full"
+                           [ngClass]="{'ng-invalid ng-dirty': expenseForm.get('date')?.invalid && expenseForm.get('date')?.touched}">
+                </p-datepicker>
+                <small *ngIf="expenseForm.get('date')?.invalid && expenseForm.get('date')?.touched"
+                       class="text-red-500">Date is required</small>
+            </div>
+        </div>
+
+        <!-- Paid By and Notes -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Paid By -->
+            <div class="field">
+                <label for="paidBy" class="block text-sm font-medium text-gray-700 mb-2">Paid By *</label>
+                <p-select id="paidBy" formControlName="paidBy"
+                           [options]="selectedGroupMembers"
+                           optionLabel="name"
+                           optionValue="name"
+                           placeholder="Who paid for this?"
+                           class="w-full"
+                           [ngClass]="{'ng-invalid ng-dirty': expenseForm.get('paidBy')?.invalid && expenseForm.get('paidBy')?.touched}">
+                </p-select>
+                <small *ngIf="expenseForm.get('paidBy')?.invalid && expenseForm.get('paidBy')?.touched"
+                       class="text-red-500">Paid by selection is required</small>
+            </div>
+
+            <!-- Notes -->
+            <div class="field">
+                <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                <input pInputText id="notes" formControlName="notes"
+                       placeholder="Additional details (optional)"
+                       class="w-full">
+            </div>
+        </div>
+
+        <!-- Split Options -->
+        <div *ngIf="selectedGroupMembers.length > 0" class="space-y-4">
+            <p-divider></p-divider>
+
+            <!-- User Involvement and Split Options -->
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-800">Split Options</h3>
+                    <div class="flex items-center space-x-3">
+                        <button type="button"
+                                pButton
+                                label="Reset to Equal"
+                                severity="secondary"
+                                size="small"
+                                (click)="resetToEqualSplit()"
+                                class="text-xs">
+                        </button>
+                        <p-select [options]="splitOptions"
+                                   [(ngModel)]="selectedSplitOption"
+                                   optionLabel="label"
+                                   optionValue="value"
+                                   (onChange)="onSplitOptionChange()"
+                                   class="w-48">
+                        </p-select>
+                    </div>
+                </div>
+
+                <!-- Member Split Details -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-3 font-medium text-sm text-gray-600">
+                        <div>Member</div>
+                        <div class="text-center">Involved</div>
+                        <div class="text-center">Split Value</div>
+                        <div class="text-center">Amount</div>
+                    </div>
+
+                    <div *ngFor="let split of memberSplits; let i = index"
+                         class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center py-2 border-b border-gray-200 last:border-b-0">
+
+                        <!-- Member Name -->
+                        <div class="flex items-center space-x-2">
+                            <img [src]="split.member.avatar" [alt]="split.member.name"
+                                 class="w-8 h-8 rounded-full">
+                            <span class="font-medium">{{ split.member.name }}</span>
+                        </div>
+
+                        <!-- Involvement Checkbox -->
+                        <div class="text-center">
+                            <input type="checkbox"
+                                   [(ngModel)]="split.involved"
+                                   (change)="onMemberSplitChange()"
+                                   class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
+                        </div>
+
+                        <!-- Dynamic Split Input Field -->
+                        <div class="text-center">
+                            <!-- Equal Split - No input needed -->
+                            <span *ngIf="selectedSplitOption === 'equal'" class="text-gray-500 text-sm">
+                                Auto-calculated
+                            </span>
+
+                            <!-- Percentage Split -->
+                            <div *ngIf="selectedSplitOption === 'percentage'">
+                                <input *ngIf="split.involved"
+                                       type="number"
+                                       [(ngModel)]="split.percentage"
+                                       min="0"
+                                       max="100"
+                                       step="0.1"
+                                       class="w-24 p-2 text-center border rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                       (input)="onPercentageChange(split)"
+                                       placeholder="0.0">
+                                <span *ngIf="!split.involved" class="text-gray-400 text-sm">
+                                    -
+                                </span>
+                                <div *ngIf="split.involved" class="text-xs text-gray-500 mt-1">
+                                    %
+                                </div>
+                            </div>
+
+                            <!-- Shares Split -->
+                            <div *ngIf="selectedSplitOption === 'shares'">
+                                <input *ngIf="split.involved"
+                                       type="number"
+                                       [(ngModel)]="split.shares"
+                                       min="1"
+                                       class="w-20 p-2 text-center border rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                       (input)="onSharesChange(split)"
+                                       placeholder="1">
+                                <span *ngIf="!split.involved" class="text-gray-400 text-sm">
+                                    -
+                                </span>
+                                <div *ngIf="split.involved" class="text-xs text-gray-500 mt-1">
+                                    shares
+                                </div>
+                            </div>
+
+                            <!-- Amount Split -->
+                            <div *ngIf="selectedSplitOption === 'amount'">
+                                <input *ngIf="split.involved"
+                                       type="number"
+                                       [(ngModel)]="split.amount"
+                                       min="0"
+                                       step="0.01"
+                                       class="w-24 p-2 text-center border rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                       (input)="onAmountInputChange(split)"
+                                       placeholder="0.00">
+                                <span *ngIf="!split.involved" class="text-gray-400 text-sm">
+                                    -
+                                </span>
+                                <div *ngIf="split.involved" class="text-xs text-gray-500 mt-1">
+                                    ₹
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Calculated Amount -->
+                        <div class="text-center">
+                            <span class="font-semibold"
+                                  [ngClass]="{'text-green-600': split.involved, 'text-gray-400': !split.involved}">
+                                ₹{{ split.amount | number:'1.2-2' }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Split Summary -->
+                    <div class="mt-4 pt-3 border-t border-gray-200">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="font-medium">Total Split:</span>
+                            <span class="font-semibold"
+                                  [ngClass]="{'text-green-600': isSplitValid(), 'text-red-600': !isSplitValid()}">
+                                ₹{{ getTotalSplitAmount() | number:'1.2-2' }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm mt-1">
+                            <span class="font-medium">Difference:</span>
+                            <span class="font-semibold"
+                                  [ngClass]="{'text-green-600': isSplitValid(), 'text-red-600': !isSplitValid()}">
+                                ₹{{ getSplitDifference() | number:'1.2-2' }}
+                            </span>
+                        </div>
+
+                        <!-- Split Validation Message -->
+                        <div *ngIf="!isSplitValid() || getInvolvedUserCount() === 0" class="mt-2 p-2 bg-red-50 border border-red-200 rounded text-red-600 text-sm">
+                            ⚠️ {{ getSplitValidationMessage() }}
+                        </div>
+
+                        <!-- Split Instructions -->
+                        <div class="mt-3 p-2 bg-blue-50 border border-blue-200 rounded text-blue-600 text-sm">
+                            <div class="font-medium mb-1">Split Instructions:</div>
+                            <div *ngIf="selectedSplitOption === 'equal'">Amount will be split equally among involved users</div>
+                            <div *ngIf="selectedSplitOption === 'percentage'">
+                                Enter percentages (should total 100%) for each involved user
+                                <div class="mt-1 text-xs text-blue-500">
+                                    Total: <span class="font-medium">{{ getTotalPercentage() }}%</span>
+                                    <span *ngIf="getTotalPercentage() !== 100" class="ml-2">
+                                        ({{ 100 - getTotalPercentage() }}% remaining)
+                                    </span>
+                                </div>
+                            </div>
+                            <div *ngIf="selectedSplitOption === 'shares'">
+                                Enter number of shares for each involved user
+                                <div class="mt-1 text-xs text-blue-500">
+                                    Total: <span class="font-medium">{{ getTotalShares() }} shares</span>
+                                </div>
+                            </div>
+                            <div *ngIf="selectedSplitOption === 'amount'">
+                                Enter specific amounts for each involved user (should total expense amount)
+                                <div class="mt-1 text-xs text-blue-500">
+                                    Total: <span class="font-medium">₹{{ getTotalSplitAmount() | number:'1.2-2' }}</span>
+                                    <span *ngIf="getSplitDifference() !== 0" class="ml-2">
+                                        ({{ getSplitDifference() > 0 ? '+' : '' }}₹{{ getSplitDifference() | number:'1.2-2' }} remaining)
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex justify-end space-x-3 pt-4">
+            <button type="button" pButton label="Cancel"
+                    severity="secondary"
+                    (click)="visible = false"
+                    [disabled]="isSubmitting">
+            </button>
+            <button type="submit" pButton label="Add Expense"
+                    severity="success"
+                    [loading]="isSubmitting"
+                    [disabled]="!isFormValid()">
+            </button>
+        </div>
+    </form>
+</p-dialog>
+
+<!-- Toast Messages -->
+<p-toast></p-toast>

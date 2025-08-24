@@ -1,8 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Group, GroupMember, GroupsService } from '../groups.service';
-import { ExpensesService } from '../../expenses/expenses.service';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -14,8 +11,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
+import { Router, ActivatedRoute } from '@angular/router';
+import { GroupsService, Group, GroupMember } from '../groups.service';
+import { ExpensesService } from '../../expenses/expenses.service';
 import { ExpenseListComponent } from '../../expenses/expense-list/expense-list.component';
 import { GroupMemberComponent } from '../group-member/group-member.component';
+import { AddExpenseComponent } from '../../expenses/add-expense/add-expense.component';
 
 @Component({
   selector: 'app-group-detail',
@@ -33,7 +34,8 @@ import { GroupMemberComponent } from '../group-member/group-member.component';
     TooltipModule,
     MenuModule,
     ExpenseListComponent,
-    GroupMemberComponent
+    GroupMemberComponent,
+    AddExpenseComponent
   ],
   templateUrl: './group-detail.component.html',
   styleUrl: './group-detail.component.scss'
@@ -56,70 +58,28 @@ export class GroupDetailComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
-      this.groupId = 1;
-      // this.groupId = +params['id'];
-      if (this.groupId) {
-        this.loadGroupDetails();
-        this.loadGroupMembers();
-      }
-    });
-
-    this.setupMenuItems();
-  }
-
-  loadGroupDetails(): void {
-    this.groupsService.getGroups().subscribe({
-      next: (groups) => {
-        const foundGroup = groups.find(g => g.id === this.groupId);
-        if (foundGroup) {
-          this.group = foundGroup;
-          this.editedGroup = { ...foundGroup };
-        } else {
-          // Handle case when group is not found
-          console.error('Group not found');
-          this.router.navigate(['/groups']);
-        }
-      },
-      error: (error) => {
-        console.error('Error loading group details:', error);
-        // Handle error appropriately
-      }
+      this.groupId = +params['id'];
+      this.loadGroupData();
+      this.setupMenuItems();
     });
   }
 
-  loadGroupMembers(): void {
-    if (!this.groupId) return;
-    
-    this.groupsService.getGroupMembers(this.groupId).subscribe({
-      next: (members) => {
-        this.members = members;
-      },
-      error: (error) => {
-        console.error('Error loading group members:', error);
-        this.members = [];
-      }
+  private loadGroupData(): void {
+    this.groupsService.getGroups().subscribe(groups => {
+      this.group = groups.find(g => g.id === this.groupId) || null;
+    });
+
+    this.groupsService.getGroupMembers(this.groupId).subscribe(members => {
+      this.members = members;
     });
   }
 
-  setupMenuItems(): void {
+  private setupMenuItems(): void {
     this.menuItems = [
       {
         label: 'Edit Group',
         icon: 'pi pi-pencil',
-        command: () => this.openEditDialog()
-      },
-      {
-        label: 'Add Member',
-        icon: 'pi pi-user-plus',
-        command: () => this.addMember()
-      },
-      {
-        label: 'Leave Group',
-        icon: 'pi pi-sign-out',
-        command: () => this.leaveGroup()
-      },
-      {
-        separator: true
+        command: () => this.showEditDialog = true
       },
       {
         label: 'Delete Group',
@@ -129,31 +89,20 @@ export class GroupDetailComponent implements OnInit {
     ];
   }
 
-  openEditDialog(): void {
-    this.editedGroup = { ...this.group };
-    this.showEditDialog = true;
+  goBack(): void {
+    this.router.navigate(['/groups']);
   }
 
   saveGroupChanges(): void {
-    // In a real app, this would call the service
-    this.group = { ...this.editedGroup };
-    this.showEditDialog = false;
-    // Show success message
-  }
-
-  addMember(): void {
-    // Navigate to add member page or open dialog
-    console.log('Add member functionality');
-  }
-
-  leaveGroup(): void {
-    // Confirmation dialog would be shown in real app
-    console.log('Leave group functionality');
+    if (this.group && this.editedGroup.name) {
+      this.groupsService.updateGroupNameLocally(this.groupId, this.editedGroup.name);
+      this.groupsService.updateGroupDescriptionLocally(this.groupId, this.editedGroup.description || '');
+      this.showEditDialog = false;
+      this.loadGroupData();
+    }
   }
 
   deleteGroup(): void {
-    // Confirmation dialog would be shown in real app
-    console.log('Delete group functionality');
     this.router.navigate(['/groups']);
   }
 
@@ -163,10 +112,10 @@ export class GroupDetailComponent implements OnInit {
 
   settleUp(): void {
     console.log('Settle up functionality');
-    // Open settle up dialog
   }
 
-  goBack(): void {
-    this.router.navigate(['/groups']);
+  onExpenseAdded(): void {
+    // Refresh group data when a new expense is added
+    this.loadGroupData();
   }
 }
