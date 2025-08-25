@@ -12,6 +12,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { GroupsService, Group } from '../groups/groups.service';
 import { PanelModule } from 'primeng/panel';
 import { firstValueFrom } from 'rxjs';
+import { getAuth, User } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-dashboard',
@@ -54,6 +55,7 @@ export class DashboardComponent implements OnInit {
   groups: Group[] = [];
   transactions: any[] = [];
   friends: any[] = [];
+  currentUser: User | null = null;
 
   doughnutData: any;
   doughnutOptions: any;
@@ -79,7 +81,11 @@ export class DashboardComponent implements OnInit {
       this.isChartLoading = false;
       return;
     }
-
+    try{
+      this.currentUser = getAuth().currentUser;
+    }catch(error){
+      console.error('Error while fetching current user:', error);
+    }
     try {
       // Load data asynchronously
       await Promise.all([

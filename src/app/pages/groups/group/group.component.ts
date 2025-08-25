@@ -16,9 +16,9 @@ import { ManageMembersComponent } from './manage-members/manage-members.componen
 import { AddExpenseComponent } from '../../expenses/add-expense/add-expense.component';
 
 @Component({
-  selector: 'app-group-expenses',
-  templateUrl: './group-expenses.component.html',
-  styleUrls: ['./group-expenses.component.scss'],
+  selector: 'app-group',
+  templateUrl: './group.component.html',
+  styleUrls: ['./group.component.scss'],
   standalone: true,
   imports: [
     CommonModule,
@@ -37,7 +37,7 @@ import { AddExpenseComponent } from '../../expenses/add-expense/add-expense.comp
   ],
   providers: [MessageService]
 })
-export class GroupExpensesComponent implements OnInit {
+export class GroupComponent implements OnInit {
   groupId: string | undefined;
   group?: Group;
   expenses: Expense[] = [];
