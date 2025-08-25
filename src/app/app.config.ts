@@ -47,20 +47,22 @@ export const appConfig: ApplicationConfig = {
           "measurementId":"G-MR1W4X880F"
         });
       }
-      // Return a dummy app for SSR (will be replaced on client)
-      return initializeApp({}, 'dummy-app');
+      // Return a minimal app for SSR
+      return initializeApp({}, 'ssr-app');
     }),
     provideAuth(() => {
       if (typeof window !== 'undefined') {
         return getAuth();
       }
-      return null as any;
+      // Return a mock auth for SSR
+      return {} as any;
     }),
     provideFirestore(() => {
       if (typeof window !== 'undefined') {
         return getFirestore();
       }
-      return null as any;
+      // Return a mock firestore for SSR
+      return {} as any;
     }),
     AuthInterceptor
   ],

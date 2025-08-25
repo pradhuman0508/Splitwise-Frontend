@@ -1,5 +1,5 @@
 import { inject, Injectable, PLATFORM_ID, Inject } from '@angular/core';
-import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, authState, signOut, GoogleAuthProvider, signInWithPopup, setPersistence, browserLocalPersistence } from '@angular/fire/auth';
+import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, authState, signOut, GoogleAuthProvider, signInWithPopup } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { of } from 'rxjs';
@@ -8,7 +8,7 @@ import { of } from 'rxjs';
   providedIn: 'root'
 })
 export class AuthService {
-  private auth: Auth = inject(Auth);
+  private auth: Auth | null = null;
   private isBrowser: boolean;
 
   constructor(
@@ -16,10 +16,25 @@ export class AuthService {
     @Inject(PLATFORM_ID) platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
-    // Only set persistence in browser environment
-    if (this.isBrowser) {
-      setPersistence(this.auth, browserLocalPersistence);
+  }
+
+  private getAuth(): Auth | null {
+    if (!this.auth && this.isBrowser) {
+      try {
+        this.auth = inject(Auth);
+        // Set persistence only when we're absolutely sure we're in browser
+        this.setPersistenceSafely();
+      } catch (error) {
+        console.warn('Could not initialize auth service:', error);
+        return null;
+      }
     }
+    return this.auth;
+  }
+
+  private setPersistenceSafely(): void {
+    // Temporarily disabled persistence to avoid SSR issues
+    // Persistence will be set to default (local) by Firebase automatically
   }
 
   // Login with email and password
@@ -28,7 +43,12 @@ export class AuthService {
       return Promise.reject(new Error('Authentication is only available in browser environment'));
     }
 
-    return signInWithEmailAndPassword(this.auth, email, password)
+    const auth = this.getAuth();
+    if (!auth) {
+      return Promise.reject(new Error('Authentication service not available'));
+    }
+
+    return signInWithEmailAndPassword(auth, email, password)
       .catch((error) => {
         // Handle error codes here and return a custom error message
         let errorMessage = '';
@@ -52,7 +72,12 @@ export class AuthService {
       return Promise.reject(new Error('Authentication is only available in browser environment'));
     }
 
-    return createUserWithEmailAndPassword(this.auth, email, password)
+    const auth = this.getAuth();
+    if (!auth) {
+      return Promise.reject(new Error('Authentication service not available'));
+    }
+
+    return createUserWithEmailAndPassword(auth, email, password)
       .catch((error) => {
         // Handle error codes here and return a custom error message
         let errorMessage = '';
@@ -75,14 +100,21 @@ export class AuthService {
     if (!this.isBrowser) {
       return of(null); // Return Observable<null> for SSR
     }
-    return authState(this.auth);
+    const auth = this.getAuth();
+    if (!auth) {
+      return of(null);
+    }
+    return authState(auth);
   }
 
   // Logout
   logout() {
     if (this.isBrowser) {
       this.router.navigate(['/auth/login']);
-      return signOut(this.auth);
+      const auth = this.getAuth();
+      if (auth) {
+        return signOut(auth);
+      }
     }
     return Promise.resolve();
   }
@@ -93,14 +125,15 @@ export class AuthService {
       return Promise.reject(new Error('Authentication is only available in browser environment'));
     }
 
-    if (!this.auth) {
-      return Promise.reject(new Error('Authentication service not properly initialized'));
+    const auth = this.getAuth();
+    if (!auth) {
+      return Promise.reject(new Error('Authentication service not available'));
     }
 
     try {
       const provider = new GoogleAuthProvider();
 
-      return signInWithPopup(this.auth, provider)
+      return signInWithPopup(auth, provider)
         .catch((error) => {
           // Handle error codes here and return a custom error message
           let errorMessage = '';

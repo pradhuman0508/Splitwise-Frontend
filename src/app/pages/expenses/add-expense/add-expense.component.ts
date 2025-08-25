@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, Inject, PLATFORM_ID } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -23,7 +23,6 @@ import { getAuth } from '@angular/fire/auth';
     Dialog,
     CommonModule,
     ReactiveFormsModule,
-    FormsModule,
     InputTextModule,
     InputNumberModule,
     SelectModule,
@@ -57,8 +56,12 @@ export class AddExpenseComponent implements OnInit {
     { label: 'Split by amount', value: 'amount' }
   ];
 
-  selectedSplitOption: string = 'equal';
   memberSplits: { member: GroupMember; amount: number; percentage: number; shares: number; involved: boolean }[] = [];
+
+  // Getter for selected split option
+  get selectedSplitOption(): string {
+    return this.expenseForm.get('selectedSplitOption')?.value || 'equal';
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -73,7 +76,8 @@ export class AddExpenseComponent implements OnInit {
       groupId: [null, Validators.required],
       paidBy: ['', Validators.required],
       date: [new Date(), Validators.required],
-      notes: ['']
+      notes: [''],
+      selectedSplitOption: ['equal']
     });
   }
 
@@ -237,7 +241,8 @@ export class AddExpenseComponent implements OnInit {
     this.calculateSplits();
   }
 
-  onMemberSplitChange() {
+  onMemberSplitChange(event: any, split: any) {
+    split.involved = event.target.checked;
     this.calculateSplits();
   }
 
@@ -355,8 +360,9 @@ export class AddExpenseComponent implements OnInit {
   }
 
   // Method to handle percentage input changes
-  onPercentageChange(split: any) {
+  onPercentageChange(event: any, split: any) {
     if (split.involved && this.selectedSplitOption === 'percentage') {
+      split.percentage = parseFloat(event.target.value) || 0;
       // Ensure percentage doesn't exceed 100
       if (split.percentage > 100) {
         split.percentage = 100;
@@ -366,8 +372,9 @@ export class AddExpenseComponent implements OnInit {
   }
 
   // Method to handle amount input changes
-  onAmountInputChange(split: any) {
+  onAmountInputChange(event: any, split: any) {
     if (split.involved && this.selectedSplitOption === 'amount') {
+      split.amount = parseFloat(event.target.value) || 0;
       // Ensure amount doesn't exceed total expense amount
       const totalAmount = this.expenseForm.get('amount')?.value || 0;
       if (split.amount > totalAmount) {
@@ -378,8 +385,9 @@ export class AddExpenseComponent implements OnInit {
   }
 
   // Method to handle shares input changes
-  onSharesChange(split: any) {
+  onSharesChange(event: any, split: any) {
     if (split.involved && this.selectedSplitOption === 'shares') {
+      split.shares = parseInt(event.target.value) || 1;
       // Ensure shares is at least 1
       if (split.shares < 1) {
         split.shares = 1;
@@ -390,7 +398,7 @@ export class AddExpenseComponent implements OnInit {
 
   // Method to reset all splits to equal distribution
   resetToEqualSplit() {
-    this.selectedSplitOption = 'equal';
+    this.expenseForm.patchValue({ selectedSplitOption: 'equal' });
     this.calculateSplits();
   }
 
