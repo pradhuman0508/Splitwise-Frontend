@@ -2,7 +2,7 @@ import { RouterOutlet } from '@angular/router';
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 import { CommonModule, isPlatformBrowser } from "@angular/common";
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { CreateGroupComponent } from '../groups/create-group/create-group.component';
@@ -24,7 +24,7 @@ import { firstValueFrom } from 'rxjs';
     CreateGroupComponent,
     AddFriendComponent,
     AddExpenseComponent,
-    FormsModule,
+    ReactiveFormsModule,
     SkeletonModule,
     CardModule,
     PanelModule
@@ -34,9 +34,15 @@ import { firstValueFrom } from 'rxjs';
 })
 
 export class DashboardComponent implements OnInit {
-  searchCategory: string = "all";
-  searchQuery: string = "";
+  searchForm = new FormGroup({
+    searchCategory: new FormControl('all'),
+    searchQuery: new FormControl('')
+  });
   searchResults: any[] = [];
+
+  // Getters for easy access to form values
+  get searchCategory() { return this.searchForm.get('searchCategory')?.value || 'all'; }
+  get searchQuery() { return this.searchForm.get('searchQuery')?.value || ''; }
 
   totalExpenses: number = 0;
   youAreOwed: number = 0;
@@ -243,5 +249,14 @@ export class DashboardComponent implements OnInit {
     this.loadGroups();
     this.loadTransactions();
     this.loadOverviewData();
+  }
+
+  // Reset search form
+  resetSearch(): void {
+    this.searchForm.reset({
+      searchCategory: 'all',
+      searchQuery: ''
+    });
+    this.searchResults = [];
   }
 }

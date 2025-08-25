@@ -118,12 +118,12 @@
                                 (click)="resetToEqualSplit()"
                                 class="text-xs">
                         </button>
-                        <p-select [options]="splitOptions"
-                                   [(ngModel)]="selectedSplitOption"
-                                   optionLabel="label"
-                                   optionValue="value"
-                                   (onChange)="onSplitOptionChange()"
-                                   class="w-48">
+                         <p-select [options]="splitOptions"
+                                    formControlName="selectedSplitOption"
+                                    optionLabel="label"
+                                    optionValue="value"
+                                    (onChange)="onSplitOptionChange()"
+                                    class="w-48">
                         </p-select>
                     </div>
                 </div>
@@ -150,8 +150,8 @@
                         <!-- Involvement Checkbox -->
                         <div class="text-center">
                             <input type="checkbox"
-                                   [(ngModel)]="split.involved"
-                                   (change)="onMemberSplitChange()"
+                                   [checked]="split.involved"
+                                   (change)="onMemberSplitChange($event, split)"
                                    class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
                         </div>
 
@@ -166,12 +166,12 @@
                             <div *ngIf="selectedSplitOption === 'percentage'">
                                 <input *ngIf="split.involved"
                                        type="number"
-                                       [(ngModel)]="split.percentage"
+                                       [value]="split.percentage"
                                        min="0"
                                        max="100"
                                        step="0.1"
                                        class="w-24 p-2 text-center border rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                       (input)="onPercentageChange(split)"
+                                       (input)="onPercentageChange($event, split)"
                                        placeholder="0.0">
                                 <span *ngIf="!split.involved" class="text-gray-400 text-sm">
                                     -
@@ -185,10 +185,10 @@
                             <div *ngIf="selectedSplitOption === 'shares'">
                                 <input *ngIf="split.involved"
                                        type="number"
-                                       [(ngModel)]="split.shares"
+                                       [value]="split.shares"
                                        min="1"
                                        class="w-20 p-2 text-center border rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                       (input)="onSharesChange(split)"
+                                       (input)="onSharesChange($event, split)"
                                        placeholder="1">
                                 <span *ngIf="!split.involved" class="text-gray-400 text-sm">
                                     -
@@ -202,11 +202,11 @@
                             <div *ngIf="selectedSplitOption === 'amount'">
                                 <input *ngIf="split.involved"
                                        type="number"
-                                       [(ngModel)]="split.amount"
+                                       [value]="split.amount"
                                        min="0"
                                        step="0.01"
                                        class="w-24 p-2 text-center border rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                       (input)="onAmountInputChange(split)"
+                                       (input)="onAmountInputChange($event, split)"
                                        placeholder="0.00">
                                 <span *ngIf="!split.involved" class="text-gray-400 text-sm">
                                     -
