@@ -13,7 +13,7 @@ import { CreateGroupComponent } from '../../create-group/create-group.component'
   standalone: true,
   imports: [CommonModule, FloatLabelModule, ScrollPanelModule, ButtonModule, ReactiveFormsModule, InputTextModule],
   templateUrl: './manage-members.component.html',
-  styleUrls: ['../group-expenses.component.scss']
+  styleUrls: ['../group.component.scss']
 })
 export class ManageMembersComponent implements OnInit {
   @Input() groupId!: string;
