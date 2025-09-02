@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormArray, ReactiveFormsModule } from '@angular/forms';
 import { GroupsService, GroupMember } from '../../groups.service';
@@ -6,24 +6,29 @@ import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { ButtonModule } from 'primeng/button';
 import { FloatLabelModule } from "primeng/floatlabel"
 import { InputTextModule } from 'primeng/inputtext';
-import { CreateGroupComponent } from '../../create-group/create-group.component';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-manage-members',
   standalone: true,
   imports: [CommonModule, FloatLabelModule, ScrollPanelModule, ButtonModule, ReactiveFormsModule, InputTextModule],
   templateUrl: './manage-members.component.html',
-  styleUrls: ['../group.component.scss']
+  styleUrls: ['../group.component.scss', './manage-members.component.scss']
 })
 export class ManageMembersComponent implements OnInit {
-  @Input() groupId!: string;
-  @Input() isIIExpanded: boolean = false;
+  groupId!: string;
   members: GroupMember[] = [];
   memberForm: FormGroup;
+  selectedMember: GroupMember | null = null;
+  removalSuccess = false;
 
   constructor(
     private groupsService: GroupsService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private route: ActivatedRoute,
+    private location: Location,
+    private router: Router
   ) {
     this.memberForm = this.fb.group({
       members: this.fb.array([])
@@ -31,12 +36,28 @@ export class ManageMembersComponent implements OnInit {
   }
 
   ngOnInit() {
+    // Resolve group ID from parent route first, fallback to current route
+    const parentId = this.route.parent?.snapshot.paramMap.get('id');
+    const selfId = this.route.snapshot.paramMap.get('id');
+    this.groupId = parentId || selfId || '';
+
     if (this.groupId) {
-      this.groupsService.getGroupMembers(Number(this.groupId)).subscribe((members) => {
-        this.members = members;
-        // Sort existing members by creation time (newest first)
-        this.sortMembersByCreationTime();
+      this.groupsService.getGroupMembers(Number(this.groupId)).subscribe({
+        next: (members) => {
+          this.members = members || [];
+        },
+        error: (error) => {
+          console.error('Error fetching members:', error);
+        }
       });
+    }
+  }
+
+  goBack(): void {
+    if (window.history.length > 1) {
+      this.location.back();
+    } else if (this.groupId) {
+      this.router.navigate(['/group', this.groupId]);
     }
   }
 
@@ -69,8 +90,24 @@ export class ManageMembersComponent implements OnInit {
     // Refresh local list
     this.groupsService.getGroupMembers(Number(this.groupId)).subscribe((members) => {
       this.members = members;
+      this.selectedMember = null;
+      this.removalSuccess = true;
+      setTimeout(() => {
+        this.removalSuccess = false;
+      }, 3000);
     });
   }
+
+  isDebtListEmpty(member: GroupMember): boolean {
+    const isEmpty = (!member.owesTo || member.owesTo.length === 0) 
+                 && (!member.owedBy || member.owedBy.length === 0);
+      return isEmpty;
+  }
+
+  selectMember(member: GroupMember): void {
+    this.selectedMember = member;
+  }
+  
 
   isArrayFieldInvalid(i: number, field: string): boolean {
     const control = this.membersFormArray.at(i).get(field);
@@ -135,34 +172,15 @@ export class ManageMembersComponent implements OnInit {
       balance: 0, // Default balance
       owesTo: [],
       owedBy: [],
-      createdAt: new Date() // Add timestamp for sorting
+      createdAt: new Date() 
     };
 
     // Add to local members array
     this.members.push(newMember);
-    
-    // Sort members by creation time (newest first)
-    this.sortMembersByCreationTime();
-    
-    // Here you would typically also call a service method to persist the member
-    // this.groupsService.addGroupMember(Number(this.groupId), newMember);
-    
-    console.log('Member added:', newMember);
   }
 
   private getNextMemberId(): number {
     if (this.members.length === 0) return 1;
     return Math.max(...this.members.map(m => m.id)) + 1;
-  }
-
-  private sortMembersByCreationTime(): void {
-    this.members.sort((a, b) => {
-      // Sort by createdAt timestamp (newest first)
-      if (a.createdAt && b.createdAt) {
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      }
-      // If no timestamp, keep original order
-      return 0;
-    });
   }
 }

@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { GroupsService, Group } from '../groups.service';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -10,6 +9,7 @@ import { CardModule } from 'primeng/card';
 import { TooltipModule } from 'primeng/tooltip';
 import { CreateGroupComponent } from '../create-group/create-group.component';
 import { Subscription } from 'rxjs';
+import { GroupsService, Group } from '../../groups.service';
 
 @Component({
   selector: 'app-group-list',

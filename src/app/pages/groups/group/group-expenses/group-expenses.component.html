@@ -1,1 +1,46 @@
-<p>group-expenses works!</p>
+<div class="grid grid-cols-1 md:grid-cols-2">
+  <div class="border-rt">
+    <p-scrollpanel [style]="{ width: '100%', height: '575px' }">
+      <div class="divide-y divide-gray-200 dark:divide-gray-700">
+        <div *ngFor="let group of groupedExpenses">
+          <p-card [style]="{ 'box-shadow': 'none', 'border-border-radius': 'none'}">
+            <!-- Month Header -->
+            <div class="bg-color rounded-full px-3 mb-2">
+              <h2 class="text-xl font-semibold mb-0">{{ group.month }}</h2>
+            </div>
+
+            <!-- Expenses -->
+            <div *ngFor="let expense of group.expenses"
+              class="px-2 py-3 hover:bg-[var(--surface-hover)] transition-colors rounded-lg grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+              <!-- Left: Description & Paid By -->
+              <div>
+                <h3 class="text-lg font-medium mb-0">{{ expense.description }}</h3>
+                <p class="text-sm mt-1">Paid by {{ expense.paidBy }}</p>
+              </div>
+
+              <!-- Middle: Status Tag -->
+              <div class="flex md:justify-center">
+                <p-tag [severity]="expense.status === 'settled' ? 'success' : 'warn'" [value]="expense.status"></p-tag>
+              </div>
+
+              <!-- Right: Amount & Date -->
+              <div class="flex flex-col items-start md:items-end space-y-1">
+                <p class="text-xl font-semibold mb-0" [ngClass]="{
+                  'text-green-600': expense.amount > 0,
+                  'text-red-600': expense.amount < 0
+                }">
+                  ₹{{ expense.amount | number:'1.2-2' }}
+                </p>
+                <p class="text-sm">{{ expense.updatedAt | date: 'medium' }}</p>
+              </div>
+            </div>
+          </p-card>
+        </div>
+      </div>
+    </p-scrollpanel>
+  </div>
+  <div>
+    <app-add-expense class="ml-auto w-[120px]" [groupId]="groupId ? +groupId : undefined" [showButton]="true"
+      (expenseAdded)="onExpenseAdded()"></app-add-expense>
+  </div>
+</div>

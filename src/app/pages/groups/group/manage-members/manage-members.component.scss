@@ -1,0 +1,9 @@
+:host ::ng-deep .header-scroll .p-scrollpanel-content-container {
+    border-right: 1px solid var(--surface-border);
+    border-left: 1px solid var(--surface-border);
+    border-radius: 2rem;
+}
+
+:host ::ng-deep .header-scroll .p-scrollpanel-content {
+    padding: 0 0 0 0;
+}

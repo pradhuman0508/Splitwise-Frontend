@@ -1,119 +1,71 @@
-  <p-toast></p-toast>
-  <!-- Group Header -->
-  <p-card class="shadow-sm min-h-screen">
-    <div class="flex flex-col md:flex-row items-center mb-2 justify-between">
-      <div class="flex items-center surface-border p-2 rounded-md w-full" (click)="toggleSlide()">
-        <div class="relative group mr-4" (click)="onClickDisableDropDown($event)">
-          <img *ngIf="group" [src]="group.avatar" [alt]="group.name"
-            class="w-16 h-16 rounded-full object-cover surface-border" />
-          <div
-            class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            <i *ngIf="!isUploadingAvatar" class="pi pi-pencil text-white text-xl z-10" (click)="fileInput.click()"></i>
-            <i *ngIf="isUploadingAvatar" class="pi pi-spin pi-spinner text-white text-xl z-10"></i>
-          </div>
-          <div
-            class="absolute inset-0 bg-black rounded-full opacity-0 group-hover:opacity-30 transition-opacity duration-200">
-          </div>
-          <input #fileInput type="file" accept="image/*" class="hidden" (change)="onFileSelected($event)" />
+<p-toast></p-toast>
+<!-- Group Header -->
+<p-card class="shadow-sm min-h-screen">
+  <div class="flex flex-col md:flex-row items-center mb-2 rounded-md bg-color surface-border justify-between">
+    <div class="flex items-center p-2 w-full rounded-r-full bg-color-card" (click)="toggleSlide()">
+      <div class="relative group mr-4" (click)="onClickDisableDropDown($event)">
+        <img *ngIf="group" [src]="group.avatar" [alt]="group.name"
+          class="w-16 h-16 rounded-full object-cover surface-border" />
+        <div
+          class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <i *ngIf="!isUploadingAvatar" class="pi pi-pencil text-white text-xl z-10" (click)="fileInput.click()"></i>
+          <i *ngIf="isUploadingAvatar" class="pi pi-spin pi-spinner text-white text-xl z-10"></i>
         </div>
+        <div
+          class="absolute inset-0 bg-black rounded-full opacity-0 group-hover:opacity-30 transition-opacity duration-200">
+        </div>
+        <input #fileInput type="file" accept="image/*" class="hidden" (change)="onFileSelected($event)" />
+      </div>
 
-        <div class="flex flex-col mr-auto">
-          <div class="relative group flex flex-row gap-2">
-            <h1 *ngIf="!isEditingName && group" class="text-2xl font-bold mb-0 px-1">{{ group.name }}</h1>
-            <p-button *ngIf="!isEditingName" size="small" icon="pi pi-pencil" severity="secondary" [text]="true"
-              (click)="startNameEdit($event)"
-              class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 py-0" />
-            <input #nameInput *ngIf="isEditingName && group" type="text" [value]="group.name"
-              class="text-2xl font-bold mb-0 bg-color surface-border focus:outline-none rounded px-1"
-              (blur)="saveGroupName(nameInput.value)"
-              (keydown.enter)="saveGroupName(nameInput.value); $event.preventDefault()"
-              (keydown.escape)="cancelNameEdit(); $event.preventDefault()" (click)="onClickDisableDropDown($event)" />
-          </div>
-          <span *ngIf="group" class="text-sm font-medium px-1" [ngClass]="{
+      <div class="flex flex-col mr-auto">
+        <div class="relative group flex flex-row gap-2">
+          <h1 *ngIf="!isEditingName && group" class="text-2xl font-bold mb-0 px-1">{{ group.name }}</h1>
+          <p-button *ngIf="!isEditingName" size="small" icon="pi pi-pencil" severity="secondary" [text]="true"
+            (click)="startNameEdit($event)"
+            class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 py-0" />
+          <input #nameInput *ngIf="isEditingName && group" type="text" [value]="group.name"
+            class="text-2xl font-bold mb-0 bg-color surface-border focus:outline-none rounded px-1"
+            (blur)="saveGroupName(nameInput.value)"
+            (keydown.enter)="saveGroupName(nameInput.value); $event.preventDefault()"
+            (keydown.escape)="cancelNameEdit(); $event.preventDefault()" (click)="onClickDisableDropDown($event)" />
+        </div>
+        <span *ngIf="group" class="text-sm font-medium px-1" [ngClass]="{
               'text-green-600': group.balance > 0,
               'text-red-600': group.balance < 0,
               'text-gray-600': !group.balance || group.balance === 0
             }">
-            <ng-container *ngIf="group.balance > 0">You are owed</ng-container>
-            <ng-container *ngIf="group.balance < 0">You owe</ng-container>
-            <ng-container *ngIf="!group.balance || group.balance === 0">Settled up</ng-container>
-            <span *ngIf="group.balance !== 0">
-              {{ group.balance | currency:'INR':'symbol':'1.2-2' }}
-            </span>
+          <ng-container *ngIf="group.balance > 0">You are owed</ng-container>
+          <ng-container *ngIf="group.balance < 0">You owe</ng-container>
+          <ng-container *ngIf="!group.balance || group.balance === 0">Settled up</ng-container>
+          <span *ngIf="group.balance !== 0">
+            {{ group.balance | currency:'INR':'symbol':'1.2-2' }}
           </span>
+        </span>
+      </div>
+
+    </div>
+    <!-- [label]="'Total Expense: ' + (group.totalExpenses | currency:'INR':'symbol':'1.2-2')"  -->
+    <div class="flex items-center gap-2 mx-2">
+      <!-- <p-button *ngIf="group" size="small" styleClass="w-[125px]" label="Group Expenses" variant="text" severity="secondary"
+        [routerLink]="['/group', group.id]" routerLinkActive="hidden" [routerLinkActiveOptions]="{ exact: true }" /> -->
+      <div class="flex justify-center bg-color-card surface-border rounded-full"
+        (click)="onClickDisableDropDown($event)">
+        <div routerLink="manage-members" routerLinkActive="hidden"
+          class="hover:bg-[var(--surface-hover)] p-2 rounded-full" [routerLinkActiveOptions]="{ exact: true }">
+          <p-avatarGroup>
+            <p-avatar *ngFor="let member of members.slice(0, 4)" [image]="member.avatar" shape="circle" />
+            <p-avatar *ngIf="members.length > 4" label="+{{ members.length - 4 }}" shape="circle" />
+          </p-avatarGroup>
         </div>
-        <div class="flex justify-center surface-border rounded-full" (click)="onClickDisableDropDown($event)">
-          <div (click)="toggleSlideII()" class="hover:bg-[var(--surface-hover)] p-2 rounded-l-full border-rt">
-            <p-avatarGroup>
-              <p-avatar *ngFor="let member of members.slice(0, 4)" [image]="member.avatar" shape="circle" />
-              <p-avatar *ngIf="members.length > 4" label="+{{ members.length - 4 }}" shape="circle" />
-            </p-avatarGroup>
-          </div>
-          <div class="bg-color p-2 rounded-r-full">
-            <app-member-details></app-member-details>
-          </div>
-        </div>
-      </div>
-      <div class="flex items-center gap-2 mx-2">
-        <p-button *ngIf="group" size="small" styleClass="w-[180px]"
-          [label]="'Total Expense: ' + (group.totalExpenses | currency:'INR':'symbol':'1.2-2')" variant="text"
-          severity="secondary" />
-        <app-add-expense [groupId]="groupId ? +groupId : undefined" [showButton]="true" (expenseAdded)="onExpenseAdded()"></app-add-expense>
       </div>
     </div>
+  </div>
 
-    <!-- Card Container -->
-    <div #cardIRef *ngIf="isIExpanded"
-      class="absolute bg-color-card surface-border rounded shadow-lg z-40 overflow-y-auto">
-      <app-group-details [groupId]="groupId" [isIExpanded]="isIExpanded" />
-    </div>
-    <div #cardIIRef *ngIf="isIIExpanded" class="absolute left-[48%] bg-color-card surface-border rounded shadow-lg z-40 overflow-y-auto">
-      <app-manage-members *ngIf="groupId as gid" [groupId]="gid" [isIIExpanded]="isIIExpanded" />
-    </div>
+  <!-- Card Container -->
+  <div #cardIRef *ngIf="isIExpanded"
+    class="absolute bg-color-card surface-border rounded shadow-lg z-40 overflow-y-auto">
+    <app-group-details [groupId]="groupId" [isIExpanded]="isIExpanded" />
+  </div>
 
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 items-center">
-      <div class="border-rt">
-        <p-scrollpanel [style]="{ width: '100%', height: '575px' }">
-          <div class="divide-y divide-gray-200 dark:divide-gray-700">
-            <div *ngFor="let group of groupedExpenses">
-              <p-card [style]="{ 'box-shadow': 'none', 'border-border-radius': 'none'}">
-                <!-- Month Header -->
-                <div class="bg-color rounded-full px-3 mb-2">
-                  <h2 class="text-xl font-semibold mb-0">{{ group.month }}</h2>
-                </div>
-
-                <!-- Expenses -->
-                <div *ngFor="let expense of group.expenses"
-                  class="px-2 py-3 hover:bg-[var(--surface-hover)] transition-colors rounded-lg grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                  <!-- Left: Description & Paid By -->
-                  <div>
-                    <h3 class="text-lg font-medium mb-0">{{ expense.description }}</h3>
-                    <p class="text-sm mt-1">Paid by {{ expense.paidBy }}</p>
-                  </div>
-
-                  <!-- Middle: Status Tag -->
-                  <div class="flex md:justify-center">
-                    <p-tag [severity]="expense.status === 'settled' ? 'success' : 'warn'"
-                      [value]="expense.status"></p-tag>
-                  </div>
-
-                  <!-- Right: Amount & Date -->
-                  <div class="flex flex-col items-start md:items-end space-y-1">
-                    <p class="text-xl font-semibold mb-0" [ngClass]="{
-                      'text-green-600': expense.amount > 0,
-                      'text-red-600': expense.amount < 0
-                    }">
-                      ₹{{ expense.amount | number:'1.2-2' }}
-                    </p>
-                    <p class="text-sm">{{ expense.updatedAt | date: 'medium' }}</p>
-                  </div>
-                </div>
-              </p-card>
-            </div>
-          </div>
-        </p-scrollpanel>
-      </div>
-      <div></div>
-    </div>
-  </p-card>
+  <router-outlet></router-outlet>
+</p-card>

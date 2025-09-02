@@ -1,63 +1,169 @@
-<p-scrollPanel [style]="{ width: '500px', height: '370px' }">
-  <div class="w-full border-bm">
-    <div class="mx-auto w-[480px]">
-      <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center pt-3">
-        <h1 class="text-lg font-bold text-gray-750 px-3 mb-0 mr-auto">Group Members</h1>
-        <p-button label="New member" icon="pi pi-plus" [style]="{'font-size': '1rem'}" variant="text" severity="secondary" (click)="addMember()" [disabled]="membersFormArray.length >= 10" />
-      </div>
-      
-      <!-- Form for adding new members -->
-      <form [formGroup]="memberForm" class="space-y-4">
-        <div formArrayName="members" class="space-y-4">
-          <div *ngFor="let member of membersFormArray.controls; let i = index" [formGroupName]="i"
-              class="flex flex-col sm:flex-row gap-4 items-start sm:items-center pt-2 px-3">
-              <p-floatlabel variant="on" class="w-full">
-                  <input pInputText [id]="'memberName' + i" type="text" formControlName="name" class="w-full"
-                      [ngClass]="{'border-red-300': isArrayFieldInvalid(i, 'name')}"
-                      (blur)="onFieldBlur(i)"
-                      (keypress)="onFieldKeyPress($event, i)" />
-                  <label [for]="'memberName' + i">Member Name</label>
-              </p-floatlabel>
-
-              <p-floatlabel variant="on" class="w-full">
-                  <input pInputText [id]="'memberEmail' + i" type="email" formControlName="email"
-                      class="w-full" [ngClass]="{'border-red-300': isArrayFieldInvalid(i, 'email')}"
-                      (blur)="onFieldBlur(i)"
-                      (keypress)="onFieldKeyPress($event, i)" />
-                  <label [for]="'memberEmail' + i">Member Email</label>
-              </p-floatlabel>
-
-              <button type="button" (click)="removeMember(i)"
-                  class="mt-1 text-red-600 hover:text-red-800">
-                  <i class="pi pi-times" style="font-size: 1rem"></i>
-              </button>
-          </div>
-        </div>
-      </form>
-
-      <!-- Display existing members -->
-      <div *ngIf="members && members.length > 0" class="py-2">
-        <div *ngFor="let member of members">
-          <div class="flex items-center gap-4 p-1 rounded-lg cursor-pointer hover:bg-[var(--surface-hover)]">
-            <div class="w-16 h-16 rounded-full bg-blue-200 flex items-center justify-center">
-              <div *ngIf="!member.avatar">
-                <i class="pi pi-user text-blue-600"></i>
+<div class="flex flex-col sm:flex-row items-start sm:items-center">
+  <p-button icon="pi pi-arrow-left" [rounded]="true" severity="secondary" variant="text" (click)="goBack()" />
+  <div class="flex flex-col px-2 text-gray-500 dark:text-gray-400 mr-14">
+    <h1 class="text-lg font-bold my-0">Group Members</h1>
+    <span class="text-sm">{{ members.length }} members</span>
+  </div>
+  <div class="flex-1">
+    <p-scrollPanel class="header-scroll inline-block" [ngStyle]="{ width: 'fit-content', maxWidth: '630px' }">
+      <div *ngIf="members && members.length > 0">
+        <div class="flex flex-row gap-2 p-3">
+          <div *ngFor="let member of members; let last = last">
+            <div class="flex flex-col w-[95px] rounded-md py-2 hover:bg-[var(--surface-hover)] 
+              cursor-pointer transition-colors duration-200" (click)="selectMember(member)"
+              [ngClass]="{
+                'border-b-2 border-blue-500': selectedMember?.id === member.id,
+                'mr-8': last
+              }">
+              <div class="w-16 h-16 rounded-full bg-blue-200 flex items-center justify-center mx-auto">
+                <div *ngIf="!member.avatar">
+                  <i class="pi pi-user text-blue-600"></i>
+                </div>
+                <img *ngIf="member.avatar" [src]="member.avatar" [alt]="member.name"
+                  class="w-16 h-16 rounded-full object-cover" />
               </div>
-              <img *ngIf="member.avatar" [src]="member.avatar" [alt]="member.name"
-                class="w-16 h-16 rounded-full object-cover" />
-            </div>
-            <div class="mr-auto">
-              <p class="text-lg mb-0">{{ member.name }}</p>
-              <p class="text-sm text-blue-600">{{ member.email }}</p>
-            </div>
-            <div>
-              <button type="button" class="mt-1 pr-1 text-red-600 hover:text-red-800" (click)="removeExistingMember(member)">
-                <i class="pi pi-times" style="font-size: 1rem"></i>
-              </button>
+              <span class="text-sm mb-0 font-medium text-gray-500 dark:text-gray-400 text-center">{{
+                ((member?.name?.length || 0) > 10) ? ((member?.name | slice:0:10) + '...') : (member?.name || '')
+                }}</span>
             </div>
           </div>
         </div>
+      </div>
+    </p-scrollPanel>
+  </div>
+  <div class="flex flex-row">
+    <!-- Form for adding new members -->
+    <form [formGroup]="memberForm" class="space-y-4">
+      <div formArrayName="members">
+        <div *ngFor="let member of membersFormArray.controls; let i = index" [formGroupName]="i"
+          class="flex flex-col sm:flex-row gap-4 items-start sm:items-center mx-4">
+          <p-floatlabel variant="on" class="w-full">
+            <input pInputText [id]="'memberName' + i" type="text" formControlName="name" class="w-full"
+              [ngClass]="{'border-red-300': isArrayFieldInvalid(i, 'name')}" (blur)="onFieldBlur(i)"
+              (keypress)="onFieldKeyPress($event, i)" />
+            <label [for]="'memberName' + i">Name</label>
+          </p-floatlabel>
+
+          <p-floatlabel variant="on" class="w-full">
+            <input pInputText [id]="'memberEmail' + i" type="email" formControlName="email" class="w-full"
+              [ngClass]="{'border-red-300': isArrayFieldInvalid(i, 'email')}" (blur)="onFieldBlur(i)"
+              (keypress)="onFieldKeyPress($event, i)" />
+            <label [for]="'memberEmail' + i">Email</label>
+          </p-floatlabel>
+
+          <button type="button" (click)="removeMember(i)" class="mt-1 text-red-600 hover:text-red-800">
+            <i class="pi pi-times" style="font-size: 1rem"></i>
+          </button>
+        </div>
+      </div>
+    </form>
+    <p-button label="Add a person" icon="pi pi-plus" size="small" variant="text" severity="info" (click)="addMember()"
+      [disabled]="membersFormArray.length >= 10" />
+  </div>
+</div>
+
+<div class="mx-auto mt-2 rounded-lg surface-border w-[95%]">
+
+
+  <!-- Right Side - Member Details -->
+  <div class="flex-1 p-6 bg-color">
+    <div *ngIf="selectedMember; else noMemberSelected" class="w-full">
+      <!-- Member Header -->
+      <div class="bg-color-card rounded-md">
+        <div class="flex items-center gap-4 mb-6 p-4 border-bm border-gray-200 dark:border-gray-700">
+          <div class="w-20 h-20 rounded-full bg-blue-200 flex items-center justify-center">
+            <div *ngIf="!selectedMember.avatar">
+              <i class="pi pi-user text-blue-600 text-2xl"></i>
+            </div>
+            <img *ngIf="selectedMember.avatar" [src]="selectedMember.avatar" [alt]="selectedMember.name"
+              class="w-20 h-20 rounded-full object-cover" />
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-0">{{ selectedMember.name }}</h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-0">{{ selectedMember.email }}</p>
+            <p class="text-sm text-gray-500">Joined {{ selectedMember.createdAt | date:'mediumDate' }}</p>
+          </div>
+          <div class="ml-auto">
+            <span class="px-4 py-2 rounded-lg text-sm font-semibold" [ngClass]="{
+              'bg-green-100 text-green-700': selectedMember.balance > 0,
+              'bg-red-100 text-red-700': selectedMember.balance < 0,
+              'bg-gray-100 text-gray-700': selectedMember.balance === 0
+            }">
+              Balance: {{ selectedMember.balance | currency:'INR':'symbol':'1.2-2' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Member Details Content -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Owes To Section -->
+        <div *ngIf="selectedMember.owesTo && selectedMember.owesTo.length > 0"
+          class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+            <i class="pi pi-arrow-up text-red-500"></i>
+            Owes To
+          </h3>
+          <div class="space-y-3">
+            <div *ngFor="let debt of selectedMember.owesTo"
+              class="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+              <div>
+                <p class="font-medium text-gray-900 dark:text-gray-100">{{ debt.name }}</p>
+                <p class="text-sm text-gray-500">Amount owed</p>
+              </div>
+              <div class="text-right">
+                <p class="text-lg font-bold text-red-600">{{ debt.amount | currency:'INR':'symbol':'1.2-2' }}</p>
+                <p-button label="Settle Up" size="small" severity="danger" class="mt-2" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Owed By Section -->
+        <div *ngIf="selectedMember.owedBy && selectedMember.owedBy.length > 0"
+          class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+            <i class="pi pi-arrow-down text-green-500"></i>
+            Owed By
+          </h3>
+          <div class="space-y-3">
+            <div *ngFor="let credit of selectedMember.owedBy"
+              class="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <div>
+                <p class="font-medium text-gray-900 dark:text-gray-100">{{ credit.name }}</p>
+                <p class="text-sm text-gray-500">Amount owed to you</p>
+              </div>
+              <div class="text-right">
+                <p class="text-lg font-bold text-green-600">{{ credit.amount | currency:'INR':'symbol':'1.2-2' }}</p>
+                <p-button label="Settle Up" size="small" severity="success" class="mt-2" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Debts Message -->
+        <div *ngIf="isDebtListEmpty(selectedMember)" class="col-span-full text-center py-12">
+          <i class="pi pi-check-circle text-4xl text-green-500"></i>
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">All Settled Up!</h3>
+          <p class="text-gray-600 dark:text-gray-400">This member has no outstanding debts or credits.</p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div *ngIf="isDebtListEmpty(selectedMember)">
+        <p-button class="flex justify-end" label="Remove Member" icon="pi pi-trash" severity="danger"
+          (click)="removeExistingMember(selectedMember)" />
       </div>
     </div>
+
+    <!-- No Member Selected State -->
+    <ng-template #noMemberSelected>
+      <div class="text-center py-20">
+        <i class="pi pi-users text-6xl text-gray-500"></i>
+        <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Select a Member</h3>
+        <p class="text-gray-600 dark:text-gray-400">Click on a member to view their details and manage
+          their account.</p>
+      </div>
+    </ng-template>
   </div>
-</p-scrollPanel>
+</div>

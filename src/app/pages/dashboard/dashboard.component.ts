@@ -5,7 +5,6 @@ import { CommonModule, isPlatformBrowser } from "@angular/common";
 import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
-import { CreateGroupComponent } from '../groups/create-group/create-group.component';
 import { AddFriendComponent } from '../friends/add-friend/add-friend.component';
 import { AddExpenseComponent } from '../expenses/add-expense/add-expense.component';
 import { SkeletonModule } from 'primeng/skeleton';
@@ -13,6 +12,7 @@ import { GroupsService, Group } from '../groups/groups.service';
 import { PanelModule } from 'primeng/panel';
 import { firstValueFrom } from 'rxjs';
 import { getAuth, User } from '@angular/fire/auth';
+import { CreateGroupComponent } from '../groups/group/create-group/create-group.component';
 
 @Component({
   selector: 'app-dashboard',
