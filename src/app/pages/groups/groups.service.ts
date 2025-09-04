@@ -33,7 +33,7 @@ export interface Expense {
   amount: number;
   createdAt: Date;
   updatedAt: Date;
-  status: 'settled' | 'unsettled';
+  owes: number;
 }
 
 export interface GroupedExpenses {
@@ -162,7 +162,7 @@ export class GroupsService {
         "id": 6,
         "name": "Ashwin",
         "email": "ashwin123@gmail.com",
-        "avatar": "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61",
+        "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde",
         "balance": 0,
         "owesTo": [],
         "owedBy": [],
@@ -170,27 +170,27 @@ export class GroupsService {
       },
       {
         "id": 7,
-        "name": "Test User",
-        "email": "testUser@gmail.com",
-        "avatar": "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61",
-        "balance": -80,
+        "name": "Christopher Campbell",
+        "email": "ChristopherCampbell@gmail.com",
+        "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb",
+        "balance": -180,
         "owesTo": [
-          { "name": "Yash 0098209295", "amount": 80 }
+          { "name": "Hlove", "amount": 180 }
         ],
         "owedBy": [],
-        "createdAt": new Date('2024-01-17')
+        "createdAt": new Date('2023-01-10')
       },
       {
         "id": 8,
-        "name": "Clone Splitwise",
-        "email": "clonesplitwise@gmail.com",
-        "avatar": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80",
-        "balance": -80,
+        "name": "Hlove",
+        "email": "hlovesplit@gmail.com",
+        "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
+        "balance": -50,
         "owesTo": [
-          { "name": "Yash 0098209295", "amount": 80 }
+          { "name": "Clone Splitwise", "amount": 50 }
         ],
         "owedBy": [],
-        "createdAt": new Date('2024-01-18')
+        "createdAt": new Date('2024-03-11')
       }
     ]
 
@@ -205,8 +205,8 @@ export class GroupsService {
         paidBy: 'Yash Bakadiya',
         amount: 120.50,
         createdAt: new Date('2024-03-15'),
-        updatedAt: new Date('2024-03-15'),
-        status: 'unsettled'
+        updatedAt: new Date('2024-03-15T14:30:00'),
+        owes: 30
       },
       {
         id: '2',
@@ -214,8 +214,8 @@ export class GroupsService {
         paidBy: 'Pradhuman Vaidya',
         amount: 75.00,
         createdAt: new Date('2024-03-10'),
-        updatedAt: new Date('2024-03-10'),
-        status: 'settled'
+        updatedAt: new Date('2024-03-10T02:30:00'),
+        owes: 25
       },
       {
         id: '3',
@@ -223,8 +223,8 @@ export class GroupsService {
         paidBy: 'yash 0098209295',
         amount: 95.30,
         createdAt: new Date('2024-02-28'),
-        updatedAt: new Date('2024-02-28'),
-        status: 'unsettled'
+        updatedAt: new Date('2024-02-28T11:30:00'),
+        owes:28
       },
       {
         id: '4',
@@ -232,8 +232,8 @@ export class GroupsService {
         paidBy: 'Yash',
         amount: 7000,
         createdAt: new Date('2024-03-28'),
-        updatedAt: new Date('2024-03-28'),
-        status: 'settled'
+        updatedAt: new Date('2024-03-28T05:30:00'),
+        owes: 0
       },
       {
         id: '5',
@@ -241,8 +241,8 @@ export class GroupsService {
         paidBy: 'Akshay',
         amount: 40000,
         createdAt: new Date('2025-05-23'),
-        updatedAt: new Date('2025-05-23'),
-        status: 'settled'
+        updatedAt: new Date('2025-05-23T10:30:00'),
+        owes: 0
       },
       {
         id: '6',
@@ -250,8 +250,8 @@ export class GroupsService {
         paidBy: 'Ashwin',
         amount: 4000,
         createdAt: new Date('2025-04-23'),
-        updatedAt: new Date('2025-04-23'),
-        status: 'settled'
+        updatedAt: new Date('2025-04-23T11:30:00'),
+        owes: 300
       },
       {
         id: '7',
@@ -259,8 +259,8 @@ export class GroupsService {
         paidBy: 'Ashwin',
         amount: 4000,
         createdAt: new Date('2022-04-22'),
-        updatedAt: new Date('2022-04-22'),
-        status: 'settled'
+        updatedAt: new Date('2022-04-22T08:30:00'),
+        owes: 0
       }
     ]
   };

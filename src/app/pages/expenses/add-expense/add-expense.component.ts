@@ -434,7 +434,7 @@ export class AddExpenseComponent implements OnInit {
         amount: formValue.amount,
         createdAt: formValue.date,
         updatedAt: formValue.date,
-        status: 'unsettled'
+        owes: formValue.owes
       };
 
       // Add expense to the group

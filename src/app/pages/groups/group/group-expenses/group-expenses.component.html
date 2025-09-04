@@ -1,41 +1,70 @@
 <div class="grid grid-cols-1 md:grid-cols-2">
   <div class="border-rt">
     <p-scrollpanel [style]="{ width: '100%', height: '575px' }">
-      <div class="divide-y divide-gray-200 dark:divide-gray-700">
-        <div *ngFor="let group of groupedExpenses">
-          <p-card [style]="{ 'box-shadow': 'none', 'border-border-radius': 'none'}">
-            <!-- Month Header -->
-            <div class="bg-color rounded-full px-3 mb-2">
-              <h2 class="text-xl font-semibold mb-0">{{ group.month }}</h2>
+      <div *ngFor="let group of groupedExpenses" class="month-card">
+        <p-card [style]="{ 'box-shadow': 'none', 'border-border-radius': 'none'}">
+          <!-- Month Header -->
+          <div class="bg-color rounded-full px-3">
+            <p class="text-xl font-semibold">{{ group.month }}</p>
+          </div>
+
+
+          <!-- Expenses -->
+          <div *ngFor="let expense of group.expenses" class="py-1 px-2">
+            <div
+              class="p-2 hover:bg-[var(--surface-hover)] rounded-lg border-bm hover:shadow-md transition-all duration-200 grid grid-cols-12 gap-4 items-center">
+
+              <!-- Date Column (2 cols) -->
+              <div class="col-span-1 flex">
+                <div [pTooltip]="tooltipContent" tooltipPosition="bottom" showDelay="1000" hideDelay="300"
+                  class="flex flex-col items-center p-2 rounded-lg shadow-lg">
+                  <ng-template #tooltipContent>
+                    <p class="text-sm">{{ expense.updatedAt | date: 'yyyy/MM/dd, h:mm a' }}</p>
+                  </ng-template>
+                  <div class="text-xs font-medium text-gray-600 dark:text-gray-400">{{ expense.updatedAt | date: 'MMM' |
+                    uppercase }}</div>
+                  <div [style]="{ lineHeight: '1.2rem', fontSize: '1.4rem' }">{{ expense.updatedAt | date: 'd' }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Description Column (5 cols) -->
+              <div class="col-span-5">
+                <div [style]="{ lineHeight: '2.5rem', fontSize: '1.2rem' }">{{
+                  expense.description }}</div>
+              </div>
+
+              <!-- Owes Column (2 cols) -->
+              <div class="col-span-3 flex justify-center">
+                <div *ngIf="expense.owes && expense.owes > 0"
+                  class="px-3 py-1 rounded-full bg-orange-100 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-700">
+                  <span class="text-xs font-medium text-orange-700 dark:text-orange-300">You owe</span>
+                  <div class="text-sm font-bold text-orange-800 dark:text-orange-200">₹{{ expense.owes | number:'1.2-2'
+                    }}</div>
+                </div>
+                <div *ngIf="!expense.owes || expense.owes === 0"
+                  class="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600">
+                  <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Not involved</span>
+                </div>
+              </div>
+
+              <!-- Amount Column (3 cols) -->
+              <div class="col-span-3 flex justify-end">
+                <div class="text-right">
+                  <p class="text-xl font-bold mb-1" [ngClass]="{
+                      'text-green-600 dark:text-green-400': expense.amount > 0,
+                      'text-red-600 dark:text-red-400': expense.amount < 0
+                    }">
+                    ₹{{ expense.amount | number:'1.2-2' }}
+                  </p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Paid by <span
+                      class="font-medium text-gray-700 dark:text-gray-300">{{ expense.paidBy }}</span></p>
+
+                </div>
+              </div>
             </div>
-
-            <!-- Expenses -->
-            <div *ngFor="let expense of group.expenses"
-              class="px-2 py-3 hover:bg-[var(--surface-hover)] transition-colors rounded-lg grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-              <!-- Left: Description & Paid By -->
-              <div>
-                <h3 class="text-lg font-medium mb-0">{{ expense.description }}</h3>
-                <p class="text-sm mt-1">Paid by {{ expense.paidBy }}</p>
-              </div>
-
-              <!-- Middle: Status Tag -->
-              <div class="flex md:justify-center">
-                <p-tag [severity]="expense.status === 'settled' ? 'success' : 'warn'" [value]="expense.status"></p-tag>
-              </div>
-
-              <!-- Right: Amount & Date -->
-              <div class="flex flex-col items-start md:items-end space-y-1">
-                <p class="text-xl font-semibold mb-0" [ngClass]="{
-                  'text-green-600': expense.amount > 0,
-                  'text-red-600': expense.amount < 0
-                }">
-                  ₹{{ expense.amount | number:'1.2-2' }}
-                </p>
-                <p class="text-sm">{{ expense.updatedAt | date: 'medium' }}</p>
-              </div>
-            </div>
-          </p-card>
-        </div>
+          </div>
+        </p-card>
       </div>
     </p-scrollpanel>
   </div>
