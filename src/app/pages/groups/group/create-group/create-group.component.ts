@@ -7,11 +7,10 @@ import { ButtonModule } from 'primeng/button';
 import { FloatLabelModule } from "primeng/floatlabel"
 import { Router } from '@angular/router';
 import { Dialog } from 'primeng/dialog';
-import { AuthService } from '../../../core/auth.service';
 import { getAuth, User } from '@angular/fire/auth';
 import { FileUploadModule } from 'primeng/fileupload';
 import { TextareaModule } from 'primeng/textarea';
-import { GroupsService, Group } from '../groups.service';
+import { Group, GroupsService } from '../../groups.service';
 
 @Component({
   selector: 'app-create-group',
@@ -41,7 +40,6 @@ export class CreateGroupComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private authService: AuthService,
     private groupsService: GroupsService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {

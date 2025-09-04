@@ -6,7 +6,6 @@ import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { ButtonModule } from 'primeng/button';
 import { FloatLabelModule } from "primeng/floatlabel"
 import { InputTextModule } from 'primeng/inputtext';
-import { CreateGroupComponent } from '../../create-group/create-group.component';
 
 @Component({
   selector: 'app-manage-members',
