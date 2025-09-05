@@ -93,7 +93,11 @@ export class GroupComponent implements OnInit {
   }
 
   saveGroupName(newName: string) {
-    if (!this.isEditingName || !newName.trim() || !this.groupId) {
+    if (!this.isEditingName) {
+      return;
+    }
+
+    if (!newName.trim() || !this.groupId) {
       this.cancelNameEdit();
       return;
     }
@@ -104,18 +108,18 @@ export class GroupComponent implements OnInit {
     }
 
     const trimmedName = newName.trim();
-    if (this.group) {
+    Promise.resolve().then(() => {
+      if (!this.group) return;
       this.group.name = trimmedName;
       this.isEditingName = false;
       this.groupsService.updateGroupNameLocally(Number(this.groupId), trimmedName);
       this.cdr.detectChanges();
-
       this.messageService.add({
         severity: 'success',
         summary: 'Success',
         detail: 'Group name updated successfully'
       });
-    }
+    });
   }
 
   cancelNameEdit() {
@@ -174,32 +178,53 @@ export class GroupComponent implements OnInit {
 
   onFileSelected(event: any) {
     const file = event.target.files[0];
-    if (file && this.groupId) {
-      this.isUploadingAvatar = true;
-      const formData = new FormData();
-      formData.append('avatar', file);
+    if (!file || !this.groupId) return;
 
-      this.groupsService.updateGroupAvatar(this.groupId, formData).subscribe({
-        next: (response) => {
-          this.groupsService.updateGroupAvatarLocally(Number(this.groupId), response.avatarUrl);
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: 'Group avatar updated successfully!'
-          });
-        },
-        error: (error) => {
-          console.error('Error updating avatar:', error);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Failed to update group avatar. Please try again.'
-          });
-        },
-        complete: () => {
-          this.isUploadingAvatar = false;
-        }
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Please select a valid image file'
       });
+      return;
     }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'File size must be less than 5MB'
+      });
+      return;
+    }
+
+    this.isUploadingAvatar = true;
+
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      const avatarUrl = e.target.result;
+      this.groupsService.updateGroupAvatarLocally(Number(this.groupId), avatarUrl);
+
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: 'Group avatar updated successfully!'
+      });
+
+      this.isUploadingAvatar = false;
+    };
+
+    reader.onerror = () => {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Failed to read the image file. Please try again.'
+      });
+      this.isUploadingAvatar = false;
+    };
+
+    reader.readAsDataURL(file);
   }
 }
