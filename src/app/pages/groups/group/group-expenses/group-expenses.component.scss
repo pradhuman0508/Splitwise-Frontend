@@ -1,3 +1,61 @@
 :host ::ng-deep  .month-card .p-card-body{
-    padding-bottom: 0px !important;
+    padding: 0px !important;
+}
+.grid-cols-19{
+    grid-template-columns: repeat(19, minmax(0, 1fr));
+}
+
+.col-span-13 {
+    grid-column: span 13 / span 13;
+}
+.grid-cols-13 {
+    grid-template-columns: repeat(13, minmax(0, 1fr));
+}
+.fade-text {
+    -webkit-mask-image: linear-gradient(to right, black 80%, transparent 100%);
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-size: 100% 100%;
+    mask-image: linear-gradient(to right, black 80%, transparent 100%);
+    mask-repeat: no-repeat;
+    mask-size: 100% 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    line-height: 2.5rem;
+    font-size: 1rem;
+    position: relative;
+    transition: all .2s ease;
+  }
+
+.fade-text:hover {
+    -webkit-mask-image: none;
+    mask-image: none;
+    white-space: nowrap; /* keep on one line */
+    overflow: visible; /* allow overlapping neighbors */
+    display: inline-block; /* expand width beyond container */
+    max-width: none;
+    z-index: 10;
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    background-color: rgba(255, 255, 255, 0);
+    border-radius: 1rem;
+    padding-right: 1rem;
+}
+
+/* Badge wrapper for the month/day; used as TS hover trigger */
+.date-badge { position: relative; display: inline-flex; align-items: center; }
+
+/* Fixed tooltip that renders outside scroll clipping */
+.fixed-tooltip {
+    position: fixed;
+    transform: translateX(-50%) translateY(-25%);
+    z-index: 1000;
+    padding: .25rem .5rem;
+    border-radius: 3px;
+    background-color: var(--surface-hover);
+    font-size: .73rem;
+    line-height: 1rem;
+    white-space: nowrap;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(2px);
+    border: 1px solid var(--surface-border);
 }

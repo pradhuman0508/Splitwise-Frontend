@@ -27,13 +27,16 @@ export interface GroupMember {
 }
 
 export interface Expense {
-  id: string;
+  expenseId: string;
   description: string;
-  paidBy: string;
   amount: number;
-  createdAt: Date;
+  currency: string;
+  addedBy: string;
+  paidBy: string;
+  addedAt: Date;
   updatedAt: Date;
-  owes: number;
+  receiptImageUrl: string | null;
+  owedBy: { user: string; amount: number }[];
 }
 
 export interface GroupedExpenses {
@@ -200,67 +203,72 @@ export class GroupsService {
   private groupExpenses: { [groupId: number]: Expense[] } = {
     1: [
       {
-        id: '1',
-        description: 'Dinner at Italian Restaurant',
+        expenseId: 'e201',
+        description: 'Dinner at Fisherman\'s Wharf',
+        amount: 3500,
+        currency: 'INR',
+        addedBy: 'Yash',
+        paidBy: 'Rahul',
+        addedAt: new Date('2025-09-15T19:30:00Z'),
+        updatedAt: new Date('2025-09-16T09:10:00Z'),
+        receiptImageUrl: 'https://example.com/receipts/dinner.jpg',
+        owedBy: [
+          { user: 'Amit', amount: 875 },
+          { user: 'Neha', amount: 875 },
+          { user: 'Rahul', amount: 875 },
+          { user: 'Yash', amount: 875 }
+        ]
+      },
+      {
+        expenseId: 'e202',
+        description: 'Taxi from Airport to Hotel',
+        amount: 1200,
+        currency: 'INR',
+        addedBy: 'Neha',
+        paidBy: 'Neha',
+        addedAt: new Date('2025-09-14T14:15:00Z'),
+        updatedAt: new Date('2025-09-14T14:15:00Z'),
+        receiptImageUrl: null,
+        owedBy: [
+          { user: 'Amit', amount: 300 },
+          { user: 'Neha', amount: 300 },
+          { user: 'Rahul', amount: 300 },
+          { user: 'Yash', amount: 300 }
+        ]
+      },
+      {
+        expenseId: 'e203',
+        description: 'Hotel Room Booking',
+        amount: 8000,
+        currency: 'INR',
+        addedBy: 'Amit',
+        paidBy: 'Amit',
+        addedAt: new Date('2025-09-13T10:00:00Z'),
+        updatedAt: new Date('2025-09-13T10:00:00Z'),
+        receiptImageUrl: 'https://example.com/receipts/hotel.jpg',
+        owedBy: [
+          { user: 'Amit', amount: 2000 },
+          { user: 'Neha', amount: 2000 },
+          { user: 'Rahul', amount: 2000 },
+          { user: 'Yash Bakadiya', amount: 2000 }
+        ]
+      },
+      {
+        expenseId: 'e204',
+        description: 'Beach Activities',
+        amount: 2400,
+        currency: 'INR',
+        addedBy: 'Rahul',
         paidBy: 'Yash Bakadiya',
-        amount: 120.50,
-        createdAt: new Date('2024-03-15'),
-        updatedAt: new Date('2024-03-15T14:30:00'),
-        owes: 30
-      },
-      {
-        id: '2',
-        description: 'Movie Tickets',
-        paidBy: 'Pradhuman Vaidya',
-        amount: 75.00,
-        createdAt: new Date('2024-03-10'),
-        updatedAt: new Date('2024-03-10T02:30:00'),
-        owes: 25
-      },
-      {
-        id: '3',
-        description: 'Groceries',
-        paidBy: 'yash 0098209295',
-        amount: 95.30,
-        createdAt: new Date('2024-02-28'),
-        updatedAt: new Date('2024-02-28T11:30:00'),
-        owes:28
-      },
-      {
-        id: '4',
-        description: 'Rent',
-        paidBy: 'Yash',
-        amount: 7000,
-        createdAt: new Date('2024-03-28'),
-        updatedAt: new Date('2024-03-28T05:30:00'),
-        owes: 0
-      },
-      {
-        id: '5',
-        description: 'Free House',
-        paidBy: 'Akshay',
-        amount: 40000,
-        createdAt: new Date('2025-05-23'),
-        updatedAt: new Date('2025-05-23T10:30:00'),
-        owes: 0
-      },
-      {
-        id: '6',
-        description: 'Costly dinner',
-        paidBy: 'Ashwin',
-        amount: 4000,
-        createdAt: new Date('2025-04-23'),
-        updatedAt: new Date('2025-04-23T11:30:00'),
-        owes: 300
-      },
-      {
-        id: '7',
-        description: 'Costly dinner',
-        paidBy: 'Ashwin',
-        amount: 4000,
-        createdAt: new Date('2022-04-22'),
-        updatedAt: new Date('2022-04-22T08:30:00'),
-        owes: 0
+        addedAt: new Date('2025-09-16T16:45:00Z'),
+        updatedAt: new Date('2025-09-16T16:45:00Z'),
+        receiptImageUrl: null,
+        owedBy: [
+          { user: 'Amit', amount: 600 },
+          { user: 'Neha', amount: 600 },
+          { user: 'Rahul', amount: 600 },
+          { user: 'Yash Bakadiya', amount: 600 }
+        ]
       }
     ]
   };
@@ -293,7 +301,7 @@ export class GroupsService {
     const grouped = new Map<string, Expense[]>();
 
     expenses.forEach(expense => {
-      const monthYear = expense.createdAt.toLocaleString('default', { month: 'long', year: 'numeric' });
+      const monthYear = expense.addedAt.toLocaleString('default', { month: 'long', year: 'numeric' });
       if (!grouped.has(monthYear)) {
         grouped.set(monthYear, []);
       }
@@ -302,7 +310,7 @@ export class GroupsService {
 
     const groupedExpenses = Array.from(grouped.entries()).map(([month, expenses]) => ({
       month,
-      expenses: expenses.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      expenses: expenses.sort((a, b) => b.addedAt.getTime() - a.addedAt.getTime())
     }));
 
     return of(groupedExpenses);

@@ -42,12 +42,6 @@
           </span>
         </span>
       </div>
-
-    </div>
-    <!-- [label]="'Total Expense: ' + (group.totalExpenses | currency:'INR':'symbol':'1.2-2')"  -->
-    <div class="flex items-center gap-2 mx-2">
-      <!-- <p-button *ngIf="group" size="small" styleClass="w-[125px]" label="Group Expenses" variant="text" severity="secondary"
-        [routerLink]="['/group', group.id]" routerLinkActive="hidden" [routerLinkActiveOptions]="{ exact: true }" /> -->
       <div class="flex justify-center bg-color-card surface-border rounded-full"
         (click)="onClickDisableDropDown($event)">
         <div routerLink="manage-members" routerLinkActive="hidden"
@@ -58,6 +52,14 @@
           </p-avatarGroup>
         </div>
       </div>
+    </div>
+    <!-- [label]="'Total Expense: ' + (group.totalExpenses | currency:'INR':'symbol':'1.2-2')"  -->
+    <div class="flex items-center gap-2 mx-2">
+      <!-- <p-button *ngIf="group" size="small" styleClass="w-[125px]" label="Group Expenses" variant="text" severity="secondary"
+        [routerLink]="['/group', group.id]" routerLinkActive="hidden" [routerLinkActiveOptions]="{ exact: true }" /> -->
+
+      <app-add-expense [groupId]="groupId ? +groupId : undefined" [showButton]="true" (expenseAdded)="loadGroupData()">
+      </app-add-expense>
     </div>
   </div>
 

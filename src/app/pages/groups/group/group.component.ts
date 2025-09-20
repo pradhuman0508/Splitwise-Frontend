@@ -11,6 +11,7 @@ import { ToastModule } from 'primeng/toast';
 import { AvatarGroup } from 'primeng/avatargroup';
 import { Avatar } from 'primeng/avatar';
 import { GroupDetailsComponent } from './group-details/group-details.component';
+import { AddExpenseComponent } from '../../expenses/add-expense/add-expense.component';
 
 @Component({
   selector: 'app-group',
@@ -29,6 +30,7 @@ import { GroupDetailsComponent } from './group-details/group-details.component';
     Avatar,
     RouterOutlet,
     RouterLink,
+    AddExpenseComponent,
     RouterLinkActive
   ],
   providers: [MessageService]
@@ -139,7 +141,7 @@ export class GroupComponent implements OnInit {
       this.groupsService.getGroupExpenses(Number(this.groupId)).subscribe(expenses => {
         this.expenses = expenses.map(expense => ({
           ...expense,
-          createdAt: new Date(expense.createdAt),
+          createdAt: new Date(expense.addedAt),
           updatedAt: new Date(expense.updatedAt)
         }));
         this.groupExpensesByMonth();
@@ -159,7 +161,7 @@ export class GroupComponent implements OnInit {
     const monthOrder = new Map<string, number>();
 
     this.expenses.forEach(expense => {
-      const date = expense.createdAt;
+      const date = expense.addedAt;
       const monthYear = date.toLocaleString('default', { month: 'long', year: 'numeric' });
       if (!grouped.has(monthYear)) {
         grouped.set(monthYear, []);
@@ -172,7 +174,7 @@ export class GroupComponent implements OnInit {
       .sort(([monthYearA], [monthYearB]) => monthOrder.get(monthYearB)! - monthOrder.get(monthYearA)!)
       .map(([month, expenses]) => ({
         month,
-        expenses: expenses.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+        expenses: expenses.sort((a, b) => b.addedAt.getTime() - a.addedAt.getTime())
       }));
   }
 

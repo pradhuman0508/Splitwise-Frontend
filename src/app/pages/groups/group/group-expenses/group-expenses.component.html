@@ -1,75 +1,265 @@
-<div class="grid grid-cols-1 md:grid-cols-2">
-  <div class="border-rt">
+<div class="grid grid-cols-19">
+  <div class="col-span-6 flex border-rt">
     <p-scrollpanel [style]="{ width: '100%', height: '575px' }">
-      <div *ngFor="let group of groupedExpenses" class="month-card">
-        <p-card [style]="{ 'box-shadow': 'none', 'border-border-radius': 'none'}">
-          <!-- Month Header -->
-          <div class="bg-color rounded-full px-3">
-            <p class="text-xl font-semibold">{{ group.month }}</p>
-          </div>
+      <div class="divide-y divide-gray-200 dark:divide-gray-700 mr-3">
 
+        <div *ngFor="let group of groupedExpenses let last = last let first = first;" class="month-card">
+          <p-card [style]="{ 'box-shadow': 'none', 'border-border-radius': 'none'}">
+            <!-- Month Header -->
 
-          <!-- Expenses -->
-          <div *ngFor="let expense of group.expenses" class="py-1 px-2">
-            <div
-              class="p-2 hover:bg-[var(--surface-hover)] rounded-lg border-bm hover:shadow-md transition-all duration-200 grid grid-cols-12 gap-4 items-center">
+            <div class="divide-y divide-gray-200 dark:divide-gray-700">
+              <!-- Expenses -->
+              <div *ngFor="let expense of group.expenses">
+                <div
+                  class="group border border-transparent hover:border-gray-300 dark:hover:border-gray-600 p-2 hover:bg-[var(--surface-hover)] hover:shadow-lg transition-all duration-200 grid grid-cols-13 items-center cursor-pointer"
+                  [class.bg-[var(--surface-hover)]]="selectedExpense?.expenseId === expense.expenseId"
+                  (click)="selectExpense(expense)">
 
-              <!-- Date Column (2 cols) -->
-              <div class="col-span-1 flex">
-                <div [pTooltip]="tooltipContent" tooltipPosition="bottom" showDelay="1000" hideDelay="300"
-                  class="flex flex-col items-center p-2 rounded-lg shadow-lg">
-                  <ng-template #tooltipContent>
-                    <p class="text-sm">{{ expense.updatedAt | date: 'yyyy/MM/dd, h:mm a' }}</p>
-                  </ng-template>
-                  <div class="text-xs font-medium text-gray-600 dark:text-gray-400">{{ expense.updatedAt | date: 'MMM' |
-                    uppercase }}</div>
-                  <div [style]="{ lineHeight: '1.2rem', fontSize: '1.4rem' }">{{ expense.updatedAt | date: 'd' }}
+                  <!-- <ng-template #tooltipContent>
+                    <p class="text-sm">{{ expense.createdAt | date: 'yyyy/MM/dd, h:mm a' }}</p>
+                  </ng-template> -->
+                  <!-- Date Column (2 cols) -->
+                  <div class="col-span-1 flex">
+                    <div class="date-badge" (mouseenter)="showDateHoverBadge($event, expense?.addedAt)"
+                      (mouseleave)="hideDateHoverBadge()">
+                      <div class="flex flex-col items-center p-1 rounded-lg shadow-lg">
+                        <div class="text-xs font-medium text-gray-600 dark:text-gray-400">{{ expense.addedAt | date:
+                          'MMM'
+                          |
+                          uppercase }}</div>
+                        <div [style]="{ lineHeight: '1.2rem', fontSize: '1rem' }">{{ expense.addedAt | date: 'dd' }}
+                        </div>
+                      </div>
+                    </div>
+                    <div *ngIf="showDateTooltip" class="fixed-tooltip text-gray-500 dark:text-gray-400"
+                      [style.left.px]="tooltipLeftPx" [style.top.px]="tooltipTopPx">
+                      {{ dateTooltipText }}
+                    </div>
+                  </div>
+
+                  <!-- Description Column (5 cols) -->
+                  <div class="col-span-4">
+                    <div class="fade-text pl-1 text-gray-700 dark:text-gray-300">
+                      {{ expense.description }}
+                    </div>
+                  </div>
+
+                  <!-- User Involvement Column (3 cols) -->
+                  <div class="col-span-4 flex items-center justify-center text-center">
+                    <div class="flex flex-col items-center">
+                      <div *ngIf="!isUserInvolved(expense)" class="text-xs font-medium text-gray-500">
+                        Not involved
+                      </div>
+                      <div *ngIf="isUserInvolved(expense)" class="text-xs font-medium text-gray-600 dark:text-gray-400">
+                        {{ getUserBalance(expense) > 0 ? 'You are owed' : 'You owe' }}
+                      </div>
+                      <div *ngIf="isUserInvolved(expense)" class="text-sm font-bold" [ngClass]="{
+                        'text-green-600 dark:text-green-400': getUserBalance(expense) > 0,
+                        'text-red-600 dark:text-red-400': getUserBalance(expense) < 0
+                      }">
+                        ₹{{ getAbsoluteValue(getUserBalance(expense)) | number:'1.2-2' }}
+                      </div>
+                    </div>
+                  </div>
+                    <!-- Amount Column (3 cols) -->
+                    <div class="col-span-4 justify-end items-center">
+                      <div class="text-right">
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-0"><span
+                            class="font-medium text-gray-700 dark:text-gray-300">{{
+                            ((expense?.paidBy?.length || 0) > 17) ? ((expense?.paidBy | slice:0:16) + '.') :
+                            (expense?.paidBy || '')
+                            }}</span> paid</p>
+                        <p class="text-md font-bold mb-0">
+                          ₹{{ expense.amount | number:'1.2-2' }}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
+          </p-card>
+        </div>
+      </div>
+    </p-scrollpanel>
+  </div>
+  <div class="col-span-13">
+    <!-- Expense Details Section -->
+    <div class="h-full flex flex-col">
 
-              <!-- Description Column (5 cols) -->
-              <div class="col-span-5">
-                <div [style]="{ lineHeight: '2.5rem', fontSize: '1.2rem' }">{{
-                  expense.description }}</div>
-              </div>
 
-              <!-- Owes Column (2 cols) -->
-              <div class="col-span-3 flex justify-center">
-                <div *ngIf="expense.owes && expense.owes > 0"
-                  class="px-3 py-1 rounded-full bg-orange-100 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-700">
-                  <span class="text-xs font-medium text-orange-700 dark:text-orange-300">You owe</span>
-                  <div class="text-sm font-bold text-orange-800 dark:text-orange-200">₹{{ expense.owes | number:'1.2-2'
-                    }}</div>
+
+      <!-- Main Content Area -->
+      <div class="flex-1 overflow-y-auto">
+
+        <!-- No Selection State -->
+        <div *ngIf="!selectedExpense" class="flex items-center justify-center h-full">
+          <div class="text-center py-12">
+            <div
+              class="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
+              <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z">
+                </path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Select an expense</h3>
+            <p class="text-gray-500 dark:text-gray-400">Choose an expense from the list to view its details</p>
+          </div>
+        </div>
+
+        <!-- Selected Expense Details -->
+        <div *ngIf="selectedExpense" class="p-6">
+
+          <!-- Expense Header -->
+          <div class="flex items-start justify-between mb-6">
+            <div class="flex-1">
+              <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                {{ selectedExpense.description }}
+              </h1>
+                <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                  <span>Added: {{ selectedExpense.addedAt | date:'MMM d, y, h:mm a' }}</span>
+                  <span
+                    *ngIf="selectedExpense.updatedAt && selectedExpense.updatedAt.getTime() !== selectedExpense.addedAt.getTime()">
+                    Updated: {{ selectedExpense.updatedAt | date:'MMM d, y, h:mm a' }}
+                  </span>
                 </div>
-                <div *ngIf="!expense.owes || expense.owes === 0"
-                  class="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600">
-                  <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Not involved</span>
-                </div>
-              </div>
+            </div>
 
-              <!-- Amount Column (3 cols) -->
-              <div class="col-span-3 flex justify-end">
-                <div class="text-right">
-                  <p class="text-xl font-bold mb-1" [ngClass]="{
-                      'text-green-600 dark:text-green-400': expense.amount > 0,
-                      'text-red-600 dark:text-red-400': expense.amount < 0
+            <!-- Edit Button -->
+            <button
+              class="ml-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              (click)="onEditExpense(selectedExpense.expenseId)" title="Edit expense">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                </path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Main Expense Information -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+
+            <!-- Amount and Payment Info -->
+            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Payment Details</h3>
+
+              <div class="space-y-4">
+                <!-- Total Amount -->
+                <div class="text-center">
+                  <div class="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+                    ₹{{ selectedExpense.amount | number:'1.2-2' }}
+                  </div>
+                  <div class="text-sm text-gray-500 dark:text-gray-400">Total Amount</div>
+                </div>
+
+                <!-- Paid By -->
+                <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Paid by</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ selectedExpense.paidBy }}</span>
+                  </div>
+                </div>
+
+                <!-- Added By -->
+                <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Added by</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ selectedExpense.addedBy }}</span>
+                  </div>
+                </div>
+
+                <!-- Currency -->
+                <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Currency</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ selectedExpense.currency }}</span>
+                  </div>
+                </div>
+
+                <!-- Your Involvement -->
+                <div class="border-t border-gray-200 dark:border-gray-700 pt-4" *ngIf="isUserInvolved(selectedExpense)">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">
+                      {{ getUserBalance(selectedExpense) > 0 ? 'You are owed' : 'You owe' }}
+                    </span>
+                    <span class="text-lg font-bold" [ngClass]="{
+                      'text-green-600 dark:text-green-400': getUserBalance(selectedExpense) > 0,
+                      'text-red-600 dark:text-red-400': getUserBalance(selectedExpense) < 0
                     }">
-                    ₹{{ expense.amount | number:'1.2-2' }}
-                  </p>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">Paid by <span
-                      class="font-medium text-gray-700 dark:text-gray-300">{{ expense.paidBy }}</span></p>
+                      ₹{{ getAbsoluteValue(getUserBalance(selectedExpense)) | number:'1.2-2' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
 
+            <!-- Receipt Section -->
+            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Receipt</h3>
+
+              <div *ngIf="selectedExpense.receiptImageUrl; else noReceipt" class="h-48">
+                <img [src]="selectedExpense.receiptImageUrl" 
+                     [alt]="'Receipt for ' + selectedExpense.description"
+                     class="w-full h-full object-cover rounded-lg border border-gray-200 dark:border-gray-600">
+              </div>
+              
+              <ng-template #noReceipt>
+                <div class="flex items-center justify-center h-48 bg-gray-100 dark:bg-gray-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
+                  <div class="text-center">
+                    <svg class="w-12 h-12 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                      </path>
+                    </svg>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">No receipt uploaded</p>
+                    <button class="mt-2 text-xs text-blue-600 dark:text-blue-400 hover:underline">
+                      Upload receipt
+                    </button>
+                  </div>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+
+          <!-- Additional Details -->
+          <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Additional Information</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="text-sm font-medium text-gray-600 dark:text-gray-400">Expense ID</label>
+                <p class="text-sm text-gray-900 dark:text-white font-mono">{{ selectedExpense.expenseId }}</p>
+              </div>
+
+              <div>
+                <label class="text-sm font-medium text-gray-600 dark:text-gray-400">Added Date</label>
+                <p class="text-sm text-gray-900 dark:text-white">{{ selectedExpense.addedAt | date:'full' }}</p>
+              </div>
+
+              <div
+                *ngIf="selectedExpense.updatedAt && selectedExpense.updatedAt.getTime() !== selectedExpense.addedAt.getTime()">
+                <label class="text-sm font-medium text-gray-600 dark:text-gray-400">Last Updated</label>
+                <p class="text-sm text-gray-900 dark:text-white">{{ selectedExpense.updatedAt | date:'full' }}</p>
+              </div>
+            </div>
+
+            <!-- Owed By Section -->
+            <div class="mt-6">
+              <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">Split Details</h4>
+              <div class="space-y-2">
+                <div *ngFor="let person of selectedExpense.owedBy" 
+                     class="flex items-center justify-between py-2 px-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{ person.user }}</span>
+                  <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                    ₹{{ person.amount | number:'1.2-2' }}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
-        </p-card>
+        </div>
       </div>
-    </p-scrollpanel>
-  </div>
-  <div>
-    <app-add-expense class="ml-auto w-[120px]" [groupId]="groupId ? +groupId : undefined" [showButton]="true"
-      (expenseAdded)="onExpenseAdded()"></app-add-expense>
+    </div>
   </div>
 </div>

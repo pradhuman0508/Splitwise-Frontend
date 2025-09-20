@@ -1,35 +1,8 @@
 <div class="flex flex-col sm:flex-row items-start sm:items-center">
   <p-button icon="pi pi-arrow-left" [rounded]="true" severity="secondary" variant="text" (click)="goBack()" />
-  <div class="flex flex-col px-2 text-gray-500 dark:text-gray-400 mr-14">
+  <div class="flex flex-col px-2 text-gray-500 dark:text-gray-400 mr-auto">
     <h1 class="text-lg font-bold my-0">Group Members</h1>
     <span class="text-sm">{{ members.length }} members</span>
-  </div>
-  <div class="flex-1">
-    <p-scrollPanel class="header-scroll inline-block" [ngStyle]="{ width: 'fit-content', maxWidth: '630px' }">
-      <div *ngIf="members && members.length > 0">
-        <div class="flex flex-row gap-2 p-3">
-          <div *ngFor="let member of members; let last = last">
-            <div class="flex flex-col w-[95px] rounded-md py-2 hover:shadow-md
-              cursor-pointer transition-colors duration-200" (click)="selectMember(member)"
-              [ngClass]="{
-                'border-b-2 border-blue-500': selectedMember?.id === member.id,
-                'mr-8': last
-              }">
-              <div class="w-16 h-16 rounded-full bg-blue-200 flex items-center justify-center mx-auto">
-                <div *ngIf="!member.avatar">
-                  <i class="pi pi-user text-blue-600"></i>
-                </div>
-                <img *ngIf="member.avatar" [src]="member.avatar" [alt]="member.name"
-                  class="w-16 h-16 rounded-full object-cover" />
-              </div>
-              <span class="text-sm mb-0 font-medium text-gray-500 dark:text-gray-400 text-center">{{
-                ((member?.name?.length || 0) > 10) ? ((member?.name | slice:0:10) + '...') : (member?.name || '')
-                }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </p-scrollPanel>
   </div>
   <div class="flex flex-row">
     <!-- Form for adding new members -->
@@ -57,8 +30,58 @@
         </div>
       </div>
     </form>
-    <p-button label="Add a person" icon="pi pi-plus" size="small" variant="text" severity="info" (click)="addMember()"
-      [disabled]="membersFormArray.length >= 10" />
+    <div class="flex-1">
+      <div class="flex flex-row">
+        <p-scrollPanel class="header-scroll inline-block" [ngStyle]="{ width: 'fit-content', maxWidth: '595px' }">
+          <div class="flex flex-row gap-1 p-3">
+            <!-- <div>
+            <div class="flex flex-col w-[75px] pt-4">
+              <div [pTooltip]="tooltipContent" tooltipPosition="bottom" showDelay="600" hideDelay="300" class="w-16 h-16 rounded-full bg-color flex items-center justify-center mx-auto" (click)="addMember()">
+                <i class="pi pi-plus text-gray-300 dark:text-gray-700" style="font-size: 2rem"></i>
+              </div>
+              <ng-template #tooltipContent>
+                <div class="items-center" >
+                    <span [style]="{ fontSize: '.82rem' }">Add person</span>
+                </div>
+            </ng-template>
+            </div>
+          </div> -->
+
+            <div *ngFor="let member of members; let last = last">
+              <div class="flex flex-col w-[80px] rounded-md pt-3 hover:shadow-md
+                cursor-pointer transition-colors duration-200" (click)="selectMember(member)" [ngClass]="{
+                  'border-b-2 border-blue-500 shadow-lg': selectedMember?.id === member.id,
+                  'mr-8': last
+                }">
+                <div class="w-16 h-16 rounded-full bg-blue-200 flex items-center justify-center mx-auto">
+                  <div *ngIf="!member.avatar">
+                    <i class="pi pi-user text-blue-600"></i>
+                  </div>
+                  <img *ngIf="member.avatar" [src]="member.avatar" [alt]="member.name"
+                    class="w-16 h-16 rounded-full object-cover" />
+                </div>
+                <span [style]="{ fontSize: '.82rem' }" class="mb-0 py-1 text-gray-500 dark:text-gray-400 text-center">{{
+                  ((member?.name?.length || 0) > 10) ? ((member?.name | slice:0:10) + '...') : (member?.name || '')
+                  }}</span>
+              </div>
+            </div>
+          </div>
+        </p-scrollPanel>
+        <div class="py-3">
+          <div class="flex flex-col px-4 pt-3 pb-4 border-lf">
+            <div [pTooltip]="tooltipContent" tooltipPosition="bottom" showDelay="600" hideDelay="300"
+              class="w-16 h-16 rounded-full bg-color flex items-center justify-center mx-auto" (click)="addMember()">
+              <i class="pi pi-plus text-gray-300 dark:text-gray-700" style="font-size: 2rem"></i>
+            </div>
+            <ng-template #tooltipContent>
+              <div class="items-center">
+                <span [style]="{ fontSize: '.82rem' }">Add person</span>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 

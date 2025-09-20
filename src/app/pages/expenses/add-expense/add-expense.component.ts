@@ -428,13 +428,18 @@ export class AddExpenseComponent implements OnInit {
     try {
       const formValue = this.expenseForm.value;
       const expense: Expense = {
-        id: Date.now().toString(), // Generate unique ID
+        expenseId: Date.now().toString(), // Generate unique ID
         description: formValue.description,
-        paidBy: formValue.paidBy,
         amount: formValue.amount,
-        createdAt: formValue.date,
+        currency: 'INR',
+        addedBy: formValue.paidBy, // Assuming the person adding is the same as paying
+        paidBy: formValue.paidBy,
+        addedAt: formValue.date,
         updatedAt: formValue.date,
-        owes: formValue.owes
+        receiptImageUrl: null,
+        owedBy: this.memberSplits
+          .filter(split => split.involved)
+          .map(split => ({ user: split.member.name, amount: split.amount }))
       };
 
       // Add expense to the group
