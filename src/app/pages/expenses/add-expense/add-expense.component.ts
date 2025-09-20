@@ -66,7 +66,6 @@ export class AddExpenseComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private groupsService: GroupsService,
-    private authService: AuthService,
     private messageService: MessageService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
@@ -82,70 +81,98 @@ export class AddExpenseComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Skip Firebase operations during SSR
-    if (!isPlatformBrowser(this.platformId)) {
+  if (!isPlatformBrowser(this.platformId)) return;
+
+  this.groupsService.getGroups().subscribe(groups => {
+    this.groups = groups;
+    if (this.groupId) {
+      this.expenseForm.patchValue({ groupId: this.groupId });
+      this.loadGroupMembers(this.groupId);
+    } else {
+      this.autoSelectUserGroup();
+    }
+  });
+
+  this.expenseForm.get('groupId')?.valueChanges.subscribe(groupId => {
+    if (groupId) this.onGroupChange();
+  });
+}
+
+private loadGroupMembers(groupId: number) {
+  if (!groupId) {
+    this.clearGroupMembers();
+    return;
+  }
+  this.groupsService.getGroupMembers(groupId).subscribe({
+    next: (members) => {
+      this.selectedGroupMembers = members || [];
+      this.selectedGroupMembers.forEach(member => member.involved = true);
+      this.initializeMemberSplits();
+      this.updatePaidByOptions();
+    },
+    error: () => this.clearGroupMembers()
+  });
+}
+
+onGroupChange() {
+  const groupId = this.expenseForm.get('groupId')?.value;
+  if (groupId) this.loadGroupMembers(groupId);
+  else this.clearGroupMembers();
+}
+
+private clearGroupMembers() {
+  this.selectedGroupMembers = [];
+  this.memberSplits = [];
+  this.expenseForm.patchValue({ paidBy: '' });
+}
+
+private resetForm() {
+  this.expenseForm.reset({
+    description: '',
+    amount: null,
+    groupId: this.groupId || null,
+    paidBy: '',
+    date: new Date(),
+    notes: '',
+    selectedSplitOption: 'equal'
+  });
+  this.formErrors = [];
+  if (!this.groupId) this.clearGroupMembers();
+  else this.loadGroupMembers(this.groupId);
+}
+
+openNewExpenseModal() {
+  this.visible = true;
+  this.resetForm();
+  if (this.groupId && this.selectedGroupMembers.length === 0) {
+    this.loadGroupMembers(this.groupId);
+  }
+}
+
+
+  // Modify `autoSelectUserGroup` slightly to return a Promise for cleaner async handling
+private async autoSelectUserGroup() {
+  try {
+    const currentUser = getAuth().currentUser;
+    if (!currentUser) {
       return;
     }
 
-    this.loadGroups();
-    if (this.groupId) {
-      this.expenseForm.patchValue({ groupId: this.groupId });
-      this.onGroupChange();
-    } else {
-      // Auto-select group if user is already in one
-      this.autoSelectUserGroup();
-    }
-  }
+    // Use a for loop to iterate over the `this.groups` array.
+    for (const group of this.groups) {
+      const members = await this.groupsService.getGroupMembers(group.id).toPromise();
+      const isUserInGroup = members?.some(member => member.email === currentUser.email);
 
-  private loadGroups() {
-    this.groupsService.getGroups().subscribe(groups => {
-      this.groups = groups;
-    });
-  }
-
-  private async autoSelectUserGroup() {
-    try {
-      const currentUser = getAuth().currentUser;
-      if (currentUser) {
-        // Find which group the current user belongs to
-        for (const group of this.groups) {
-          const members = await this.groupsService.getGroupMembers(group.id).toPromise();
-          const isUserInGroup = members?.some(member => member.email === currentUser.email);
-          if (isUserInGroup) {
-            this.expenseForm.patchValue({ groupId: group.id });
-            this.onGroupChange();
-            break;
-          }
-        }
+      if (isUserInGroup) {
+        this.expenseForm.patchValue({ groupId: group.id });
+        this.onGroupChange(); // This is the crucial part: trigger member loading immediately
+        return; // Exit the function once a group is found and selected
       }
-    } catch (error) {
-      console.error('Error auto-selecting user group:', error);
     }
+  } catch (error) {
+    console.error('Error auto-selecting user group:', error);
   }
-
-  openNewExpenseModal() {
-    this.visible = true;
-    this.resetForm();
-  }
-
-  onGroupChange() {
-    const groupId = this.expenseForm.get('groupId')?.value;
-    if (groupId) {
-      this.groupsService.getGroupMembers(groupId).subscribe(members => {
-        this.selectedGroupMembers = members;
-        // Reset member involvement to default (all involved) when group changes
-        this.selectedGroupMembers.forEach(member => {
-          member.involved = true;
-        });
-        this.initializeMemberSplits();
-        this.updatePaidByOptions();
-      });
-    } else {
-      // Clear members if no group selected
-      this.selectedGroupMembers = [];
-      this.memberSplits = [];
-    }
-  }
+}
 
   private updatePaidByOptions() {
     // Only run Firebase operations on client side
@@ -463,26 +490,6 @@ export class AddExpenseComponent implements OnInit {
     }
   }
 
-  private resetForm() {
-    this.expenseForm.reset({
-      description: '',
-      amount: null,
-      groupId: this.groupId || null,
-      paidBy: '',
-      date: new Date(),
-      notes: ''
-    });
-    this.selectedGroupMembers = [];
-    this.memberSplits = [];
-    this.formErrors = [];
-
-    // Reset member involvement when form is reset
-    if (this.selectedGroupMembers.length > 0) {
-      this.selectedGroupMembers.forEach(member => {
-        member.involved = true;
-      });
-    }
-  }
 
   getTotalSplitAmount(): number {
     return this.memberSplits
@@ -502,8 +509,8 @@ export class AddExpenseComponent implements OnInit {
 
   isFormValid(): boolean {
     return this.expenseForm.valid &&
-           this.isSplitValid() &&
-           this.getInvolvedUserCount() > 0;
+      this.isSplitValid() &&
+      this.getInvolvedUserCount() > 0;
   }
 
   // Get validation message for split
