@@ -45,4 +45,5 @@ Thumbs.db
 .firebase
 *-debug.log
 .runtimeconfig.json
-package-lock.json
+package-lock.jsonbackend/node_modules/
+backend/service-account-key.json
