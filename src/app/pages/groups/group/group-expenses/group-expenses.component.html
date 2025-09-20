@@ -15,10 +15,6 @@
                   [class.bg-[var(--surface-hover)]]="selectedExpense?.expenseId === expense.expenseId"
                   (click)="selectExpense(expense)">
 
-                  <!-- <ng-template #tooltipContent>
-                    <p class="text-sm">{{ expense.createdAt | date: 'yyyy/MM/dd, h:mm a' }}</p>
-                  </ng-template> -->
-                  <!-- Date Column (2 cols) -->
                   <div class="col-span-1 flex">
                     <div class="date-badge" (mouseenter)="showDateHoverBadge($event, expense?.addedAt)"
                       (mouseleave)="hideDateHoverBadge()">
@@ -66,8 +62,8 @@
                       <div class="text-right">
                         <p class="text-sm text-gray-500 dark:text-gray-400 mb-0"><span
                             class="font-medium text-gray-700 dark:text-gray-300">{{
-                            ((expense?.paidBy?.length || 0) > 17) ? ((expense?.paidBy | slice:0:16) + '.') :
-                            (expense?.paidBy || '')
+                            ((expense?.paidBy?.name?.length || 0) > 17) ? ((expense?.paidBy?.name | slice:0:16) + '.') :
+                            (expense?.paidBy?.name || '')
                             }}</span> paid</p>
                         <p class="text-md font-bold mb-0">
                           ₹{{ expense.amount | number:'1.2-2' }}
@@ -113,9 +109,9 @@
           <!-- Expense Header -->
           <div class="flex items-start justify-between mb-6">
             <div class="flex-1">
-              <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              <div class="text-2xl font-bold text-gray-900 dark:text-white">
                 {{ selectedExpense.description }}
-              </h1>
+              </div>
                 <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                   <span>Added: {{ selectedExpense.addedAt | date:'MMM d, y, h:mm a' }}</span>
                   <span
@@ -157,7 +153,7 @@
                 <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
                   <div class="flex items-center justify-between">
                     <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Paid by</span>
-                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ selectedExpense.paidBy }}</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ selectedExpense.paidBy.name }}</span>
                   </div>
                 </div>
 
@@ -165,15 +161,7 @@
                 <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
                   <div class="flex items-center justify-between">
                     <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Added by</span>
-                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ selectedExpense.addedBy }}</span>
-                  </div>
-                </div>
-
-                <!-- Currency -->
-                <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-                  <div class="flex items-center justify-between">
-                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Currency</span>
-                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ selectedExpense.currency }}</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ selectedExpense.addedBy.name }}</span>
                   </div>
                 </div>
 
@@ -224,33 +212,14 @@
 
           <!-- Additional Details -->
           <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Additional Information</h3>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="text-sm font-medium text-gray-600 dark:text-gray-400">Expense ID</label>
-                <p class="text-sm text-gray-900 dark:text-white font-mono">{{ selectedExpense.expenseId }}</p>
-              </div>
-
-              <div>
-                <label class="text-sm font-medium text-gray-600 dark:text-gray-400">Added Date</label>
-                <p class="text-sm text-gray-900 dark:text-white">{{ selectedExpense.addedAt | date:'full' }}</p>
-              </div>
-
-              <div
-                *ngIf="selectedExpense.updatedAt && selectedExpense.updatedAt.getTime() !== selectedExpense.addedAt.getTime()">
-                <label class="text-sm font-medium text-gray-600 dark:text-gray-400">Last Updated</label>
-                <p class="text-sm text-gray-900 dark:text-white">{{ selectedExpense.updatedAt | date:'full' }}</p>
-              </div>
-            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-0">Split Details</h3>
 
             <!-- Owed By Section -->
             <div class="mt-6">
-              <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">Split Details</h4>
               <div class="space-y-2">
                 <div *ngFor="let person of selectedExpense.owedBy" 
                      class="flex items-center justify-between py-2 px-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{ person.user }}</span>
+                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{ person.user.name }}</span>
                   <span class="text-sm font-semibold text-gray-900 dark:text-white">
                     ₹{{ person.amount | number:'1.2-2' }}
                   </span>

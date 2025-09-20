@@ -68,18 +68,18 @@ export class GroupExpensesComponent implements OnInit, OnDestroy {
 
   isUserPaidBy(expense: any): boolean {
     if (!this.currentUser) return false;
-    return expense.paidBy === this.currentUser.displayName;
+    return expense.paidBy?.uid === this.currentUser.uid;
   }
 
   isUserInOwedBy(expense: any): boolean {
     if (!this.currentUser || !expense.owedBy) return false;
-    return expense.owedBy.some((person: any) => person.user === this.currentUser.displayName);
+    return expense.owedBy.some((person: any) => person.user?.uid === this.currentUser.uid);
   }
 
   // Amount calculations
   getUserOwesAmount(expense: any): number {
     if (!this.currentUser || !expense.owedBy) return 0;
-    const userOwed = expense.owedBy.find((person: any) => person.user === this.currentUser.displayName);
+    const userOwed = expense.owedBy.find((person: any) => person.user?.uid === this.currentUser.uid);
     return userOwed ? userOwed.amount : 0;
   }
 

@@ -5,7 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
-import { GroupsService, Expense, GroupedExpenses, Group, GroupMember } from '../groups.service';
+import { GroupsService, GroupedExpensesWithMembers, Group, GroupMember, ExpenseWithMembers } from '../groups.service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { AvatarGroup } from 'primeng/avatargroup';
@@ -38,12 +38,14 @@ import { AddExpenseComponent } from '../../expenses/add-expense/add-expense.comp
 export class GroupComponent implements OnInit {
   groupId: string | undefined;
   group?: Group;
-  expenses: Expense[] = [];
+  expenses: ExpenseWithMembers[] = [];
   members: GroupMember[] = [];
-  groupedExpenses: GroupedExpenses[] = [];
+  groupedExpenses: GroupedExpensesWithMembers[] = [];
   isUploadingAvatar = false;
   isEditingName = false;
   isIExpanded = false;
+  isTestingUids = false;
+  isDevelopmentMode = true; // Set to false in production
   private previousName: string | undefined;
 
   @ViewChild('cardIRef') cardIRef!: ElementRef;
@@ -138,13 +140,23 @@ export class GroupComponent implements OnInit {
     });
 
     if (this.groupId) {
-      this.groupsService.getGroupExpenses(Number(this.groupId)).subscribe(expenses => {
-        this.expenses = expenses.map(expense => ({
+      // Use the new method that returns expenses with resolved member data
+      this.groupsService.getGroupedExpensesWithMembers(Number(this.groupId)).subscribe(groupedExpenses => {
+        this.groupedExpenses = groupedExpenses.map(group => ({
+          ...group,
+          expenses: group.expenses.map(expense => ({
+            ...expense,
+            createdAt: new Date(expense.addedAt),
+            updatedAt: new Date(expense.updatedAt)
+          }))
+        }));
+        
+        // Flatten expenses for backward compatibility
+        this.expenses = groupedExpenses.flatMap(group => group.expenses).map(expense => ({
           ...expense,
           createdAt: new Date(expense.addedAt),
           updatedAt: new Date(expense.updatedAt)
         }));
-        this.groupExpensesByMonth();
       });
       this.loadGroupMembers();
     }
@@ -156,27 +168,91 @@ export class GroupComponent implements OnInit {
     });
   }
 
-  groupExpensesByMonth() {
-    const grouped = new Map<string, Expense[]>();
-    const monthOrder = new Map<string, number>();
-
-    this.expenses.forEach(expense => {
-      const date = expense.addedAt;
-      const monthYear = date.toLocaleString('default', { month: 'long', year: 'numeric' });
-      if (!grouped.has(monthYear)) {
-        grouped.set(monthYear, []);
-        monthOrder.set(monthYear, date.getFullYear() * 12 + date.getMonth());
+  /**
+   * Tests UID resolution for group members (Development/Testing only)
+   * This method should be removed in production
+   */
+  async testUidResolution(): Promise<void> {
+    if (this.isTestingUids) return; // Prevent multiple simultaneous tests
+    
+    this.isTestingUids = true;
+    
+    try {
+      console.log('🧪 Testing UID resolution for group members...');
+      
+      if (!this.groupId) {
+        console.warn('⚠️  No group ID available for testing');
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Test Warning',
+          detail: 'No group ID available for testing'
+        });
+        return;
       }
-      grouped.get(monthYear)?.push(expense);
-    });
 
-    this.groupedExpenses = Array.from(grouped.entries())
-      .sort(([monthYearA], [monthYearB]) => monthOrder.get(monthYearB)! - monthOrder.get(monthYearA)!)
-      .map(([month, expenses]) => ({
-        month,
-        expenses: expenses.sort((a, b) => b.addedAt.getTime() - a.addedAt.getTime())
-      }));
+      // Test specific emails first
+      const testEmails = this.getTestEmails();
+      const emailResults = await this.groupsService.testUidResolution(testEmails);
+      
+      // Resolve UIDs for current group members
+      const groupResults = await this.groupsService.resolveMemberUids(Number(this.groupId));
+      
+      // Show summary
+      this.showTestSummary(emailResults, groupResults);
+      
+    } catch (error: any) {
+      console.error('❌ Error during UID resolution test:', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Test Error',
+        detail: 'Failed to test UID resolution. Check console for details.'
+      });
+    } finally {
+      this.isTestingUids = false;
+    }
   }
+
+  /**
+   * Gets test emails for UID resolution testing
+   * @returns string[] - Array of test email addresses
+   */
+  private getTestEmails(): string[] {
+    const testEmails = ['bakadiyayash@gmail.com', 'yash0098209295@gmail.com'];
+    
+    // Add current group member emails if available
+    if (this.members.length > 0) {
+      const memberEmails = this.members
+        .map(member => member.email)
+        .filter(email => email && !testEmails.includes(email))
+        .slice(0, 3); // Limit to 3 additional emails
+      
+      testEmails.push(...memberEmails);
+    }
+    
+    return testEmails;
+  }
+
+  /**
+   * Shows test summary in console and UI
+   * @param emailResults - Results from email testing
+   * @param groupResults - Results from group member resolution
+   */
+  private showTestSummary(emailResults: any[], groupResults: {resolved: number, total: number}): void {
+    const emailSuccessCount = emailResults.filter(r => r.success).length;
+    const totalEmails = emailResults.length;
+    
+    console.log(`\n📊 Test Summary:`);
+    console.log(`   Email Tests: ${emailSuccessCount}/${totalEmails} successful`);
+    console.log(`   Group Members: ${groupResults.resolved}/${groupResults.total} UIDs resolved`);
+    
+    // Show success message in UI
+    this.messageService.add({
+      severity: 'success',
+      summary: 'UID Resolution Test Complete',
+      detail: `Resolved ${emailSuccessCount}/${totalEmails} emails and ${groupResults.resolved}/${groupResults.total} group members`
+    });
+  }
+
 
   onFileSelected(event: any) {
     const file = event.target.files[0];

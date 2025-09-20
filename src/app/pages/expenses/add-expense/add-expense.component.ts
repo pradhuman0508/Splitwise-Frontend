@@ -427,19 +427,29 @@ export class AddExpenseComponent implements OnInit {
 
     try {
       const formValue = this.expenseForm.value;
+
+      // Resolve UIDs for expense creation
+      const uidData = this.resolveExpenseUids(formValue.paidBy);
+      
+      // Create UID references for owedBy users
+      const owedByMembers = this.memberSplits
+        .filter(split => split.involved)
+        .map(split => ({
+          userUid: this.getUserIdentifier(split.member),
+          amount: split.amount
+        }));
+
       const expense: Expense = {
-        expenseId: Date.now().toString(), // Generate unique ID
+        expenseId: this.generateExpenseId(),
         description: formValue.description,
         amount: formValue.amount,
         currency: 'INR',
-        addedBy: formValue.paidBy, // Assuming the person adding is the same as paying
-        paidBy: formValue.paidBy,
+        addedByUid: uidData.addedByUid,
+        paidByUid: uidData.paidByUid,
         addedAt: formValue.date,
         updatedAt: formValue.date,
         receiptImageUrl: null,
-        owedBy: this.memberSplits
-          .filter(split => split.involved)
-          .map(split => ({ user: split.member.name, amount: split.amount }))
+        owedBy: owedByMembers
       };
 
       // Add expense to the group
@@ -547,5 +557,80 @@ export class AddExpenseComponent implements OnInit {
     return this.memberSplits
       .filter(split => split.involved)
       .reduce((sum, split) => sum + (split.shares || 1), 0);
+  }
+
+  /**
+   * Resolves UIDs for expense creation
+   * @param paidByName - Name of the person who paid
+   * @returns Object with addedByUid and paidByUid
+   */
+  private resolveExpenseUids(paidByName: string): { addedByUid: string; paidByUid: string } {
+    // Get current user's UID
+    const addedByUid = this.getCurrentUserUid();
+    
+    // Get paid by user's UID
+    const paidByMember = this.selectedGroupMembers.find(member => member.name === paidByName);
+    const paidByUid = this.getUserIdentifier(paidByMember);
+    
+    return { addedByUid, paidByUid };
+  }
+
+  /**
+   * Gets current user's UID
+   * @returns string - Current user UID or fallback
+   */
+  private getCurrentUserUid(): string {
+    if (!isPlatformBrowser(this.platformId)) {
+      return 'temp-uid-ssr';
+    }
+
+    const currentUser = getAuth().currentUser;
+    if (currentUser) {
+      // Find current user in group members to get their UID
+      const addedByMember = this.selectedGroupMembers.find(member =>
+        member.email === currentUser.email
+      );
+      return addedByMember?.uid || currentUser.uid || 'temp-uid-unknown';
+    }
+    
+    return 'temp-uid-unknown';
+  }
+
+  /**
+   * Gets user identifier (UID or email fallback)
+   * @param member - Group member object
+   * @returns string - User identifier
+   */
+  private getUserIdentifier(member: GroupMember | undefined): string {
+    if (!member) {
+      return 'temp-uid-unknown';
+    }
+    
+    // Use UID if available and valid, otherwise fallback to email
+    if (member.uid && !this.isTemporaryUid(member.uid)) {
+      return member.uid;
+    }
+    
+    return member.email || 'temp-uid-unknown';
+  }
+
+  /**
+   * Checks if UID is temporary or fake
+   * @param uid - UID to check
+   * @returns boolean - true if UID is temporary
+   */
+  private isTemporaryUid(uid: string): boolean {
+    return uid.startsWith('temp-uid-') || 
+           uid.startsWith('firebase-uid-') || 
+           uid.startsWith('pending-firebase-uid') ||
+           uid === 'unknown';
+  }
+
+  /**
+   * Generates unique expense ID
+   * @returns string - Unique expense ID
+   */
+  private generateExpenseId(): string {
+    return `exp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 }

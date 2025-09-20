@@ -63,6 +63,27 @@
     </div>
   </div>
 
+  <!-- Development Tools (Remove in Production) -->
+  <div *ngIf="isDevelopmentMode" class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <i class="pi pi-wrench text-blue-600"></i>
+        <span class="text-sm font-medium text-blue-800">Development Tools</span>
+      </div>
+      <p-button 
+        label="Test UID Resolution" 
+        icon="pi pi-search" 
+        severity="info" 
+        size="small"
+        (click)="testUidResolution()"
+        [loading]="isTestingUids"
+        class="text-xs" />
+    </div>
+    <p class="text-xs text-blue-600 mt-1">
+      Tests Firebase UID resolution for group members and registered users
+    </p>
+  </div>
+
   <!-- Card Container -->
   <div #cardIRef *ngIf="isIExpanded"
     class="absolute bg-color-card surface-border rounded shadow-lg z-40 overflow-y-auto">

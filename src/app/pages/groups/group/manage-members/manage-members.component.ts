@@ -167,6 +167,7 @@ export class ManageMembersComponent implements OnInit {
 
     const newMember: GroupMember = {
       id: this.getNextMemberId(),
+      uid: this.generateTempUid(memberData.email), // Generate temporary UID
       name: memberData.name,
       email: memberData.email,
       avatar: '', // Default empty avatar
@@ -178,6 +179,14 @@ export class ManageMembersComponent implements OnInit {
 
     // Add to local members array
     this.members.push(newMember);
+  }
+
+  private generateTempUid(email: string): string {
+    // Generate a temporary UID based on email and timestamp
+    // This should be replaced with actual Firebase UID when user registers
+    const timestamp = Date.now();
+    const emailHash = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '');
+    return `temp-uid-${emailHash}-${timestamp}`;
   }
 
   private getNextMemberId(): number {
