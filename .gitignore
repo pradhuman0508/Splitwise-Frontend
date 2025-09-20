@@ -47,3 +47,6 @@ Thumbs.db
 .runtimeconfig.json
 package-lock.json
 service-account-key.json
+
+backend/service-account-key.json
+backend/node_modules/
