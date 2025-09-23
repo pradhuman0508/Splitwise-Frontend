@@ -161,7 +161,7 @@ export class GroupsService {
       },
       {
         "id": 2,
-        "uid": "firebase-uid-pradhuman-vaidya",
+        "uid": "hDoEcQAufdZbNstzz0SjAsRnCzG2",
         "name": "Pradhuman Vaidya",
         "email": "pradhumanvaidya612@gmail.com",
         "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330",
@@ -174,9 +174,9 @@ export class GroupsService {
       },
       {
         "id": 3,
-        "uid": "firebase-uid-test-user",
+        "uid": "TcW3Byi7dlXZbNUj1GQeroA6tPU2",
         "name": "Test User",
-        "email": "testUser@gmail.com",
+        "email": "test@gmail.com",
         "avatar": "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61",
         "balance": -80,
         "owesTo": [
@@ -187,7 +187,7 @@ export class GroupsService {
       },
       {
         "id": 4,
-        "uid": "firebase-uid-clone-splitwise",
+        "uid": "DlmQ8eAeCFP36SQ1NZvZwG6V3Bt1",
         "name": "Clone Splitwise",
         "email": "clonesplitwise@gmail.com",
         "avatar": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80",
@@ -200,7 +200,7 @@ export class GroupsService {
       },
       {
         "id": 5,
-        "uid": "pending-firebase-uid",
+        "uid": "JVSdnKLZPyVisgcEI7seSKlsBv02",
         "name": "Yash 0098209295",
         "email": "yash0098209295@gmail.com",
         "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
@@ -216,9 +216,9 @@ export class GroupsService {
       },
       {
         "id": 6,
-        "uid": "firebase-uid-ashwin",
+        "uid": "Nx1feK6Wn9Z61d5pzs9XP0NzVBx1",
         "name": "Ashwin",
-        "email": "ashwin123@gmail.com",
+        "email": "qq@dd.cc",
         "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde",
         "balance": 0,
         "owesTo": [],
@@ -262,15 +262,15 @@ export class GroupsService {
         amount: 3500,
         currency: 'INR',
         addedByUid: 'SVDRpbKNM1VTqkuov5cnbM0bkpr1',
-        paidByUid: 'firebase-uid-pradhuman-vaidya',
+        paidByUid: 'hDoEcQAufdZbNstzz0SjAsRnCzG2',
         addedAt: new Date('2025-09-15T19:30:00Z'),
         updatedAt: new Date('2025-09-16T09:10:00Z'),
         receiptImageUrl: 'https://cdn.vertex42.com/ExcelTemplates/Images/invoices/blank-invoice-template.png',
         owedBy: [
           { userUid: 'SVDRpbKNM1VTqkuov5cnbM0bkpr1', amount: 875 },
-          { userUid: 'firebase-uid-pradhuman-vaidya', amount: 875 },
-          { userUid: 'firebase-uid-test-user', amount: 875 },
-          { userUid: 'firebase-uid-clone-splitwise', amount: 875 }
+          { userUid: 'hDoEcQAufdZbNstzz0SjAsRnCzG2', amount: 875 },
+          { userUid: 'TcW3Byi7dlXZbNUj1GQeroA6tPU2', amount: 875 },
+          { userUid: 'DlmQ8eAeCFP36SQ1NZvZwG6V3Bt1', amount: 875 }
         ]
       },
       {
@@ -278,16 +278,16 @@ export class GroupsService {
         description: 'Taxi from Airport to Hotel',
         amount: 1200,
         currency: 'INR',
-        addedByUid: 'firebase-uid-test-user',
-        paidByUid: 'firebase-uid-test-user',
+        addedByUid: 'TcW3Byi7dlXZbNUj1GQeroA6tPU2',
+        paidByUid: 'TcW3Byi7dlXZbNUj1GQeroA6tPU2',
         addedAt: new Date('2025-09-14T14:15:00Z'),
         updatedAt: new Date('2025-09-14T14:15:00Z'),
         receiptImageUrl: null,
         owedBy: [
           { userUid: 'SVDRpbKNM1VTqkuov5cnbM0bkpr1', amount: 300 },
-          { userUid: 'firebase-uid-pradhuman-vaidya', amount: 300 },
-          { userUid: 'firebase-uid-test-user', amount: 300 },
-          { userUid: 'firebase-uid-clone-splitwise', amount: 300 }
+          { userUid: 'hDoEcQAufdZbNstzz0SjAsRnCzG2', amount: 300 },
+          { userUid: 'TcW3Byi7dlXZbNUj1GQeroA6tPU2', amount: 300 },
+          { userUid: 'DlmQ8eAeCFP36SQ1NZvZwG6V3Bt1', amount: 300 }
         ]
       },
       {
@@ -295,16 +295,16 @@ export class GroupsService {
         description: 'Hotel Room Booking',
         amount: 8000,
         currency: 'INR',
-        addedByUid: 'firebase-uid-clone-splitwise',
-        paidByUid: 'firebase-uid-clone-splitwise',
+        addedByUid: 'DlmQ8eAeCFP36SQ1NZvZwG6V3Bt1',
+        paidByUid: 'DlmQ8eAeCFP36SQ1NZvZwG6V3Bt1',
         addedAt: new Date('2025-09-13T10:00:00Z'),
         updatedAt: new Date('2025-09-13T10:00:00Z'),
         receiptImageUrl: 'https://cdn.vectorstock.com/i/1000v/30/08/receipt-bill-paper-invoicereceipt-template-vector-37033008.jpg',
         owedBy: [
           { userUid: 'SVDRpbKNM1VTqkuov5cnbM0bkpr1', amount: 2000 },
-          { userUid: 'firebase-uid-pradhuman-vaidya', amount: 2000 },
-          { userUid: 'firebase-uid-test-user', amount: 2000 },
-          { userUid: 'firebase-uid-clone-splitwise', amount: 2000 }
+          { userUid: 'hDoEcQAufdZbNstzz0SjAsRnCzG2', amount: 2000 },
+          { userUid: 'TcW3Byi7dlXZbNUj1GQeroA6tPU2', amount: 2000 },
+          { userUid: 'DlmQ8eAeCFP36SQ1NZvZwG6V3Bt1', amount: 2000 }
         ]
       },
       {
@@ -312,16 +312,16 @@ export class GroupsService {
         description: 'Beach Activities',
         amount: 2400,
         currency: 'INR',
-        addedByUid: 'firebase-uid-yash-0098209295',
+        addedByUid: 'JVSdnKLZPyVisgcEI7seSKlsBv02',
         paidByUid: 'SVDRpbKNM1VTqkuov5cnbM0bkpr1',
         addedAt: new Date('2025-09-16T16:45:00Z'),
         updatedAt: new Date('2025-09-16T16:45:00Z'),
         receiptImageUrl: null,
         owedBy: [
           { userUid: 'SVDRpbKNM1VTqkuov5cnbM0bkpr1', amount: 600 },
-          { userUid: 'firebase-uid-pradhuman-vaidya', amount: 600 },
-          { userUid: 'firebase-uid-test-user', amount: 600 },
-          { userUid: 'firebase-uid-clone-splitwise', amount: 600 }
+          { userUid: 'hDoEcQAufdZbNstzz0SjAsRnCzG2', amount: 600 },
+          { userUid: 'TcW3Byi7dlXZbNUj1GQeroA6tPU2', amount: 600 },
+          { userUid: 'DlmQ8eAeCFP36SQ1NZvZwG6V3Bt1', amount: 600 }
         ]
       },
       {
@@ -330,15 +330,15 @@ export class GroupsService {
         amount: 3500,
         currency: 'INR',
         addedByUid: 'SVDRpbKNM1VTqkuov5cnbM0bkpr1',
-        paidByUid: 'firebase-uid-pradhuman-vaidya',
+        paidByUid: 'hDoEcQAufdZbNstzz0SjAsRnCzG2',
         addedAt: new Date('2025-09-19T19:30:00Z'),
         updatedAt: new Date('2025-09-19T09:10:00Z'),
         receiptImageUrl: 'https://cdn.vertex42.com/ExcelTemplates/Images/invoices/blank-invoice-template.png',
         owedBy: [
           { userUid: 'SVDRpbKNM1VTqkuov5cnbM0bkpr1', amount: 875 },
-          { userUid: 'firebase-uid-pradhuman-vaidya', amount: 875 },
-          { userUid: 'firebase-uid-test-user', amount: 875 },
-          { userUid: 'firebase-uid-clone-splitwise', amount: 875 }
+          { userUid: 'hDoEcQAufdZbNstzz0SjAsRnCzG2', amount: 875 },
+          { userUid: 'TcW3Byi7dlXZbNUj1GQeroA6tPU2', amount: 875 },
+          { userUid: 'DlmQ8eAeCFP36SQ1NZvZwG6V3Bt1', amount: 875 }
         ]
       }
     ]
@@ -349,7 +349,7 @@ export class GroupsService {
   private apiUrl = 'http://localhost:3001/api'; // Backend API URL
 
   constructor(
-    private router: Router, 
+    private router: Router,
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object
   ) { }
@@ -477,11 +477,11 @@ export class GroupsService {
     return new Observable(observer => {
       const expenses = this.groupExpenses[groupId] || [];
       const members = this.groupMembers[groupId] || [];
-      
-      const expensesWithMembers = expenses.map(expense => 
+
+      const expensesWithMembers = expenses.map(expense =>
         this.getExpenseWithMembers(expense, members)
       );
-      
+
       observer.next(expensesWithMembers);
       observer.complete();
     });
@@ -492,7 +492,7 @@ export class GroupsService {
     return new Observable(observer => {
       const expenses = this.groupExpenses[groupId] || [];
       const members = this.groupMembers[groupId] || [];
-      
+
       const grouped = new Map<string, ExpenseWithMembers[]>();
 
       expenses.forEach(expense => {
@@ -519,120 +519,6 @@ export class GroupsService {
   }
 
 
-
-  
-
-  /**
-   * Tests UID resolution for specific emails (Development/Testing only)
-   * @param emails - Array of emails to test (optional, defaults to common test emails)
-   */
-  async testUidResolution(emails?: string[]): Promise<UidResolutionResult[]> {
-    console.log('🔍 Testing UID resolution for specific emails...');
-    console.log('📝 Note: This will get REAL Firebase UIDs, not mock data');
-    
-    // Test backend API connection first
-    const backendStatus = await this.testBackendConnection();
-    
-    const testEmails = emails || [
-      'bakadiyayash@gmail.com',
-      'yash0098209295@gmail.com'
-    ];
-
-    const results: UidResolutionResult[] = [];
-
-    for (const email of testEmails) {
-      console.log(`\n🔍 Checking ${email}...`);
-      const result = await this.findUserByEmail(email);
-      results.push(result);
-      
-      if (result.success) {
-        console.log(`✅ Successfully resolved REAL Firebase UID for ${email}: ${result.uid}`);
-      } else {
-        console.log(`❌ Failed to resolve UID for ${email}: ${result.error}`);
-      }
-    }
-    
-    // Log summary
-    const successCount = results.filter(r => r.success).length;
-    console.log(`\n📊 Summary: ${successCount}/${results.length} UIDs resolved successfully`);
-    
-    if (!backendStatus) {
-      console.log('💡 Backend API setup: cd backend && npm install && npm start');
-    }
-    
-    return results;
-  }
-
-  /**
-   * Tests backend API connection
-   * @returns Promise<boolean> - true if backend is available
-   */
-  private async testBackendConnection(): Promise<boolean> {
-    try {
-      console.log('🔌 Testing backend API connection...');
-      const response = await this.http.get(`${this.apiUrl}/health`).toPromise();
-      console.log('✅ Backend API is running:', response);
-      return true;
-    } catch (error: any) {
-      console.log('❌ Backend API not available:', error.message);
-      return false;
-    }
-  }
-
-  /**
-   * Resolves UIDs for all group members that have temporary or fake UIDs
-   * @param groupId - The group ID to resolve UIDs for
-   * @returns Promise<{resolved: number, total: number}> - Resolution statistics
-   */
-  async resolveMemberUids(groupId: number): Promise<{resolved: number, total: number}> {
-    if (!isPlatformBrowser(this.platformId)) {
-      console.log('❌ UID resolution not available in SSR environment');
-      return { resolved: 0, total: 0 };
-    }
-    
-    console.log(`🔄 Resolving UIDs for group ${groupId}...`);
-    const members = this.groupMembers[groupId] || [];
-    let resolvedCount = 0;
-    
-    for (const member of members) {
-      // Check if UID needs resolution (temp or fake UIDs)
-      if (this.needsUidResolution(member.uid)) {
-        try {
-          console.log(`🔍 Resolving UID for ${member.name} (${member.email})...`);
-          const result = await this.findUserByEmail(member.email);
-          
-          if (result.success && result.uid) {
-            const oldUid = member.uid;
-            member.uid = result.uid;
-            console.log(`✅ Updated UID for ${member.name}: ${oldUid} → ${result.uid}`);
-            resolvedCount++;
-          } else {
-            console.log(`⚠️  Could not resolve UID for ${member.name} (${member.email}): ${result.error}`);
-          }
-        } catch (error: any) {
-          console.error(`❌ Error resolving UID for ${member.email}:`, error);
-        }
-      } else {
-        console.log(`ℹ️  ${member.name} already has a valid UID: ${member.uid}`);
-      }
-    }
-    
-    console.log(`✅ UID resolution complete. Resolved ${resolvedCount} out of ${members.length} members.`);
-    return { resolved: resolvedCount, total: members.length };
-  }
-
-  /**
-   * Checks if a UID needs resolution
-   * @param uid - The UID to check
-   * @returns boolean - true if UID needs resolution
-   */
-  private needsUidResolution(uid: string): boolean {
-    return uid.startsWith('temp-uid-') || 
-           uid.startsWith('firebase-uid-') || 
-           uid.startsWith('pending-firebase-uid') ||
-           uid === 'unknown';
-  }
-
   /**
    * Resolves Firebase UID for a given email address
    * @param email - The email address to look up
@@ -649,33 +535,32 @@ export class GroupsService {
         };
       }
 
-      // Check if we're in browser environment
-      if (!isPlatformBrowser(this.platformId)) {
-        return {
-          success: false,
-          error: 'Firebase Auth not available in SSR environment',
-          source: 'not-found'
-        };
-      }
-
-      // Try to get current user UID first
-      const currentUserResult = await this.getCurrentUserUid(email);
-      if (currentUserResult.success) {
-        return currentUserResult;
-      }
-
-      // Try backend API
+      // Try backend API first (works in both browser and SSR)
       const backendResult = await this.getUidFromBackendApi(email);
       if (backendResult.success) {
         return backendResult;
       }
 
-      // Check if user exists in Firebase
-      const existenceResult = await this.checkUserExistence(email);
-      return existenceResult;
+      // In browser only: try to get current user UID
+      if (isPlatformBrowser(this.platformId)) {
+        const currentUserResult = await this.getCurrentUserUid(email);
+        if (currentUserResult.success) {
+          return currentUserResult;
+        }
+
+        // In browser only: check if user exists (for better UX messaging)
+        const existenceResult = await this.checkUserExistence(email);
+        return existenceResult;
+      }
+
+      // Fallback for non-browser environments
+      return {
+        success: false,
+        error: 'UID not found',
+        source: 'not-found'
+      };
 
     } catch (error: any) {
-      console.error(`❌ Error resolving UID for ${email}:`, error);
       return {
         success: false,
         error: error.message || 'Unknown error occurred',
@@ -696,7 +581,6 @@ export class GroupsService {
 
       const currentUser = auth.currentUser;
       if (currentUser && currentUser.email === email) {
-        console.log(`✅ Found current user UID for ${email}: ${currentUser.uid}`);
         return {
           success: true,
           uid: currentUser.uid,
@@ -716,9 +600,8 @@ export class GroupsService {
   private async getUidFromBackendApi(email: string): Promise<UidResolutionResult> {
     try {
       const response = await this.http.get<BackendApiResponse>(`${this.apiUrl}/users/uid-by-email?email=${encodeURIComponent(email)}`).toPromise();
-      
+
       if (response && response.success && response.uid) {
-        console.log(`✅ Found UID for ${email} via backend API: ${response.uid}`);
         return {
           success: true,
           uid: response.uid,
@@ -729,10 +612,8 @@ export class GroupsService {
       return { success: false, error: response?.error || 'No UID found', source: 'backend-api' };
     } catch (apiError: any) {
       if (apiError.status === 404) {
-        console.log(`❌ User ${email} not found in Firebase via backend API`);
         return { success: false, error: 'User not found', source: 'backend-api' };
       } else {
-        console.log(`⚠️  Backend API error for ${email}:`, apiError.message);
         return { success: false, error: apiError.message, source: 'backend-api' };
       }
     }
@@ -746,17 +627,14 @@ export class GroupsService {
       const auth = getAuth();
       const { fetchSignInMethodsForEmail } = await import('firebase/auth');
       const signInMethods = await fetchSignInMethodsForEmail(auth, email);
-      
+
       if (signInMethods && signInMethods.length > 0) {
-        console.log(`✅ User ${email} exists in Firebase (${signInMethods.length} sign-in methods)`);
-        console.log(`⚠️  Cannot get UID for ${email} without backend API. User needs to sign in to get their UID.`);
         return {
           success: false,
           error: 'User exists but UID not accessible without backend API',
           source: 'signin-methods'
         };
       } else {
-        console.log(`❌ User ${email} is not registered in Firebase`);
         return {
           success: false,
           error: 'User not registered in Firebase',
@@ -764,7 +642,6 @@ export class GroupsService {
         };
       }
     } catch (error: any) {
-      console.log(`❌ Error checking if user ${email} exists:`, error);
       return {
         success: false,
         error: error.message,

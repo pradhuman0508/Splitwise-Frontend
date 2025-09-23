@@ -153,7 +153,7 @@
                 <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
                   <div class="flex items-center justify-between">
                     <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Paid by</span>
-                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ selectedExpense.paidBy.name }}</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ selectedExpense?.paidBy?.name || 'Unknown' }}</span>
                   </div>
                 </div>
 
@@ -161,7 +161,7 @@
                 <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
                   <div class="flex items-center justify-between">
                     <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Added by</span>
-                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ selectedExpense.addedBy.name }}</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ selectedExpense?.addedBy?.name || 'Unknown' }}</span>
                   </div>
                 </div>
 
@@ -217,9 +217,9 @@
             <!-- Owed By Section -->
             <div class="mt-6">
               <div class="space-y-2">
-                <div *ngFor="let person of selectedExpense.owedBy" 
+                <div *ngFor="let person of (selectedExpense?.owedBy || [])" 
                      class="flex items-center justify-between py-2 px-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{ person.user.name }}</span>
+                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{ person?.user?.name || 'Unknown' }}</span>
                   <span class="text-sm font-semibold text-gray-900 dark:text-white">
                     ₹{{ person.amount | number:'1.2-2' }}
                   </span>

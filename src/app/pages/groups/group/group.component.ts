@@ -44,8 +44,6 @@ export class GroupComponent implements OnInit {
   isUploadingAvatar = false;
   isEditingName = false;
   isIExpanded = false;
-  isTestingUids = false;
-  isDevelopmentMode = true; // Set to false in production
   private previousName: string | undefined;
 
   @ViewChild('cardIRef') cardIRef!: ElementRef;
@@ -163,95 +161,32 @@ export class GroupComponent implements OnInit {
   }
 
   loadGroupMembers() {
-    this.groupsService.getGroupMembers(Number(this.groupId)).subscribe(members => {
+    this.groupsService.getGroupMembers(Number(this.groupId)).subscribe(async members => {
       this.members = members;
-    });
-  }
 
-  /**
-   * Tests UID resolution for group members (Development/Testing only)
-   * This method should be removed in production
-   */
-  async testUidResolution(): Promise<void> {
-    if (this.isTestingUids) return; // Prevent multiple simultaneous tests
-    
-    this.isTestingUids = true;
-    
-    try {
-      console.log('🧪 Testing UID resolution for group members...');
-      
-      if (!this.groupId) {
-        console.warn('⚠️  No group ID available for testing');
-        this.messageService.add({
-          severity: 'warn',
-          summary: 'Test Warning',
-          detail: 'No group ID available for testing'
+      // Refresh expenses with member data on page load
+      if (this.groupId) {
+        this.groupsService.getGroupedExpensesWithMembers(Number(this.groupId)).subscribe(groupedExpenses => {
+          this.groupedExpenses = groupedExpenses.map(group => ({
+            ...group,
+            expenses: group.expenses.map(expense => ({
+              ...expense,
+              createdAt: new Date(expense.addedAt),
+              updatedAt: new Date(expense.updatedAt)
+            }))
+          }));
+
+          // Flatten expenses for backward compatibility
+          this.expenses = groupedExpenses.flatMap(group => group.expenses).map(expense => ({
+            ...expense,
+            createdAt: new Date(expense.addedAt),
+            updatedAt: new Date(expense.updatedAt)
+          }));
         });
-        return;
       }
-
-      // Test specific emails first
-      const testEmails = this.getTestEmails();
-      const emailResults = await this.groupsService.testUidResolution(testEmails);
-      
-      // Resolve UIDs for current group members
-      const groupResults = await this.groupsService.resolveMemberUids(Number(this.groupId));
-      
-      // Show summary
-      this.showTestSummary(emailResults, groupResults);
-      
-    } catch (error: any) {
-      console.error('❌ Error during UID resolution test:', error);
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Test Error',
-        detail: 'Failed to test UID resolution. Check console for details.'
-      });
-    } finally {
-      this.isTestingUids = false;
-    }
-  }
-
-  /**
-   * Gets test emails for UID resolution testing
-   * @returns string[] - Array of test email addresses
-   */
-  private getTestEmails(): string[] {
-    const testEmails = ['bakadiyayash@gmail.com', 'yash0098209295@gmail.com'];
-    
-    // Add current group member emails if available
-    if (this.members.length > 0) {
-      const memberEmails = this.members
-        .map(member => member.email)
-        .filter(email => email && !testEmails.includes(email))
-        .slice(0, 3); // Limit to 3 additional emails
-      
-      testEmails.push(...memberEmails);
-    }
-    
-    return testEmails;
-  }
-
-  /**
-   * Shows test summary in console and UI
-   * @param emailResults - Results from email testing
-   * @param groupResults - Results from group member resolution
-   */
-  private showTestSummary(emailResults: any[], groupResults: {resolved: number, total: number}): void {
-    const emailSuccessCount = emailResults.filter(r => r.success).length;
-    const totalEmails = emailResults.length;
-    
-    console.log(`\n📊 Test Summary:`);
-    console.log(`   Email Tests: ${emailSuccessCount}/${totalEmails} successful`);
-    console.log(`   Group Members: ${groupResults.resolved}/${groupResults.total} UIDs resolved`);
-    
-    // Show success message in UI
-    this.messageService.add({
-      severity: 'success',
-      summary: 'UID Resolution Test Complete',
-      detail: `Resolved ${emailSuccessCount}/${totalEmails} emails and ${groupResults.resolved}/${groupResults.total} group members`
     });
   }
+
 
 
   onFileSelected(event: any) {

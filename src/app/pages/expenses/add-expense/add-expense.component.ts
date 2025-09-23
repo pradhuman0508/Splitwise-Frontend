@@ -13,7 +13,6 @@ import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { GroupsService, Group, GroupMember, Expense } from '../../groups/groups.service';
-import { AuthService } from '../../../core/auth.service';
 import { getAuth } from '@angular/fire/auth';
 
 @Component({
@@ -456,7 +455,7 @@ private async autoSelectUserGroup() {
       const formValue = this.expenseForm.value;
       // Resolve UIDs for expense creation
       const uidData = this.resolveExpenseUids(formValue.paidBy);
-      
+
       // Create UID references for owedBy users
       const owedByMembers = this.memberSplits
         .filter(split => split.involved)
@@ -501,27 +500,6 @@ private async autoSelectUserGroup() {
       console.error('Error adding expense:', error);
     } finally {
       this.isSubmitting = false;
-    }
-  }
-
-  private resetForm() {
-    this.expenseForm.reset({
-      description: '',
-      amount: null,
-      groupId: this.groupId || null,
-      paidBy: '',
-      date: new Date(),
-      notes: ''
-    });
-    this.selectedGroupMembers = [];
-    this.memberSplits = [];
-    this.formErrors = [];
-
-    // Reset member involvement when form is reset
-    if (this.selectedGroupMembers.length > 0) {
-      this.selectedGroupMembers.forEach(member => {
-        member.involved = true;
-      });
     }
   }
 
@@ -593,11 +571,11 @@ private async autoSelectUserGroup() {
   private resolveExpenseUids(paidByName: string): { addedByUid: string; paidByUid: string } {
     // Get current user's UID
     const addedByUid = this.getCurrentUserUid();
-    
+
     // Get paid by user's UID
     const paidByMember = this.selectedGroupMembers.find(member => member.name === paidByName);
     const paidByUid = this.getUserIdentifier(paidByMember);
-    
+
     return { addedByUid, paidByUid };
   }
 
@@ -618,7 +596,7 @@ private async autoSelectUserGroup() {
       );
       return addedByMember?.uid || currentUser.uid || 'temp-uid-unknown';
     }
-    
+
     return 'temp-uid-unknown';
   }
 
@@ -628,28 +606,15 @@ private async autoSelectUserGroup() {
    * @returns string - User identifier
    */
   private getUserIdentifier(member: GroupMember | undefined): string {
-    if (!member) {
-      return 'temp-uid-unknown';
+    if (!member || !member.uid) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'UID Missing',
+        detail: 'Could not resolve member UID. Please select a valid member.'
+      });
+      throw new Error('Member UID not resolvable');
     }
-    
-    // Use UID if available and valid, otherwise fallback to email
-    if (member.uid && !this.isTemporaryUid(member.uid)) {
-      return member.uid;
-    }
-    
-    return member.email || 'temp-uid-unknown';
-  }
-
-  /**
-   * Checks if UID is temporary or fake
-   * @param uid - UID to check
-   * @returns boolean - true if UID is temporary
-   */
-  private isTemporaryUid(uid: string): boolean {
-    return uid.startsWith('temp-uid-') || 
-           uid.startsWith('firebase-uid-') || 
-           uid.startsWith('pending-firebase-uid') ||
-           uid === 'unknown';
+    return member.uid;
   }
 
   /**
@@ -659,4 +624,4 @@ private async autoSelectUserGroup() {
   private generateExpenseId(): string {
     return `exp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
-}      
+}
