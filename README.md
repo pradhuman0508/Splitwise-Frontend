@@ -1,27 +1,74 @@
-# Warikan
+## Splitwise-Frontend (Warikan)
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.12.
+An Angular 18 app that mimics core Splitwise functionality: groups, members, expenses, and balances. It includes a simple Node/Express backend (in `backend/`) used for certain operations (e.g., resolving Firebase UIDs by email).
 
-## Development server
+### Tech Stack
+- Angular 18 (standalone APIs)
+- PrimeNG UI components
+- Firebase Auth (`@angular/fire`)
+- Node/Express backend (`backend/`) for API endpoints
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+### Prerequisites
+- Node.js 18+ and npm
+- Firebase project (optional but recommended if you want to test auth end-to-end)
 
-## Code scaffolding
+### Quick Start
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+1) Install dependencies
 
-## Build
+```bash
+npm install
+cd backend && npm install && cd ..
+```
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+2) Start the backend API (default: `http://localhost:3001`)
 
-## Running unit tests
+```bash
+cd backend
+npm start
+```
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+The API exposes endpoints under `/api`. For example, the frontend expects `GET /api/users/uid-by-email?email=...`.
 
-## Running end-to-end tests
+3) Start the Angular dev server (default: `http://localhost:4200`)
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+```bash
+npm start
+# or
+ng serve
+```
 
-## Further help
+Open the app at `http://localhost:4200`.
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+### Configuration
+
+- API URL: The frontend currently points to `http://localhost:3001/api` inside `src/app/features/groups/services/groups.service.ts` (property `apiUrl`). If you change the backend port/host, update this value accordingly.
+
+- Firebase: The app references Firebase Auth (e.g., `getAuth()`). Ensure your Firebase config is set up in `src/environments/environment.ts` and `environment.production.ts` if you plan to use real authentication. For local development without Firebase, some features will be stubbed or rely on local data.
+
+### Scripts
+
+- Dev server: `npm start` or `ng serve`
+- Build: `ng build`
+- Production build output: `dist/`
+
+### Common Issues
+
+- Port already in use: If `4200` or `3001` is in use, either free the port or run the servers on different ports and update the `apiUrl` accordingly.
+- CORS: If you deploy the backend separately, ensure CORS is configured to allow the frontend origin.
+
+### Project Structure (partial)
+
+- `src/` – Angular app source
+  - `app/features/groups/` – Groups, members, and expenses features
+  - `app/features/add-expense/` – Add expense modal and logic
+  - `app/features/auth/` – Auth routes and services
+- `backend/` – Node/Express API used by the frontend
+
+### Notes
+
+- Some demo data is embedded for quick local testing (e.g., groups, members, and expenses). The backend API is used for specific flows like resolving Firebase UIDs by email.
+
+---
+
+Generated with Angular CLI 18.2.12, then customized for this project.
