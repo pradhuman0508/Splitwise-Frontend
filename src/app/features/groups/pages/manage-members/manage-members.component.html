@@ -6,7 +6,7 @@
   </div>
   <div class="flex flex-row">
     <!-- Form for adding new members -->
-    <form [formGroup]="memberForm" class="space-y-4">
+    <!-- <form [formGroup]="memberForm" class="space-y-4">
       <div formArrayName="members">
         <div *ngFor="let member of membersFormArray.controls; let i = index" [formGroupName]="i"
           class="flex flex-col sm:flex-row gap-4 items-start sm:items-center mx-4">
@@ -29,7 +29,7 @@
           </button>
         </div>
       </div>
-    </form>
+    </form> -->
     <div class="flex-1">
       <div class="flex flex-row">
         <p-scrollPanel class="header-scroll inline-block" [ngStyle]="{ width: 'fit-content', maxWidth: '595px' }">
@@ -70,7 +70,7 @@
         <div class="py-3">
           <div class="flex flex-col px-4 pt-3 pb-4 border-lf">
             <div [pTooltip]="tooltipContent" tooltipPosition="bottom" showDelay="600" hideDelay="300"
-              class="w-16 h-16 rounded-full bg-color flex items-center justify-center mx-auto" (click)="addMember()">
+              class="w-16 h-16 rounded-full bg-color flex items-center justify-center mx-auto" (click)="openDialog()">
               <i class="pi pi-plus text-gray-300 dark:text-gray-700" style="font-size: 2rem"></i>
             </div>
             <ng-template #tooltipContent>
@@ -80,6 +80,35 @@
             </ng-template>
           </div>
         </div>
+
+        <p-dialog maskStyleClass="backdrop-blur-sm" [modal]="true" [(visible)]="visible"
+        [style]="{ width: '28rem' }">
+        <form [formGroup]="memberForm" (ngSubmit)="onSubmit()" class="space-y-4">
+          <div formArrayName="members">
+            <div *ngFor="let member of membersFormArray.controls; let i = index" [formGroupName]="i"
+              class="flex flex-col sm:flex-row gap-4 items-start sm:items-center mx-4">
+              <p-floatlabel variant="on" class="w-full">
+                <input pInputText [id]="'memberName' + i" type="text" formControlName="name" class="w-full"
+                  [ngClass]="{'border-red-300': isArrayFieldInvalid(i, 'name')}" />
+                <label [for]="'memberName' + i">Name</label>
+              </p-floatlabel>
+    
+              <p-floatlabel variant="on" class="w-full">
+                <input pInputText [id]="'memberEmail' + i" type="email" formControlName="email" class="w-full"
+                  [ngClass]="{'border-red-300': isArrayFieldInvalid(i, 'email')}" />
+                <label [for]="'memberEmail' + i">Email</label>
+              </p-floatlabel>
+    
+            </div>
+          </div>
+          <div class="flex justify-end gap-2 px-4 pb-2">
+            <div class="flex justify-end">
+              <p-button type="submit" label="Add Member" icon="pi pi-check" severity="warn" [loading]="isSubmitting"></p-button>
+          </div>
+          </div>
+        </form>
+    </p-dialog>
+
       </div>
     </div>
   </div>
@@ -172,7 +201,7 @@
         </div>
       </div>
 
-      <!-- Action Buttons -->
+      <!-- remove existing member Buttons -->
       <div *ngIf="isDebtListEmpty(selectedMember)">
         <p-button class="flex justify-end" label="Remove Member" icon="pi pi-trash" severity="danger"
           (click)="removeExistingMember(selectedMember)" />

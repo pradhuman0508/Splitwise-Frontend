@@ -8,12 +8,13 @@ import { FloatLabelModule } from "primeng/floatlabel"
 import { InputTextModule } from 'primeng/inputtext';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
+import { Dialog } from 'primeng/dialog';
 import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-manage-members',
   standalone: true,
-  imports: [CommonModule, FloatLabelModule, ScrollPanelModule, ButtonModule, ReactiveFormsModule, InputTextModule, TooltipModule],
+  imports: [CommonModule, FloatLabelModule, ScrollPanelModule, ButtonModule, ReactiveFormsModule, InputTextModule, TooltipModule, Dialog],
   templateUrl: './manage-members.component.html',
   styleUrls: ['../group.component.scss', './manage-members.component.scss']
 })
@@ -22,7 +23,9 @@ export class ManageMembersComponent implements OnInit {
   members: GroupMember[] = [];
   memberForm: FormGroup;
   selectedMember: GroupMember | null = null;
+  visible: boolean = false;
   removalSuccess = false;
+  isSubmitting = false;
 
   constructor(
     private groupsService: GroupsService,
@@ -54,6 +57,14 @@ export class ManageMembersComponent implements OnInit {
     }
   }
 
+  openDialog(): void {
+    this.visible = true;
+    // Ensure at least one row is available for input
+    if (this.membersFormArray.length === 0) {
+      this.addMember();
+    }
+  }
+
   goBack(): void {
     if (window.history.length > 1) {
       this.location.back();
@@ -79,10 +90,28 @@ export class ManageMembersComponent implements OnInit {
     }
   }
 
-  removeMember(index: number): void {
-    if (index >= 0) {
-      this.membersFormArray.removeAt(index);
+  onSubmit(): void {
+    // Expect exactly one member row; validate it
+    const control = this.membersFormArray.at(0) as FormGroup | undefined;
+    if (!control) {
+      return;
     }
+    if (control.invalid) {
+      control.markAllAsTouched();
+      return;
+    }
+
+    this.isSubmitting = true;
+
+    // Add single member from the form
+    const { name, email } = control.value;
+    this.addMemberToList({ name, email });
+
+    // Close dialog and reset form state
+    this.visible = false;
+    this.memberForm.reset();
+    this.membersFormArray.clear();
+    this.isSubmitting = false;
   }
 
   removeExistingMember(member: GroupMember) {
@@ -115,52 +144,7 @@ export class ManageMembersComponent implements OnInit {
     return !!(control && control.invalid && (control.dirty || control.touched));
   }
 
-  getArrayErrorMessage(i: number, field: string): string {
-    const control = this.membersFormArray.at(i).get(field);
-    if (control?.hasError('email')) return 'Invalid email format';
-    if (control?.hasError('required')) return 'This field is required';
-    return '';
-  }
-
-  onFormSubmit(): void {
-    if (this.memberForm.valid) {
-      this.addFormMembersToList();
-    }
-  }
-
-  onFieldBlur(index: number): void {
-    const memberControl = this.membersFormArray.at(index);
-    if (memberControl.valid && memberControl.value.name && memberControl.value.email) {
-      // Add this member to the list
-      this.addMemberToList(memberControl.value);
-      // Remove the form control
-      this.membersFormArray.removeAt(index);
-    }
-  }
-
-  onFieldKeyPress(event: KeyboardEvent, index: number): void {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      const memberControl = this.membersFormArray.at(index);
-      if (memberControl.valid && memberControl.value.name && memberControl.value.email) {
-        // Add this member to the list
-        this.addMemberToList(memberControl.value);
-        // Remove the form control
-        this.membersFormArray.removeAt(index);
-      }
-    }
-  }
-
-  private addFormMembersToList(): void {
-    const formMembers = this.memberForm.value.members;
-    formMembers.forEach((member: any) => {
-      if (member.name && member.email) {
-        this.addMemberToList(member);
-      }
-    });
-    // Clear the form
-    this.membersFormArray.clear();
-  }
+  // Removed multi-row helpers for single-member add flow
 
   private addMemberToList(memberData: { name: string; email: string }): void {
     if (!this.groupId) return;
