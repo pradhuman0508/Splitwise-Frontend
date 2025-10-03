@@ -1,14 +1,14 @@
 <div class="layout-topbar">
     <a class="layout-topbar-logo" routerLink="/">
         <div class="w-16 h-16">
-            <img src="assets/demo/logo.svg" alt="Logo"/>
+            <img src="assets/demo/logo.svg" alt="W"/>
         </div>
         <span style="position: relative; right: 17px;">ARIKAN</span>
     </a>
 
     <div class="layout-topbar-navigation">
         <div class="navigation-container">
-            <div routerLink="dashboard" (click)="setActiveTab('dashboard')" class="nav-item flex flex-row gap-4" [ngClass]="{
+            <div routerLink="dashboard" (click)="setActiveTab('dashboard')" class="nav-item flex flex-row gap-3" [ngClass]="{
                     'bg-[var(--surface-hover)]': isActiveTab('dashboard')
                 }">
                 <i class="pi pi-objects-column"></i>
@@ -17,13 +17,13 @@
                     <span class="nav-text-mobile">Home</span>
                 </div>
             </div>
-            <div routerLink="groups" (click)="setActiveTab('groups')" class="nav-item" [ngClass]="{
+            <div routerLink="groups" (click)="setActiveTab('groups')" class="nav-item flex flex-row gap-3" [ngClass]="{
                     'bg-[var(--surface-hover)]': isActiveTab('groups')
                 }">
                 <i class="pi pi-users"></i>
                 <span class="nav-text">Groups</span>
             </div>
-            <button type="button" (click)="setActiveTab('friends')" class="nav-item" [ngClass]="{
+            <button type="button" (click)="setActiveTab('friends')" class="nav-item flex flex-row gap-3" [ngClass]="{
                     'bg-[var(--surface-hover)]': isActiveTab('friends')
                 }">
                 <i class="pi pi-face-smile"></i>
