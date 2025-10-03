@@ -10,6 +10,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { CreateGroupComponent } from '../cards/create-group-card/create-group.component';
 import { Subscription } from 'rxjs';
 import { GroupsService, Group } from '../services/groups.service';
+import { AuthService } from '../../auth/services/auth.service';
 
 @Component({
   selector: 'app-group-list',
@@ -44,13 +45,22 @@ export class GroupListComponent implements OnInit, OnDestroy {
 
   constructor(
     private groupsService: GroupsService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
     this.subscription = this.groupsService.getGroups().subscribe(groups => {
-      this.groups = groups;
-      this.applyFilters();
+      // Compute totals and balances for current user
+      this.authService.isLoggedIn().subscribe(user => {
+        const currentUid = user?.uid || null;
+        this.groups = groups.map(g => ({
+          ...g,
+          totalExpenses: this.groupsService.computeGroupTotalExpenses(g.id),
+          balance: this.groupsService.computeUserBalanceForGroup(g.id, currentUid)
+        }));
+        this.applyFilters();
+      });
     });
   }
 

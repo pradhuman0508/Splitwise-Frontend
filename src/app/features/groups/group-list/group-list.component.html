@@ -59,7 +59,7 @@
             <span *ngIf="group.balance > 0">You are owed</span>
             <span *ngIf="group.balance < 0">You owe</span>
             <span *ngIf="group.balance === 0">Settled up</span>
-            <span *ngIf="group.balance !== 0"> {{ group.balance | currency:'INR':'symbol':'1.2-2' }}</span>
+            <span *ngIf="group.balance !== 0"> {{ (group.balance < 0 ? -group.balance : group.balance) | currency:'INR':'symbol':'1.2-2' }}</span>
           </div>
         </div>
 

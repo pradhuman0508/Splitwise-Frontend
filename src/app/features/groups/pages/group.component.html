@@ -2,7 +2,7 @@
 <!-- Group Header -->
 <p-card class="shadow-sm min-h-screen">
   <div class="flex flex-col md:flex-row items-center mb-2 rounded-md bg-color surface-border justify-between">
-    <div class="flex items-center p-2 w-full rounded-r-full bg-color-card" (click)="toggleSlide()">
+    <div class="flex items-center py-2 pl-2 pr-4 w-full rounded-r-full bg-color-card" (click)="toggleSlide()">
       <div class="relative group mr-4" (click)="onClickDisableDropDown($event)">
         <img *ngIf="group" [src]="group.avatar" [alt]="group.name"
           class="w-16 h-16 rounded-full object-cover surface-border" />
@@ -38,7 +38,7 @@
           <ng-container *ngIf="group.balance < 0">You owe</ng-container>
           <ng-container *ngIf="!group.balance || group.balance === 0">Settled up</ng-container>
           <span *ngIf="group.balance !== 0">
-            {{ group.balance | currency:'INR':'symbol':'1.2-2' }}
+            {{ (group.balance < 0 ? -group.balance : group.balance) | currency:'INR':'symbol':'1.2-2' }}
           </span>
         </span>
       </div>

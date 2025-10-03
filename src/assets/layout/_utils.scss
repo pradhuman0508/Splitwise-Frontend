@@ -7,7 +7,7 @@
 
 .card {
     background: var(--surface-card);
-    padding: 2rem;
+    padding: 1rem;
     border-radius: var(--content-border-radius);
 
     &:last-child {
@@ -21,4 +21,34 @@
     &.p-toast-top-center {
         top: 100px;
     }
+}
+
+.surface-border {
+    border-right: 1px solid var(--surface-border);
+    border-left: 1px solid var(--surface-border);
+    border-top: 1px solid var(--surface-border);
+    border-bottom: 1px solid var(--surface-border);
+}
+.border-rt {
+    border-right: 1px solid var(--surface-border);
+}
+
+.border-bm {
+    border-bottom: 2px solid var(--surface-border);
+}
+
+.border-tp {
+    border-top: 2px solid var(--surface-border);
+}
+
+.border-lt {
+    border-left: 1px solid var(--surface-border);
+}
+
+.bg-color {
+    background-color: var(--surface-hover);
+}
+
+.bg-color-card {
+    background-color: var(--surface-card);
 }

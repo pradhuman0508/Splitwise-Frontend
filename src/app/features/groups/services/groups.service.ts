@@ -106,18 +106,18 @@ export class GroupsService {
       name: 'Roommates',
       description: 'Expenses for our apartment',
       memberCount: 4,
-      balance: 120,
-      totalExpenses: 2450,
+      balance: 0,
+      totalExpenses: 0,
       avatar: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a',
       createdAt: new Date('2023-06-15')
     },
     {
       id: 2,
-      name: 'Trip to Paris',
+      name: 'APY Transactions',
       description: 'Our amazing vacation',
       memberCount: 6,
-      balance: -45,
-      totalExpenses: 3200,
+      balance: 0,
+      totalExpenses: 0,
       avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61',
       createdAt: new Date('2023-05-20')
     },
@@ -126,8 +126,8 @@ export class GroupsService {
       name: 'Office Lunch',
       description: 'Weekly team lunches',
       memberCount: 8,
-      balance: 25,
-      totalExpenses: 960,
+      balance: 0,
+      totalExpenses: 0,
       avatar: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205',
       createdAt: new Date('2023-06-10')
     },
@@ -136,8 +136,8 @@ export class GroupsService {
       name: 'Book Club',
       description: 'Monthly book purchases and snacks',
       memberCount: 5,
-      balance: 15,
-      totalExpenses: 350,
+      balance: 0,
+      totalExpenses: 0,
       avatar: 'https://images.unsplash.com/photo-1495446815901-a7297e633e8d',
       createdAt: new Date('2023-06-01')
     }
@@ -251,6 +251,45 @@ export class GroupsService {
         "owedBy": [],
         "createdAt": new Date('2024-03-11')
       }
+    ],
+    2: [
+      {
+        "id": 1,
+        "uid": "SVDRpbKNM1VTqkuov5cnbM0bkpr1",
+        "name": "Yash Bakadiya",
+        "email": "bakadiyayash@gmail.com",
+        "avatar": "https://images.unsplash.com/photo-1599566150163-29194dcaad36",
+        "balance": 50,
+        "owesTo": [],
+        "owedBy": [
+          { "name": "Akshay Shinde", "amount": 48000 }
+        ],
+        "createdAt": new Date('2024-01-15')
+      },
+      {
+        "id": 2,
+        "uid": "hDoEcQAufdZbNstzz0SjAsRnCzG2",
+        "name": "Pradhuman Vaidya",
+        "email": "pradhumanvaidya612@gmail.com",
+        "avatar": "https://i.pravatar.cc/150?img=12",
+        "balance": 0,
+        "owesTo": [],
+        "owedBy": [],
+        "createdAt": new Date('2024-01-16')
+      },
+      {
+        "id": 3,
+        "uid": "TYjZMWaj09clFIocVywb4WWHYmW2",
+        "name": "Akshay Shinde",
+        "email": "akshay.shinde@gmail.com",
+        "avatar": "https://i.pravatar.cc/150?img=11",
+        "balance": -30,
+        "owesTo": [
+          { "name": "Yash Bakadiya", "amount": 48000 }
+        ],
+        "owedBy": [],
+        "createdAt": new Date('2024-01-16')
+      }
     ]
   };
 
@@ -341,6 +380,36 @@ export class GroupsService {
           { userUid: 'DlmQ8eAeCFP36SQ1NZvZwG6V3Bt1', amount: 875 }
         ]
       }
+    ],
+    2: [
+      {
+        expenseId: 'e101',
+        description: 'Other amount remaining',
+        amount: 23000,
+        currency: 'INR',
+        addedByUid: 'SVDRpbKNM1VTqkuov5cnbM0bkpr1',
+        paidByUid: 'SVDRpbKNM1VTqkuov5cnbM0bkpr1',
+        addedAt: new Date('2025-09-15T19:30:00Z'),
+        updatedAt: new Date('2025-09-16T09:10:00Z'),
+        receiptImageUrl: 'https://cdn.vertex42.com/ExcelTemplates/Images/invoices/blank-invoice-template.png',
+        owedBy: [
+          { userUid: 'TYjZMWaj09clFIocVywb4WWHYmW2', amount: 23000 }
+        ]
+      },
+      {
+        expenseId: 'e102',
+        description: 'credit card remaining',
+        amount: 25000,
+        currency: 'INR',
+        addedByUid: 'SVDRpbKNM1VTqkuov5cnbM0bkpr1',
+        paidByUid: 'SVDRpbKNM1VTqkuov5cnbM0bkpr1',
+        addedAt: new Date('2025-09-14T14:15:00Z'),
+        updatedAt: new Date('2025-09-14T14:15:00Z'),
+        receiptImageUrl: null,
+        owedBy: [
+          { userUid: 'TYjZMWaj09clFIocVywb4WWHYmW2', amount: 25000 }
+        ]
+      }
     ]
   };
 
@@ -373,20 +442,26 @@ export class GroupsService {
 
   getGroupedExpenses(groupId: number): Observable<GroupedExpenses[]> {
     const expenses = this.groupExpenses[groupId] || [];
-    const grouped = new Map<string, Expense[]>();
+    // Key by YYYY-MM for stable sorting, store display label separately
+    const grouped = new Map<string, { label: string; expenses: Expense[] }>();
 
     expenses.forEach(expense => {
-      const monthYear = expense.addedAt.toLocaleString('default', { month: 'long', year: 'numeric' });
-      if (!grouped.has(monthYear)) {
-        grouped.set(monthYear, []);
+      const year = expense.addedAt.getFullYear();
+      const monthIndex = expense.addedAt.getMonth() + 1; // 1-12
+      const key = `${year}-${String(monthIndex).padStart(2, '0')}`;
+      const label = expense.addedAt.toLocaleString('default', { month: 'long', year: 'numeric' });
+      if (!grouped.has(key)) {
+        grouped.set(key, { label, expenses: [] });
       }
-      grouped.get(monthYear)?.push(expense);
+      grouped.get(key)!.expenses.push(expense);
     });
 
-    const groupedExpenses = Array.from(grouped.entries()).map(([month, expenses]) => ({
-      month,
-      expenses: expenses.sort((a, b) => b.addedAt.getTime() - a.addedAt.getTime())
-    }));
+    const groupedExpenses = Array.from(grouped.entries())
+      .sort((a, b) => b[0].localeCompare(a[0])) // sort by YYYY-MM desc
+      .map(([_, value]) => ({
+        month: value.label,
+        expenses: value.expenses.sort((a, b) => b.addedAt.getTime() - a.addedAt.getTime())
+      }));
 
     return of(groupedExpenses);
   }
@@ -459,6 +534,51 @@ export class GroupsService {
     }
   }
 
+  updateGroupBalanceLocally(groupId: number, balance: number): void {
+    const groupIndex = this.groups.findIndex(g => g.id === groupId);
+    if (groupIndex !== -1) {
+      this.groups[groupIndex] = {
+        ...this.groups[groupIndex],
+        balance
+      };
+      this.groupsSubject.next([...this.groups]);
+    }
+  }
+
+  // Aggregates for list page
+  computeGroupTotalExpenses(groupId: number): number {
+    const expenses = this.groupExpenses[groupId] || [];
+    return expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+  }
+
+  computeUserBalanceForGroup(groupId: number, userUid: string | null | undefined): number {
+    if (!userUid) return 0;
+    const expenses = this.groupExpenses[groupId] || [];
+    let totalYouOwe = 0;
+    let totalYouAreOwed = 0;
+
+    for (const expense of expenses) {
+      const isPaidByYou = expense.paidByUid === userUid;
+
+      for (const owed of expense.owedBy) {
+        const isYou = owed.userUid === userUid;
+        if (isYou && !isPaidByYou) {
+          totalYouOwe += owed.amount;
+        }
+      }
+
+      if (isPaidByYou) {
+        for (const owed of expense.owedBy) {
+          if (owed.userUid !== userUid) {
+            totalYouAreOwed += owed.amount;
+          }
+        }
+      }
+    }
+
+    return totalYouAreOwed - totalYouOwe;
+  }
+
   // Helper method to resolve UIDs to GroupMembers
   getExpenseWithMembers(expense: Expense, groupMembers: GroupMember[]): ExpenseWithMembers {
     return {
@@ -493,20 +613,26 @@ export class GroupsService {
       const expenses = this.groupExpenses[groupId] || [];
       const members = this.groupMembers[groupId] || [];
 
-      const grouped = new Map<string, ExpenseWithMembers[]>();
+      const grouped = new Map<string, { label: string; expenses: ExpenseWithMembers[] }>();
 
       expenses.forEach(expense => {
-        const monthYear = expense.addedAt.toLocaleString('default', { month: 'long', year: 'numeric' });
-        if (!grouped.has(monthYear)) {
-          grouped.set(monthYear, []);
+        const year = expense.addedAt.getFullYear();
+        const monthIndex = expense.addedAt.getMonth() + 1; // 1-12
+        const key = `${year}-${String(monthIndex).padStart(2, '0')}`;
+        const label = expense.addedAt.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+        if (!grouped.has(key)) {
+          grouped.set(key, { label, expenses: [] });
         }
-        grouped.get(monthYear)?.push(this.getExpenseWithMembers(expense, members));
+        grouped.get(key)!.expenses.push(this.getExpenseWithMembers(expense, members));
       });
 
-      const groupedExpenses = Array.from(grouped.entries()).map(([month, expenses]) => ({
-        month,
-        expenses: expenses.sort((a, b) => b.addedAt.getTime() - a.addedAt.getTime())
-      }));
+      const groupedExpenses = Array.from(grouped.entries())
+        .sort((a, b) => b[0].localeCompare(a[0])) // sort by YYYY-MM desc
+        .map(([_, value]) => ({
+          month: value.label,
+          expenses: value.expenses.sort((a, b) => b.addedAt.getTime() - a.addedAt.getTime())
+        }));
 
       observer.next(groupedExpenses);
       observer.complete();

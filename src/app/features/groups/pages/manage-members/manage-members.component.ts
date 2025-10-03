@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, HostListener, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormArray, ReactiveFormsModule } from '@angular/forms';
 import { GroupsService, GroupMember } from '../../../../features/groups/services/groups.service';
@@ -10,6 +10,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { Dialog } from 'primeng/dialog';
 import { TooltipModule } from 'primeng/tooltip';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-manage-members',
@@ -18,14 +19,25 @@ import { TooltipModule } from 'primeng/tooltip';
   templateUrl: './manage-members.component.html',
   styleUrls: ['../group.component.scss', './manage-members.component.scss']
 })
-export class ManageMembersComponent implements OnInit {
-  groupId!: string;
+export class ManageMembersComponent implements OnInit, OnDestroy {
+  @ViewChild('scrollContainer') scrollContainer!: ElementRef<HTMLElement>;
+
+  groupId!: number;
   members: GroupMember[] = [];
   memberForm: FormGroup;
   selectedMember: GroupMember | null = null;
   visible: boolean = false;
   removalSuccess = false;
   isSubmitting = false;
+  canScrollLeftFlag = false;
+  canScrollRightFlag = false;
+
+  private readonly destroy$ = new Subject<void>();
+
+  private static readonly INITIAL_FLAGS_DELAY_MS = 100;
+  private static readonly UPDATE_FLAGS_DELAY_MS = 300;
+  private static readonly SCROLL_DELTA = 100;
+  private static readonly SCROLL_FLAG_EPSILON = 10;
 
   constructor(
     private groupsService: GroupsService,
@@ -43,18 +55,35 @@ export class ManageMembersComponent implements OnInit {
     // Resolve group ID from parent route first, fallback to current route
     const parentId = this.route.parent?.snapshot.paramMap.get('id');
     const selfId = this.route.snapshot.paramMap.get('id');
-    this.groupId = parentId || selfId || '';
+    const idParam = parentId ?? selfId ?? '';
+    const parsedId = Number(idParam);
 
-    if (this.groupId) {
-      this.groupsService.getGroupMembers(Number(this.groupId)).subscribe({
+    if (Number.isFinite(parsedId)) {
+      this.groupId = parsedId;
+      this.groupsService.getGroupMembers(this.groupId)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
         next: (members) => {
           this.members = members || [];
+          // Add sample avatars for demonstration if members don't have avatars
+          this.members.forEach((member, index) => {
+            if (!member.avatar) {
+              member.avatar = `https://i.pravatar.cc/150?img=${index + 1}`;
+            }
+          });
+          // Update scroll flags after members are loaded
+          setTimeout(() => this.updateScrollFlags(), ManageMembersComponent.INITIAL_FLAGS_DELAY_MS);
         },
         error: (error) => {
           console.error('Error fetching members:', error);
         }
       });
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   openDialog(): void {
@@ -69,7 +98,7 @@ export class ManageMembersComponent implements OnInit {
     if (window.history.length > 1) {
       this.location.back();
     } else if (this.groupId) {
-      this.router.navigate(['/group', this.groupId]);
+      this.router.navigate(['/group', String(this.groupId)]);
     }
   }
 
@@ -116,20 +145,23 @@ export class ManageMembersComponent implements OnInit {
 
   removeExistingMember(member: GroupMember) {
     if (!this.groupId) return;
-    this.groupsService.removeGroupMemberLocally(Number(this.groupId), member.id);
+    this.groupsService.removeGroupMemberLocally(this.groupId, member.id);
     // Refresh local list
-    this.groupsService.getGroupMembers(Number(this.groupId)).subscribe((members) => {
-      this.members = members;
-      this.selectedMember = null;
-      this.removalSuccess = true;
-      setTimeout(() => {
-        this.removalSuccess = false;
-      }, 3000);
-    });
+    this.groupsService
+      .getGroupMembers(this.groupId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((members) => {
+        this.members = members;
+        this.selectedMember = null;
+        this.removalSuccess = true;
+        setTimeout(() => {
+          this.removalSuccess = false;
+        }, 3000);
+      });
   }
 
   isDebtListEmpty(member: GroupMember): boolean {
-    const isEmpty = (!member.owesTo || member.owesTo.length === 0) 
+    const isEmpty = (!member.owesTo || member.owesTo.length === 0)
                  && (!member.owedBy || member.owedBy.length === 0);
       return isEmpty;
   }
@@ -137,7 +169,7 @@ export class ManageMembersComponent implements OnInit {
   selectMember(member: GroupMember): void {
     this.selectedMember = member;
   }
-  
+
 
   isArrayFieldInvalid(i: number, field: string): boolean {
     const control = this.membersFormArray.at(i).get(field);
@@ -154,11 +186,11 @@ export class ManageMembersComponent implements OnInit {
       uid: this.generateTempUid(memberData.email), // Generate temporary UID
       name: memberData.name,
       email: memberData.email,
-      avatar: '', // Default empty avatar
+      avatar: `https://i.pravatar.cc/150?img=${this.members.length + 1}`, // Sample avatar
       balance: 0, // Default balance
       owesTo: [],
       owedBy: [],
-      createdAt: new Date() 
+      createdAt: new Date()
     };
 
     // Add to local members array
@@ -176,5 +208,60 @@ export class ManageMembersComponent implements OnInit {
   private getNextMemberId(): number {
     if (this.members.length === 0) return 1;
     return Math.max(...this.members.map(m => m.id)) + 1;
+  }
+
+  // Chevron navigation methods
+  scrollLeft(): void {
+    if (this.scrollContainer) {
+      this.scrollContainer.nativeElement.scrollBy({
+        left: -ManageMembersComponent.SCROLL_DELTA,
+        behavior: 'smooth'
+      });
+      setTimeout(() => this.updateScrollFlags(), ManageMembersComponent.UPDATE_FLAGS_DELAY_MS);
+    }
+  }
+
+  scrollRight(): void {
+    if (this.scrollContainer) {
+      this.scrollContainer.nativeElement.scrollBy({
+        left: ManageMembersComponent.SCROLL_DELTA,
+        behavior: 'smooth'
+      });
+      setTimeout(() => this.updateScrollFlags(), ManageMembersComponent.UPDATE_FLAGS_DELAY_MS);
+    }
+  }
+
+  canScrollLeft(): boolean {
+    return this.canScrollLeftFlag;
+  }
+
+  canScrollRight(): boolean {
+    return this.canScrollRightFlag;
+  }
+
+  // Update flags on native scroll (mouse/trackpad) and resize
+  onScroll(): void {
+    this.updateScrollFlags();
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    this.updateScrollFlags();
+  }
+
+  private updateScrollFlags(): void {
+    if (!this.scrollContainer) {
+      this.canScrollLeftFlag = false;
+      this.canScrollRightFlag = false;
+      return;
+    }
+
+    const element = this.scrollContainer.nativeElement;
+    const scrollLeft = element.scrollLeft;
+    const scrollWidth = element.scrollWidth;
+    const clientWidth = element.clientWidth;
+
+    this.canScrollLeftFlag = scrollLeft > ManageMembersComponent.SCROLL_FLAG_EPSILON;
+    this.canScrollRightFlag = scrollLeft < (scrollWidth - clientWidth - ManageMembersComponent.SCROLL_FLAG_EPSILON);
   }
 }

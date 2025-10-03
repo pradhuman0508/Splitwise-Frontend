@@ -5,3 +5,77 @@
 :host ::ng-deep .header-scroll .p-scrollpanel-content {
     padding: 0 0 0 0;
 }
+
+.scrollbar-hide {
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    &::-webkit-scrollbar {
+        display: none;
+    }
+    
+    /* Hide scrollbar for IE, Edge and Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    
+    /* Smooth scrolling behavior */
+    scroll-behavior: smooth;
+}
+
+.members-box {
+    width: 585px;
+    height: 120px;
+}
+
+.member-item {
+    width: 6rem; /* fixed width per member box */
+}
+
+.member-name {
+    width: 100%;
+    display: inline-block;
+}
+
+.virtual-scroller-hide {
+    /* Hide VirtualScroller scrollbars */
+    :host ::ng-deep {
+        .p-virtualscroller {
+            .p-virtualscroller-content {
+                /* Hide scrollbar for Chrome, Safari and Opera */
+                &::-webkit-scrollbar {
+                    display: none !important;
+                }
+                
+                /* Hide scrollbar for IE, Edge and Firefox */
+                -ms-overflow-style: none !important;
+                scrollbar-width: none !important;
+            }
+        }
+    }
+}
+
+.fade-text {
+    -webkit-mask-image: linear-gradient(to right, black 80%, transparent 100%);
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-size: 100% 100%;
+    mask-image: linear-gradient(to right, black 80%, transparent 100%);
+    mask-repeat: no-repeat;
+    mask-size: 100% 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    line-height: 1.5rem;
+    font-size: 0.75rem;
+    position: relative;
+    transition: all .2s ease;
+  }
+
+.fade-text:hover {
+    -webkit-mask-image: none;
+    mask-image: none;
+    white-space: nowrap; /* keep on one line */
+    overflow: visible; /* allow overlapping neighbors */
+    display: inline-block; /* expand width beyond container */
+    max-width: none;
+    z-index: 10;
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    background-color: rgba(255, 255, 255, 0);
+}

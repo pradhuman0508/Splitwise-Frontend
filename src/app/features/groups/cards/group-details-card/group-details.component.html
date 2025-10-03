@@ -1,11 +1,10 @@
 <p-scrollPanel [style]="{ width: '340px', height: '164px' }" styleClass="custombar1">
     <div class="w-full">
         <div class="mx-auto w-[330px]">
-            <div class="py-2">
-                <p-message size="small" severity="secondary" variant="simple">Created</p-message>
-                <p-message size="small" severity="secondary" variant="simple">{{ group?.createdAt|
+            <div class="text-xs font-medium text-gray-400 dark:text-gray-600 pb-2">
+                 Created at {{ group?.createdAt|
                     date:'mediumDate'
-                    }}</p-message>
+                    }}
             </div>
             <div class="pb-3">
                 <p-message size="small" severity="secondary" variant="simple">Description</p-message>

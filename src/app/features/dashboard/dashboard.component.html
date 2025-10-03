@@ -1,211 +1,131 @@
-<div class="container mx-auto px-4 mt-4">
-  <form [formGroup]="searchForm" class="flex gap-2">
-    <div class="relative w-64">
-      <select formControlName="searchCategory" class="w-full p-2 border rounded-lg appearance-none pr-8">
-        <option value="all">All Categories</option>
-        <option value="friends">Friends</option>
-        <option value="groups">Groups</option>
-        <option value="expenses">Expenses</option>
-      </select>
-      <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-        </svg>
-      </div>
+<div class="grid grid-cols-1 lg:grid-cols-7 gap-3 pt-2">
+  <div class="lg:col-span-2 card rounded-lg shadow-sm p-6 min-h-screen">
+    <div class="flex gap-2 items-center mb-4">
+      <h2 class="text-xl font-semibold mb-0 mr-auto">Recent Activity</h2>
     </div>
-    <div class="relative flex-1">
-      <input
-        type="text"
-        formControlName="searchQuery"
-        (input)="onSearch()"
-        placeholder="Search..."
-        class="w-full p-2 border rounded-lg pl-10"
-      >
-      <div class="absolute inset-y-0 left-0 flex items-center pl-3">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
+  </div>
+  <div class="lg:col-span-5">
+    <form [formGroup]="searchForm" class="flex gap-2 pb-4">
+      <div class="relative w-64">
+        <select formControlName="searchCategory"
+          class="w-full p-2 surface-border rounded-lg appearance-none pr-8 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0">
+          <option value="all">All Categories</option>
+          <option value="friends">Friends</option>
+          <option value="groups">Groups</option>
+          <option value="expenses">Expenses</option>
+        </select>
+        <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+          <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
       </div>
-      <button 
-        type="button" 
-        (click)="resetSearch()" 
-        class="absolute inset-y-0 right-0 px-3 text-gray-400 hover:text-gray-600"
-        title="Clear search"
-      >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-    </div>
-  </form>
+      <div class="relative flex-1">
+        <input type="text" formControlName="searchQuery" (input)="onSearch()" placeholder="Search..." class="w-full p-2 surface-border rounded-lg pl-10
+            focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0">
+        <div class="absolute inset-y-0 left-0 flex items-center pl-3">
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+        <button type="button" (click)="resetSearch()"
+          class="absolute inset-y-0 right-0 px-3 text-gray-400 hover:text-gray-600" title="Clear search">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </form>
 
-  <div *ngIf="searchResults.length > 0" class="absolute mt-2 w-full max-w-2xl rounded-lg shadow-lg z-40 max-h-96 overflow-y-auto">
-    <div class="p-4 card">
-      <div *ngFor="let result of searchResults" class="py-2">
-        <div [ngSwitch]="result.type" class="flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-[var(--surface-hover)]">
-          <div class="flex items-center space-x-3">
-            <img [src]="result.avatar" loading="lazy" class="w-10 h-10 rounded-full" [alt]="result.name">
-            <div>
-              <p class="font-medium">{{result.name}}</p>
-              <p class="text-sm">{{result.type | titlecase}}</p>
+    <div *ngIf="searchResults.length > 0"
+      class="absolute mt-2 w-full max-w-2xl rounded-lg shadow-lg z-40 max-h-96 overflow-y-auto">
+      <div class="p-4 card">
+        <div *ngFor="let result of searchResults" class="py-2">
+          <div [ngSwitch]="result.type"
+            class="flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-[var(--surface-hover)]">
+            <div class="flex items-center space-x-3">
+              <img [src]="result.avatar" loading="lazy" class="w-10 h-10 rounded-full" [alt]="result.name">
+              <div>
+                <p class="font-medium">{{result.name}}</p>
+                <p class="text-sm">{{result.type | titlecase}}</p>
+              </div>
+            </div>
+            <span *ngIf="result.balance !== undefined" class="text-sm font-medium"
+              [ngClass]="{'text-green-600': result.balance > 0, 'text-red-600': result.balance < 0}">
+              {{result.balance | currency:'INR':'symbol':'1.2-2'}}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="dashboard-container">
+      <div class="card">
+        <div class="expense-header">
+          <h2>Manage Expenses</h2>
+          <app-add-expense (expenseAdded)="onExpenseAdded()"></app-add-expense>
+          <button pButton label="Settle Up" severity="success" class="p-button-primary w-full sm:w-auto"></button>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-content">
+              <div class="stat-info">
+                <p class="stat-label">Total Expenses</p>
+                <p class="stat-value">{{ totalExpenses | currency:'INR':'symbol':'1.2-2' }}</p>
+              </div>
+              <div class="stat-icon">
+                <i class="pi pi-wallet wallet-icon"></i>
+              </div>
             </div>
           </div>
-          <span *ngIf="result.balance !== undefined" class="text-sm font-medium"
-            [ngClass]="{'text-green-600': result.balance > 0, 'text-red-600': result.balance < 0}">
-            {{result.balance | currency:'INR':'symbol':'1.2-2'}}
-          </span>
+          <div class="stat-item owe-item">
+            <div class="stat-content">
+              <div class="stat-info">
+                <p class="stat-label">You Owe</p>
+                <p class="stat-value owe-value">{{ youOwe | currency:'INR':'symbol':'1.2-2' }}</p>
+              </div>
+              <div class="stat-icon">
+                <i class="pi pi-angle-double-down down-icon"></i>
+              </div>
+            </div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-content">
+              <div class="stat-info">
+                <p class="stat-label">You Are Owed</p>
+                <p class="stat-value">{{ youAreOwed | currency:'INR':'symbol':'1.2-2' }}</p>
+              </div>
+              <div class="stat-icon">
+                <i class="pi pi-angle-double-up up-icon"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- <div class="summary-row">
+          <div>YOU OWE</div>
+          <div>YOU ARE OWED</div>
+        </div> -->
+        <div class="grid grid-cols-1 lg:grid-cols-2">
+          <div class="lg:col-span-1">
+            <div class="flex flex-col">
+              <div class="summary-col1 px-6 py-4">YOU OWE</div>
+              <div class="border-rt">
+                l
+              </div>
+            </div>
+          </div>
+          <div class="lg:col-span-1">
+            <div class="flex flex-col">
+              <div class="summary-col2 px-6 py-4">YOU ARE OWED</div>
+              <div class="border-lt">
+                r
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<div class="min-h-screen p-4">
-  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-    <div class="lg:col-span-2 card rounded-lg shadow-sm p-6">
-      <h2 class="text-2xl font-semibold mb-6">Overview</h2>
-      <div class="grid grid-cols-3 gap-6 mb-5">
-        <div class="bg-blue-500/15 p-4 rounded-lg">
-          <p class="text-sm">Total Expenses</p>
-          <p *ngIf="!isLoading" class="text-2xl font-bold text-gray-600">₹{{totalExpenses}}</p>
-          <p-skeleton *ngIf="isLoading" height="2rem" width="6rem"></p-skeleton>
-        </div>
-        <div class="bg-green-500/15 p-4 rounded-lg">
-          <p class="text-sm">You're Owed</p>
-          <p *ngIf="!isLoading" class="text-2xl font-bold text-green-600">₹{{youAreOwed}}</p>
-          <p-skeleton *ngIf="isLoading" height="2rem" width="6rem"></p-skeleton>
-        </div>
-        <div class="bg-red-500/15 p-4 rounded-lg">
-          <p class="text-sm">You Owe</p>
-          <p *ngIf="!isLoading" class="text-2xl font-bold text-red-600">₹{{youOwe}}</p>
-          <p-skeleton *ngIf="isLoading" height="2rem" width="6rem"></p-skeleton>
-        </div>
-      </div>
-      <div class="h-80">
-        <p-skeleton *ngIf="isChartLoading" height="100%" styleClass="w-full"></p-skeleton>
-        <p-chart *ngIf="!isChartLoading" type="doughnut" [data]="doughnutData" [options]="doughnutOptions" styleClass="width: 100%; height: 100%;"></p-chart>
-      </div>
-    </div>
-    <div class="card rounded-lg shadow-sm p-6">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-semibold">Groups</h2>
-        <app-create-group></app-create-group>
-      </div>
-      <div class="space-y-3">
-        <ng-container *ngIf="!isLoading; else groupsLoading">
-          <div *ngFor="let group of groups.slice(0, 4)">
-            <p-panel [showHeader]="false" styleClass="shadow-lg hover:shadow-lg transition-shadow duration-900 cursor-pointer"
-              (click)="navigateToGroup(group.id)">
-              <div class="flex items-center justify-between pt-4">
-                <div class="flex items-center space-x-3">
-                  <img [src]="group.avatar" loading="lazy" class="w-10 h-10 rounded-full" [alt]="group.name">
-                  <div>
-                    <p class="font-medium">{{group.name}}</p>
-                  </div>
-                </div>
-                <span class="text-sm font-medium"
-                  [ngClass]="{'text-green-600': group.balance > 0, 'text-red-600': group.balance < 0}">
-                  {{group.balance | currency:'INR':'symbol':'1.2-2'}}
-                </span>
-              </div>
-            </p-panel>
-          </div>
-        </ng-container>
-        <ng-template #groupsLoading>
-          <div *ngFor="let i of [1,2,3,4]" class="p-3 border rounded-lg">
-            <p-skeleton height="4rem"></p-skeleton>
-          </div>
-        </ng-template>
-        <a href="/groups" class="block text-center text-blue-600 hover:text-blue-800 mt-2">Show More Groups</a>
-      </div>
-    </div>
-    <div class="card rounded-lg shadow-sm p-6">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-semibold">Friends</h2>
-        <app-add-friend></app-add-friend>
-      </div>
-      <div class="space-y-3">
-        <ng-container *ngIf="!isLoading; else friendsLoading">
-          <div *ngFor="let friend of friends.slice(0, 3)">
-            <p-panel [showHeader]="false" styleClass="shadow-lg hover:shadow-lg transition-shadow duration-900 cursor-pointer">
-              <div class="flex items-center justify-between pt-4">
-                <div class="flex items-center space-x-3">
-                  <img [src]="friend.avatar" loading="lazy" class="w-10 h-10 rounded-full" [alt]="friend.name">
-                  <div>
-                    <p class="font-medium mb-0">{{friend.name}}</p>
-                    <p class="text-sm text-gray-500">{{friend.email}}</p>
-                  </div>
-                </div>
-                <span class="text-sm font-medium"
-                  [ngClass]="{'text-green-600': friend.balance > 0, 'text-red-600': friend.balance < 0}">
-                  {{friend.balance | currency:'INR':'symbol':'1.2-2'}}
-                </span>
-              </div>
-            </p-panel>
-          </div>
-        </ng-container>
-        <ng-template #friendsLoading>
-          <div *ngFor="let i of [1,2,3]" class="p-3 border rounded-lg">
-            <p-skeleton height="4rem"></p-skeleton>
-          </div>
-        </ng-template>
-        <a href="/friends" class="block text-center text-blue-600 hover:text-blue-800 mt-2">Show More Friends</a>
-      </div>
-    </div>
-    <div class="lg:col-span-4 card rounded-lg shadow-sm p-6">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-semibold">Recent Expenses</h2>
-        <app-add-expense (expenseAdded)="onExpenseAdded()"></app-add-expense>
-      </div>
-      <div class="overflow-x-auto">
-        <ng-container *ngIf="!isLoading; else expensesLoading">
-          <p-table
-            #dt1
-            [value]="transactions"
-            dataKey="id"
-            [rows]="10"
-            [rowHover]="true"
-            [globalFilterFields]="['description', 'group', 'status']"
-            responsiveLayout="scroll"
-          >
-            <ng-template pTemplate="header">
-              <tr>
-                <th>Date</th>
-                <th>Description</th>
-                <th>Group</th>
-                <th>Amount</th>
-                <th>Status</th>
-              </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-expense>
-              <tr>
-                <td>{{ expense.date | date:'shortDate' }}</td>
-                <td>{{ expense.description }}</td>
-                <td>{{ expense.group }}</td>
-                <td [ngClass]="{'text-green-600': expense.amount > 0, 'text-red-600': expense.amount < 0}">
-                  {{ expense.amount | currency:'INR':'symbol':'1.2-2' }}
-                </td>
-                <td>
-                  <span
-                    [ngClass]="{
-                      'bg-green-100 text-green-800': expense.status === 'Settled',
-                      'bg-yellow-100 text-yellow-800': expense.status === 'Pending'
-                    }"
-                    class="px-3 py-1 rounded-full text-sm"
-                  >
-                    {{ expense.status }}
-                  </span>
-                </td>
-              </tr>
-            </ng-template>
-          </p-table>
-        </ng-container>
-        <ng-template #expensesLoading>
-          <p-skeleton height="20rem"></p-skeleton>
-        </ng-template>
-      </div>
-    </div>
-  </div>
 </div>
-
-<router-outlet></router-outlet>
+<!-- <router-outlet></router-outlet> -->

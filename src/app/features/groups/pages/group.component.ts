@@ -11,7 +11,8 @@ import { AvatarGroup } from 'primeng/avatargroup';
 import { Avatar } from 'primeng/avatar';
 import { GroupDetailsComponent } from '../cards/group-details-card/group-details.component';
 import { AddExpenseComponent } from '../../add-expense/add-expense.component';
-import { ExpenseWithMembers, Group, GroupedExpensesWithMembers, GroupMember, GroupsService } from '../services/groups.service';
+import { Expense, ExpenseWithMembers, Group, GroupedExpensesWithMembers, GroupMember, GroupsService } from '../services/groups.service';
+import { AuthService } from '../../auth/services/auth.service';
 
 @Component({
   selector: 'app-group',
@@ -45,6 +46,7 @@ export class GroupComponent implements OnInit {
   isEditingName = false;
   isIExpanded = false;
   private previousName: string | undefined;
+  private currentUserUid: string | undefined;
 
   @ViewChild('cardIRef') cardIRef!: ElementRef;
   @ViewChild('nameInput') nameInput!: ElementRef;
@@ -53,13 +55,27 @@ export class GroupComponent implements OnInit {
     private route: ActivatedRoute,
     private groupsService: GroupsService,
     private messageService: MessageService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private authService: AuthService
   ) { }
 
   ngOnInit() {
     this.route.params.subscribe(params => {
       this.groupId = params['id'];
       this.loadGroupData();
+    });
+
+    // Track current user UID for balance calculations
+    this.authService.isLoggedIn().subscribe(user => {
+      this.currentUserUid = user?.uid || undefined;
+      // If group and expenses are available, recompute balance
+      if (this.groupId) {
+        this.groupsService.getGroupExpenses(Number(this.groupId)).subscribe(expenses => {
+          if (this.currentUserUid) {
+            this.updateGroupBalanceFromExpenses(expenses, this.currentUserUid);
+          }
+        });
+      }
     });
   }
 
@@ -156,6 +172,13 @@ export class GroupComponent implements OnInit {
           updatedAt: new Date(expense.updatedAt)
         }));
       });
+
+      // Also fetch raw expenses to compute group balance for the current user
+      this.groupsService.getGroupExpenses(Number(this.groupId)).subscribe(expenses => {
+        if (this.currentUserUid) {
+          this.updateGroupBalanceFromExpenses(expenses, this.currentUserUid);
+        }
+      });
       this.loadGroupMembers();
     }
   }
@@ -239,5 +262,38 @@ export class GroupComponent implements OnInit {
     };
 
     reader.readAsDataURL(file);
+  }
+
+  private updateGroupBalanceFromExpenses(expenses: Expense[], userUid: string) {
+    let totalYouOwe = 0;
+    let totalYouAreOwed = 0;
+
+    for (const expense of expenses) {
+      const isPaidByYou = expense.paidByUid === userUid;
+
+      // Sum what you owe (entries where you appear in owedBy but you are not the payer)
+      for (const owed of expense.owedBy) {
+        const isYou = owed.userUid === userUid;
+        if (isYou && !isPaidByYou) {
+          totalYouOwe += owed.amount;
+        }
+      }
+
+      // Sum what you are owed (you are the payer; others owe you)
+      if (isPaidByYou) {
+        for (const owed of expense.owedBy) {
+          if (owed.userUid !== userUid) {
+            totalYouAreOwed += owed.amount;
+          }
+        }
+      }
+    }
+
+    const balance = totalYouAreOwed - totalYouOwe; // correct: you are owed minus you owe
+    if (this.group) {
+      this.group.balance = balance;
+      this.groupsService.updateGroupBalanceLocally(Number(this.group.id), balance);
+      this.cdr.detectChanges();
+    }
   }
 }

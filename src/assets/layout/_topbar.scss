@@ -12,6 +12,7 @@
     transition: left var(--layout-section-transition-duration);
     display: flex;
     align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
     .layout-topbar-logo-container {
         width: 20rem;
@@ -34,6 +35,63 @@
 
         &:focus-visible {
             @include focused();
+        }
+    }
+
+    .layout-topbar-navigation {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        padding-left: 3rem;
+
+        .navigation-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            width: 100%;
+            max-width: 600px;
+            padding: 0.25rem;
+            border: 1px solid var(--surface-border);
+            border-radius: 9999px;
+
+            .nav-item {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0.5rem 1rem;
+                font-size: 0.875rem;
+                font-weight: 500;
+                transition: all 0.2s;
+                border-radius: 9999px;
+                cursor: pointer;
+                color: var(--text-color);
+                text-decoration: none;
+
+                &:hover {
+                    background-color: var(--surface-hover);
+                }
+
+                i {
+                    font-size: 1.4rem;
+                    margin-right: 0.5rem;
+                }
+
+                .nav-text {
+                    @media (max-width: 640px) {
+                        display: none;
+                    }
+
+                    font-weight: 550;
+                }
+
+                .nav-text-mobile {
+                    display: none;
+
+                    @media (max-width: 640px) {
+                        display: inline;
+                    }
+                }
+            }
         }
     }
 
@@ -157,4 +215,11 @@
             flex-direction: column;
         }
     }
+}
+
+.surface-border {
+    border-right: 1px solid var(--surface-border);
+    border-left: 1px solid var(--surface-border);
+    border-top: 1px solid var(--surface-border);
+    border-bottom: 1px solid var(--surface-border);
 }

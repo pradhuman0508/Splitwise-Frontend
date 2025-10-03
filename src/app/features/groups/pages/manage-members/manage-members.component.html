@@ -1,117 +1,88 @@
-<div class="flex flex-col sm:flex-row items-start sm:items-center">
-  <p-button icon="pi pi-arrow-left" [rounded]="true" severity="secondary" variant="text" (click)="goBack()" />
-  <div class="flex flex-col px-2 text-gray-500 dark:text-gray-400 mr-auto">
-    <h1 class="text-lg font-bold my-0">Group Members</h1>
-    <span class="text-sm">{{ members.length }} members</span>
-  </div>
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-center">
   <div class="flex flex-row">
-    <!-- Form for adding new members -->
-    <!-- <form [formGroup]="memberForm" class="space-y-4">
+    <p-button icon="pi pi-arrow-left" [rounded]="true" severity="secondary" variant="text" (click)="goBack()" />
+    <div class="flex flex-col px-2 text-gray-500 dark:text-gray-400">
+      <h1 class="text-lg font-bold my-0">Group Members</h1>
+      <span class="text-sm">{{ members.length }} members</span>
+    </div>
+  </div>
+  <div class="flex-1">
+    <div class="flex flex-row items-center justify-center">
+      <!-- Left Chevron Button -->
+      <div class="mr-2">
+        <button class="focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
+          (click)="scrollLeft()">
+          <i class="pi pi-chevron-left"
+            [ngClass]="{ 'text-transparent': !canScrollLeft(), 'text-gray-600 dark:text-gray-500': canScrollLeft() }"></i>
+        </button>
+      </div>
+
+      <!-- Fixed Content Box -->
+      <div class="focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 members-box">
+        <!-- Scrollable Members Container -->
+        <div class="overflow-x-auto flex space-x-4 p-4 scrollbar-hide" style="width: 100%; height: 100%;"
+          #scrollContainer (scroll)="onScroll()">
+          <div *ngFor="let member of members" class="flex-none flex flex-col items-center member-item">
+            <div
+              class="w-20 h-20 rounded-full border-2 p-1 cursor-pointer dark:border-gray-700 hover:scale-105 transform transition"
+              (click)="selectMember(member)" [ngClass]="{
+                    'border-blue-500': selectedMember?.id === member.id
+                  }">
+              <img *ngIf="member.avatar" [src]="member.avatar" [alt]="member.name"
+                class="w-full h-full rounded-full object-cover" />
+            </div>
+            <span class="text-gray-600 dark:text-gray-400 mt-1 text-center fade-text member-name"
+              [attr.data-full]="member.name">{{ member.name
+              }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Chevron Button -->
+      <div class="ml-2 mr-8">
+        <button class="focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
+          (click)="scrollRight()">
+          <i class="pi pi-chevron-right"
+            [ngClass]="{ 'text-transparent': !canScrollRight(), 'text-gray-600 dark:text-gray-500': canScrollRight() }"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Add Member Button - Fixed on the right -->
+  <div class="mx-3 pb-4">
+    <div
+      class="w-20 h-20 rounded-full border-2 border-dashed border-gray-400 p-1 cursor-pointer hover:scale-105 transform transition flex items-center justify-center"
+      (click)="openDialog()" pTooltip="Add a member" tooltipPosition="bottom" showDelay="1000" hideDelay="300">
+      <i class="pi pi-plus text-gray-400" style="font-size: 1.5rem"></i>
+    </div>
+  </div>
+  <p-dialog maskStyleClass="backdrop-blur-sm" [modal]="true" [(visible)]="visible" [style]="{ width: '28rem' }">
+    <form [formGroup]="memberForm" (ngSubmit)="onSubmit()" class="space-y-4">
       <div formArrayName="members">
         <div *ngFor="let member of membersFormArray.controls; let i = index" [formGroupName]="i"
           class="flex flex-col sm:flex-row gap-4 items-start sm:items-center mx-4">
           <p-floatlabel variant="on" class="w-full">
             <input pInputText [id]="'memberName' + i" type="text" formControlName="name" class="w-full"
-              [ngClass]="{'border-red-300': isArrayFieldInvalid(i, 'name')}" (blur)="onFieldBlur(i)"
-              (keypress)="onFieldKeyPress($event, i)" />
+              [ngClass]="{'border-red-300': isArrayFieldInvalid(i, 'name')}" />
             <label [for]="'memberName' + i">Name</label>
           </p-floatlabel>
 
           <p-floatlabel variant="on" class="w-full">
             <input pInputText [id]="'memberEmail' + i" type="email" formControlName="email" class="w-full"
-              [ngClass]="{'border-red-300': isArrayFieldInvalid(i, 'email')}" (blur)="onFieldBlur(i)"
-              (keypress)="onFieldKeyPress($event, i)" />
+              [ngClass]="{'border-red-300': isArrayFieldInvalid(i, 'email')}" />
             <label [for]="'memberEmail' + i">Email</label>
           </p-floatlabel>
 
-          <button type="button" (click)="removeMember(i)" class="mt-1 text-red-600 hover:text-red-800">
-            <i class="pi pi-times" style="font-size: 1rem"></i>
-          </button>
         </div>
       </div>
-    </form> -->
-    <div class="flex-1">
-      <div class="flex flex-row">
-        <p-scrollPanel class="header-scroll inline-block" [ngStyle]="{ width: 'fit-content', maxWidth: '595px' }">
-          <div class="flex flex-row gap-1 p-3">
-            <!-- <div>
-            <div class="flex flex-col w-[75px] pt-4">
-              <div [pTooltip]="tooltipContent" tooltipPosition="bottom" showDelay="600" hideDelay="300" class="w-16 h-16 rounded-full bg-color flex items-center justify-center mx-auto" (click)="addMember()">
-                <i class="pi pi-plus text-gray-300 dark:text-gray-700" style="font-size: 2rem"></i>
-              </div>
-              <ng-template #tooltipContent>
-                <div class="items-center" >
-                    <span [style]="{ fontSize: '.82rem' }">Add person</span>
-                </div>
-            </ng-template>
-            </div>
-          </div> -->
-
-            <div *ngFor="let member of members; let last = last">
-              <div class="flex flex-col w-[80px] rounded-md pt-3 hover:shadow-md
-                cursor-pointer transition-colors duration-200" (click)="selectMember(member)" [ngClass]="{
-                  'border-b-2 border-blue-500 shadow-lg': selectedMember?.id === member.id,
-                  'mr-8': last
-                }">
-                <div class="w-16 h-16 rounded-full bg-blue-200 flex items-center justify-center mx-auto">
-                  <div *ngIf="!member.avatar">
-                    <i class="pi pi-user text-blue-600"></i>
-                  </div>
-                  <img *ngIf="member.avatar" [src]="member.avatar" [alt]="member.name"
-                    class="w-16 h-16 rounded-full object-cover" />
-                </div>
-                <span [style]="{ fontSize: '.82rem' }" class="mb-0 py-1 text-gray-500 dark:text-gray-400 text-center">{{
-                  ((member?.name?.length || 0) > 10) ? ((member?.name | slice:0:10) + '...') : (member?.name || '')
-                  }}</span>
-              </div>
-            </div>
-          </div>
-        </p-scrollPanel>
-        <div class="py-3">
-          <div class="flex flex-col px-4 pt-3 pb-4 border-lf">
-            <div [pTooltip]="tooltipContent" tooltipPosition="bottom" showDelay="600" hideDelay="300"
-              class="w-16 h-16 rounded-full bg-color flex items-center justify-center mx-auto" (click)="openDialog()">
-              <i class="pi pi-plus text-gray-300 dark:text-gray-700" style="font-size: 2rem"></i>
-            </div>
-            <ng-template #tooltipContent>
-              <div class="items-center">
-                <span [style]="{ fontSize: '.82rem' }">Add person</span>
-              </div>
-            </ng-template>
-          </div>
+      <div class="flex justify-end gap-2 px-4 pb-2">
+        <div class="flex justify-end">
+          <p-button type="submit" label="Add Member" icon="pi pi-check" severity="warn"
+            [loading]="isSubmitting"></p-button>
         </div>
-
-        <p-dialog maskStyleClass="backdrop-blur-sm" [modal]="true" [(visible)]="visible"
-        [style]="{ width: '28rem' }">
-        <form [formGroup]="memberForm" (ngSubmit)="onSubmit()" class="space-y-4">
-          <div formArrayName="members">
-            <div *ngFor="let member of membersFormArray.controls; let i = index" [formGroupName]="i"
-              class="flex flex-col sm:flex-row gap-4 items-start sm:items-center mx-4">
-              <p-floatlabel variant="on" class="w-full">
-                <input pInputText [id]="'memberName' + i" type="text" formControlName="name" class="w-full"
-                  [ngClass]="{'border-red-300': isArrayFieldInvalid(i, 'name')}" />
-                <label [for]="'memberName' + i">Name</label>
-              </p-floatlabel>
-    
-              <p-floatlabel variant="on" class="w-full">
-                <input pInputText [id]="'memberEmail' + i" type="email" formControlName="email" class="w-full"
-                  [ngClass]="{'border-red-300': isArrayFieldInvalid(i, 'email')}" />
-                <label [for]="'memberEmail' + i">Email</label>
-              </p-floatlabel>
-    
-            </div>
-          </div>
-          <div class="flex justify-end gap-2 px-4 pb-2">
-            <div class="flex justify-end">
-              <p-button type="submit" label="Add Member" icon="pi pi-check" severity="warn" [loading]="isSubmitting"></p-button>
-          </div>
-          </div>
-        </form>
-    </p-dialog>
-
       </div>
-    </div>
-  </div>
+    </form>
+  </p-dialog>
 </div>
 
 <div class="mx-auto mt-2 rounded-lg surface-border w-[95%]">

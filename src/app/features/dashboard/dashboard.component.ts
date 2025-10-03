@@ -1,17 +1,13 @@
-import { RouterOutlet } from '@angular/router';
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
-import { ChartModule } from 'primeng/chart';
 import { CommonModule, isPlatformBrowser } from "@angular/common";
 import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
-import { AddFriendComponent } from '../../features/add-friend/add-friend.component';
 import { SkeletonModule } from 'primeng/skeleton';
-import { GroupsService, Group } from '../../features/groups/services/groups.service';
-import { PanelModule } from 'primeng/panel';
+import { GroupsService, Group, Expense, GroupMember } from '../../features/groups/services/groups.service';
 import { firstValueFrom } from 'rxjs';
 import { getAuth, User } from '@angular/fire/auth';
-import { CreateGroupComponent } from '../../features/groups/cards/create-group-card/create-group.component';
+import { ButtonModule } from 'primeng/button';
 import { AddExpenseComponent } from '../../features/add-expense/add-expense.component';
 
 @Component({
@@ -19,16 +15,12 @@ import { AddExpenseComponent } from '../../features/add-expense/add-expense.comp
   standalone: true,
   imports: [
     TableModule,
-    RouterOutlet,
     CommonModule,
-    ChartModule,
-    CreateGroupComponent,
-    AddFriendComponent,
     AddExpenseComponent,
     ReactiveFormsModule,
     SkeletonModule,
     CardModule,
-    PanelModule
+    ButtonModule
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
@@ -50,15 +42,14 @@ export class DashboardComponent implements OnInit {
   youOwe: number = 0;
 
   isLoading: boolean = true;
-  isChartLoading: boolean = true;
+  // Removed chart loading flag
 
   groups: Group[] = [];
   transactions: any[] = [];
   friends: any[] = [];
   currentUser: User | null = null;
 
-  doughnutData: any;
-  doughnutOptions: any;
+  // Removed chart data to optimize component
 
   constructor(
     private groupsService: GroupsService,
@@ -78,7 +69,6 @@ export class DashboardComponent implements OnInit {
     // Skip heavy operations during SSR
     if (!isPlatformBrowser(this.platformId)) {
       this.isLoading = false;
-      this.isChartLoading = false;
       return;
     }
     try{
@@ -89,23 +79,107 @@ export class DashboardComponent implements OnInit {
     try {
       // Load data asynchronously
       await Promise.all([
-        this.loadOverviewData(),
         this.loadGroups(),
         this.loadFriends(),
         this.loadTransactions(),
-        this.initializeChart()
+        // Charts removed
       ]);
+      await this.analyzeUserInvolvement();
     } finally {
       this.isLoading = false;
     }
   }
 
-  private async loadOverviewData(): Promise<void> {
-    // Simulate API call - replace with actual API call
-    await new Promise(resolve => setTimeout(resolve, 100));
-    this.totalExpenses = 1250;
-    this.youAreOwed = 450;
-    this.youOwe = 200;
+  // Removed dummy overview data loader
+
+  private async analyzeUserInvolvement(): Promise<void> {
+    if (!this.currentUser || !this.groups || this.groups.length === 0) {
+      console.log('[Dashboard] No current user or no groups to analyze');
+      return;
+    }
+
+    const userUid = this.currentUser.uid;
+
+    const perGroupDetails = await Promise.all(this.groups.map(async (group) => {
+      const [expenses, members]: [Expense[], GroupMember[]] = await Promise.all([
+        firstValueFrom(this.groupsService.getGroupExpenses(group.id)),
+        firstValueFrom(this.groupsService.getGroupMembers(group.id))
+      ]);
+
+      let youOweTotal = 0;
+      let youAreOwedTotal = 0;
+      let expensesInvolved = 0;
+      const youOweToMap = new Map<string, number>(); // counterpartyUid -> amount
+      const youAreOwedFromMap = new Map<string, number>(); // counterpartyUid -> amount
+
+      for (const expense of expenses) {
+        const isPaidByYou = expense.paidByUid === userUid;
+        const youOweInThisExpense = expense.owedBy.find(o => o.userUid === userUid)?.amount || 0;
+        const othersOweYouInThisExpense = isPaidByYou
+          ? expense.owedBy.filter(o => o.userUid !== userUid).reduce((sum, o) => sum + o.amount, 0)
+          : 0;
+
+        if (youOweInThisExpense > 0 || othersOweYouInThisExpense > 0 || isPaidByYou) {
+          expensesInvolved += 1;
+        }
+
+        // Accumulate totals
+        if (!isPaidByYou && youOweInThisExpense > 0) {
+          youOweTotal += youOweInThisExpense;
+          // You owe the payer
+          const payerUid = expense.paidByUid;
+          youOweToMap.set(payerUid, (youOweToMap.get(payerUid) || 0) + youOweInThisExpense);
+        }
+        if (isPaidByYou && othersOweYouInThisExpense > 0) {
+          youAreOwedTotal += othersOweYouInThisExpense;
+          // Others owe you
+          for (const owed of expense.owedBy) {
+            if (owed.userUid !== userUid) {
+              youAreOwedFromMap.set(owed.userUid, (youAreOwedFromMap.get(owed.userUid) || 0) + owed.amount);
+            }
+          }
+        }
+      }
+
+      const netBalance = youAreOwedTotal - youOweTotal;
+
+      const uidToName = new Map(members.map(m => [m.uid, m.name] as [string, string]));
+      const youOweTo = Array.from(youOweToMap.entries()).map(([uid, amount]) => ({
+        uid,
+        name: uidToName.get(uid) || uid,
+        amount
+      }));
+      const youAreOwedFrom = Array.from(youAreOwedFromMap.entries()).map(([uid, amount]) => ({
+        uid,
+        name: uidToName.get(uid) || uid,
+        amount
+      }));
+
+      return {
+        groupId: group.id,
+        groupName: group.name,
+        involved: expensesInvolved > 0,
+        expensesInvolved,
+        youOwe: youOweTotal,
+        youAreOwed: youAreOwedTotal,
+        netBalance,
+        youOweTo,
+        youAreOwedFrom
+      };
+    }));
+
+    // Console log the detailed involvement per group
+    console.log('[Dashboard] Current user UID:', userUid);
+    console.log('[Dashboard] User involvement per group (with member-to-member shares):', perGroupDetails);
+
+    // Aggregate totals for dashboard
+    const totalYouAreOwed = perGroupDetails.reduce((sum, g) => sum + g.youAreOwed, 0);
+    const totalYouOwe = perGroupDetails.reduce((sum, g) => sum + g.youOwe, 0);
+    const netTotal = totalYouAreOwed - totalYouOwe;
+
+    this.youAreOwed = totalYouAreOwed;
+    this.youOwe = totalYouOwe;
+    this.totalExpenses = netTotal;  
   }
 
   private async loadGroups(): Promise<void> {
@@ -165,43 +239,7 @@ export class DashboardComponent implements OnInit {
     ];
   }
 
-  private async initializeChart(): Promise<void> {
-    // Load chart data asynchronously
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    this.doughnutData = {
-      labels: ['Groceries', 'Rent', 'Utilities', 'Entertainment'],
-      datasets: [
-        {
-          data: [44, 55, 13, 43],
-          backgroundColor: [
-            '#2563eb',
-            '#22c55e',
-            '#f59e0b',
-            '#ef4444'
-          ],
-          hoverBackgroundColor: [
-            '#1d4ed8',
-            '#16a34a',
-            '#d97706',
-            '#dc2626'
-          ]
-        }
-      ]
-    };
-
-    this.doughnutOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'bottom'
-        }
-      }
-    };
-
-    this.isChartLoading = false;
-  }
+  // Removed chart initialization to reduce overhead
 
   onSearch(): void {
     if (!this.searchQuery.trim()) {
@@ -254,7 +292,7 @@ export class DashboardComponent implements OnInit {
     // Refresh dashboard data when a new expense is added
     this.loadGroups();
     this.loadTransactions();
-    this.loadOverviewData();
+    // Totals recomputed in analyzeUserInvolvement
   }
 
   // Reset search form
