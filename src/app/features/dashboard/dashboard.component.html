@@ -2,10 +2,9 @@
   <div class="lg:col-span-2 card rounded-lg shadow-sm p-6 min-h-screen">
     <div class="flex gap-2 items-center mb-4">
       <p-card header="Activity">
-        <div class="activity-container">
+        <div class="flex flex-col">
           <ng-container *ngIf="!isLoading; else skeletonLoader">
-
-            <p-card *ngFor="let activity of activityList" class="activity-card mb-3">
+            <p-card *ngFor="let activity of activityList" class="mb-3">
               <div class="flex justify-between items-center mb-2">
                 <div class="flex items-center gap-2">
                   <p-avatar label="{{ activity.userName[0] }}" shape="circle"
@@ -15,33 +14,33 @@
                 <small class="text-gray-500">{{ activity.createdAt | date:'medium' }}</small>
               </div>
 
-              <div class="text-sm text-gray-700">
+              <div class="text-xs text-gray-500">
                 {{ activity.description }}
               </div>
 
-              <!-- Revert button only for DELETE_EXPENSE -->
-              <div *ngIf="activity.actionType === 'DELETE_EXPENSE'" class="mt-2 text-right">
-                <button pButton label="Undo Delete" icon="pi pi-undo" size="small"
-                  styleClass="p-button-text p-button-sm undo-btn" (click)="revertDelete(activity)">
-                </button>
-              </div>
 
               <p-divider></p-divider>
 
               <div class="flex justify-between items-center text-xs text-gray-500">
-                <div>
-                  <span *ngIf="activity.groupName">
+                <div class="flex flex-col">
+                  <span class="ml-3 mb-3" *ngIf="activity.groupName">
                     <i class="pi pi-users mr-1"></i>{{ activity.groupName }}
                   </span>
                   <span *ngIf="activity.expenseName" class="ml-3">
                     <i class="pi pi-wallet mr-1"></i>{{ activity.expenseName }}
                   </span>
                 </div>
-
-                <p-tag [severity]="getActionColor(activity.actionType)" value="{{ activity.actionType }}"></p-tag>
+                <div class="flex flex-col">
+                  <!-- Revert button only for DELETE_EXPENSE -->
+                  <div *ngIf="activity.actionType === 'DELETE_EXPENSE'" class="mt-2 text-right mb-3">
+                    <button pButton label="Revert" icon="pi pi-undo" size="small"
+                      styleClass="p-button-text p-button-sm undo-btn" (click)="revertDelete(activity)">
+                    </button>
+                  </div>
+                  <p-tag [severity]="getActionColor(activity.actionType)" value="{{ activity.actionType }}"></p-tag>
+                </div>
               </div>
             </p-card>
-
           </ng-container>
 
           <ng-template #skeletonLoader>
