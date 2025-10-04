@@ -1,14 +1,16 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from "@angular/common";
 import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { SkeletonModule } from 'primeng/skeleton';
-import { GroupsService, Group, Expense, GroupMember } from '../../features/groups/services/groups.service';
-import { firstValueFrom } from 'rxjs';
+import { Group } from '../../features/groups/services/groups.service';
+import { Subscription } from 'rxjs';
 import { getAuth, User } from '@angular/fire/auth';
 import { ButtonModule } from 'primeng/button';
 import { AddExpenseComponent } from '../../features/add-expense/add-expense.component';
+import { DashboardService } from './dashboard.service';
+import { MemberInvolvement, MemberWithBreakdown } from './dashboard.util';
 
 @Component({
   selector: 'app-dashboard',
@@ -25,8 +27,7 @@ import { AddExpenseComponent } from '../../features/add-expense/add-expense.comp
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
-
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   searchForm = new FormGroup({
     searchCategory: new FormControl('all'),
     searchQuery: new FormControl('')
@@ -42,20 +43,25 @@ export class DashboardComponent implements OnInit {
   youOwe: number = 0;
 
   isLoading: boolean = true;
-  // Removed chart loading flag
-
   groups: Group[] = [];
   transactions: any[] = [];
   friends: any[] = [];
   currentUser: User | null = null;
 
-  // Removed chart data to optimize component
+  // Aggregated member involvement across groups for the current user
+  memberInvolvements: MemberInvolvement[] = [];
+
+  // Separated data for display based on net amount logic
+  membersYouOwe: MemberWithBreakdown[] = [];
+  membersWhoOweYou: MemberWithBreakdown[] = [];
+
+  private isAnalyzing = false;
+  private subscriptions: Subscription[] = [];
 
   constructor(
-    private groupsService: GroupsService,
+    private dashboardService: DashboardService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
-    // Initialize empty data structures
     this.initializeEmptyData();
   }
 
@@ -66,181 +72,80 @@ export class DashboardComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    // Skip heavy operations during SSR
     if (!isPlatformBrowser(this.platformId)) {
       this.isLoading = false;
       return;
     }
     try{
       this.currentUser = getAuth().currentUser;
-    }catch(error){
+    } catch (error) {
       console.error('Error while fetching current user:', error);
     }
     try {
-      // Load data asynchronously
       await Promise.all([
         this.loadGroups(),
         this.loadFriends(),
         this.loadTransactions(),
-        // Charts removed
       ]);
-      await this.analyzeUserInvolvement();
+
+      this.setupReactiveSubscriptions();
     } finally {
       this.isLoading = false;
     }
   }
 
-  // Removed dummy overview data loader
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
 
   private async analyzeUserInvolvement(): Promise<void> {
-    if (!this.currentUser || !this.groups || this.groups.length === 0) {
-      console.log('[Dashboard] No current user or no groups to analyze');
+    if (this.isAnalyzing || !this.currentUser || !this.groups?.length) {
       return;
     }
 
-    const userUid = this.currentUser.uid;
+    this.isAnalyzing = true;
 
-    const perGroupDetails = await Promise.all(this.groups.map(async (group) => {
-      const [expenses, members]: [Expense[], GroupMember[]] = await Promise.all([
-        firstValueFrom(this.groupsService.getGroupExpenses(group.id)),
-        firstValueFrom(this.groupsService.getGroupMembers(group.id))
-      ]);
+    try {
+      const analysisResult = await this.dashboardService.analyzeUserInvolvement(
+        this.groups,
+        this.currentUser.uid
+      );
 
-      let youOweTotal = 0;
-      let youAreOwedTotal = 0;
-      let expensesInvolved = 0;
-      const youOweToMap = new Map<string, number>(); // counterpartyUid -> amount
-      const youAreOwedFromMap = new Map<string, number>(); // counterpartyUid -> amount
+      // Update component properties with analysis results
+      this.memberInvolvements = analysisResult.memberInvolvements;
+      this.membersYouOwe = analysisResult.membersYouOwe;
+      this.membersWhoOweYou = analysisResult.membersWhoOweYou;
 
-      for (const expense of expenses) {
-        const isPaidByYou = expense.paidByUid === userUid;
-        const youOweInThisExpense = expense.owedBy.find(o => o.userUid === userUid)?.amount || 0;
-        const othersOweYouInThisExpense = isPaidByYou
-          ? expense.owedBy.filter(o => o.userUid !== userUid).reduce((sum, o) => sum + o.amount, 0)
-          : 0;
-
-        if (youOweInThisExpense > 0 || othersOweYouInThisExpense > 0 || isPaidByYou) {
-          expensesInvolved += 1;
-        }
-
-        // Accumulate totals
-        if (!isPaidByYou && youOweInThisExpense > 0) {
-          youOweTotal += youOweInThisExpense;
-          // You owe the payer
-          const payerUid = expense.paidByUid;
-          youOweToMap.set(payerUid, (youOweToMap.get(payerUid) || 0) + youOweInThisExpense);
-        }
-        if (isPaidByYou && othersOweYouInThisExpense > 0) {
-          youAreOwedTotal += othersOweYouInThisExpense;
-          // Others owe you
-          for (const owed of expense.owedBy) {
-            if (owed.userUid !== userUid) {
-              youAreOwedFromMap.set(owed.userUid, (youAreOwedFromMap.get(owed.userUid) || 0) + owed.amount);
-            }
-          }
-        }
-      }
-
-      const netBalance = youAreOwedTotal - youOweTotal;
-
-      const uidToName = new Map(members.map(m => [m.uid, m.name] as [string, string]));
-      const youOweTo = Array.from(youOweToMap.entries()).map(([uid, amount]) => ({
-        uid,
-        name: uidToName.get(uid) || uid,
-        amount
-      }));
-      const youAreOwedFrom = Array.from(youAreOwedFromMap.entries()).map(([uid, amount]) => ({
-        uid,
-        name: uidToName.get(uid) || uid,
-        amount
-      }));
-
-      return {
-        groupId: group.id,
-        groupName: group.name,
-        involved: expensesInvolved > 0,
-        expensesInvolved,
-        youOwe: youOweTotal,
-        youAreOwed: youAreOwedTotal,
-        netBalance,
-        youOweTo,
-        youAreOwedFrom
-      };
-    }));
-
-    // Console log the detailed involvement per group
-    console.log('[Dashboard] Current user UID:', userUid);
-    console.log('[Dashboard] User involvement per group (with member-to-member shares):', perGroupDetails);
-
-    // Aggregate totals for dashboard
-    const totalYouAreOwed = perGroupDetails.reduce((sum, g) => sum + g.youAreOwed, 0);
-    const totalYouOwe = perGroupDetails.reduce((sum, g) => sum + g.youOwe, 0);
-    const netTotal = totalYouAreOwed - totalYouOwe;
-
-    this.youAreOwed = totalYouAreOwed;
-    this.youOwe = totalYouOwe;
-    this.totalExpenses = netTotal;  
+      // Update totals
+      this.totalExpenses = analysisResult.totals.totalExpenses;
+      this.youAreOwed = analysisResult.totals.youAreOwed;
+      this.youOwe = analysisResult.totals.youOwe;
+    } finally {
+      this.isAnalyzing = false;
+    }
   }
 
+  // Data loading methods - now delegate to service
   private async loadGroups(): Promise<void> {
-    this.groups = await firstValueFrom(this.groupsService.getGroups());
+    this.groups = await this.dashboardService.loadGroups();
+  }
+
+  private setupReactiveSubscriptions(): void {
+    this.subscriptions = this.dashboardService.setupReactiveSubscriptions(
+      this.groups,
+      () => this.analyzeUserInvolvement()
+    );
   }
 
   private async loadFriends(): Promise<void> {
-    // Simulate API call - replace with actual API call
-    await new Promise(resolve => setTimeout(resolve, 100));
-    this.friends = [
-      {
-        name: "Sarah Wilson",
-        email: "sarah.w@example.com",
-        balance: 150,
-        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=64"
-      },
-      {
-        name: "Michael Chen",
-        email: "m.chen@example.com",
-        balance: -75,
-        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64"
-      },
-      {
-        name: "Emily Davis",
-        email: "emily.d@example.com",
-        balance: 50,
-        avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=64"
-      }
-    ];
+    this.friends = await this.dashboardService.loadFriends();
   }
 
   private async loadTransactions(): Promise<void> {
-    // Simulate API call - replace with actual API call
-    await new Promise(resolve => setTimeout(resolve, 100));
-    this.transactions = [
-      {
-        date: new Date(),
-        description: "Monthly Rent",
-        group: "Roommates",
-        amount: -800,
-        status: "Settled"
-      },
-      {
-        date: new Date(),
-        description: "Grocery Shopping",
-        group: "Roommates",
-        amount: 120,
-        status: "Pending"
-      },
-      {
-        date: new Date(),
-        description: "Utility Bills",
-        group: "Roommates",
-        amount: -65,
-        status: "Pending"
-      }
-    ];
+    this.transactions = await this.dashboardService.loadTransactions();
   }
 
-  // Removed chart initialization to reduce overhead
-
+  // UI interaction methods
   onSearch(): void {
     if (!this.searchQuery.trim()) {
       this.searchResults = [];
@@ -274,28 +179,19 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  openNewExpenseModal(): void {
-    // This method is now handled by the AddExpenseComponent
-    // The button in the template will trigger the component's modal
-    console.log("Add expense functionality is now handled by AddExpenseComponent");
-  }
-
-  addNewFriend(): void {
-    console.log("Opening add friend modal");
-  }
-
   navigateToGroup(groupId: string | number): void {
-    this.groupsService.navigateToGroup(groupId);
+    this.dashboardService.navigateToGroup(groupId);
   }
 
-  onExpenseAdded(): void {
-    // Refresh dashboard data when a new expense is added
-    this.loadGroups();
-    this.loadTransactions();
-    // Totals recomputed in analyzeUserInvolvement
+  navigateToGroupByName(groupName: string): void {
+    const group = this.dashboardService.findGroupByName(this.groups, groupName);
+    if (group) {
+      this.navigateToGroup(group.id);
+    } else {
+      console.warn(`Group not found: ${groupName}`);
+    }
   }
 
-  // Reset search form
   resetSearch(): void {
     this.searchForm.reset({
       searchCategory: 'all',

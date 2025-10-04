@@ -52,7 +52,7 @@
               </div>
             </div>
             <span *ngIf="result.balance !== undefined" class="text-sm font-medium"
-              [ngClass]="{'text-green-600': result.balance > 0, 'text-red-600': result.balance < 0}">
+              [ngClass]="{'text-green-600': result.balance > 0, 'text-red-600': result.balance < 0, 'text-gray-600': result.balance === 0}">
               {{result.balance | currency:'INR':'symbol':'1.2-2'}}
             </span>
           </div>
@@ -62,19 +62,23 @@
     <div class="dashboard-container">
       <div class="card">
         <div class="expense-header">
-          <h2>Manage Expenses</h2>
-          <app-add-expense (expenseAdded)="onExpenseAdded()"></app-add-expense>
+          <h2>Overview</h2>
+          <app-add-expense></app-add-expense>
           <button pButton label="Settle Up" severity="success" class="p-button-primary w-full sm:w-auto"></button>
         </div>
         <div class="stats-grid">
-          <div class="stat-item">
+          <div class="stat-item"
+            [ngClass]="totalExpenses > 0 ? 'hover:bg-green-500/10' : totalExpenses < 0 ? 'hover:bg-red-500/10' : 'hover:bg-gray-500/10'">
             <div class="stat-content">
               <div class="stat-info">
                 <p class="stat-label">Total Expenses</p>
-                <p class="stat-value">{{ totalExpenses | currency:'INR':'symbol':'1.2-2' }}</p>
+                <p class="stat-value"
+                  [ngClass]="totalExpenses > 0 ? 'text-green-600' : totalExpenses < 0 ? 'text-red-600' : 'text-gray-600'">
+                  {{ (totalExpenses < 0 ? -totalExpenses : totalExpenses) | currency:'INR':'symbol':'1.2-2' }}</p>
               </div>
               <div class="stat-icon">
-                <i class="pi pi-wallet wallet-icon"></i>
+                <i class="pi pi-wallet"
+                  [ngClass]="totalExpenses > 0 ? 'bg-green-500/25 text-green-600' : totalExpenses < 0 ? 'bg-red-500/25 text-red-600' : 'bg-gray-500/25 text-gray-600'"></i>
               </div>
             </div>
           </div>
@@ -82,18 +86,24 @@
             <div class="stat-content">
               <div class="stat-info">
                 <p class="stat-label">You Owe</p>
-                <p class="stat-value owe-value">{{ youOwe | currency:'INR':'symbol':'1.2-2' }}</p>
+                <p class="stat-value"
+                  [ngClass]="youOwe > 0 ? 'text-red-600' : youOwe < 0 ? 'text-green-600' : 'text-gray-600'">
+                  {{ youOwe | currency:'INR':'symbol':'1.2-2' }}
+                </p>
               </div>
               <div class="stat-icon">
                 <i class="pi pi-angle-double-down down-icon"></i>
               </div>
             </div>
           </div>
-          <div class="stat-item">
+          <div class="stat-item owed-item">
             <div class="stat-content">
               <div class="stat-info">
                 <p class="stat-label">You Are Owed</p>
-                <p class="stat-value">{{ youAreOwed | currency:'INR':'symbol':'1.2-2' }}</p>
+                <p class="stat-value"
+                  [ngClass]="youAreOwed > 0 ? 'text-green-600' : youAreOwed < 0 ? 'text-red-600' : 'text-gray-600'">
+                  {{ youAreOwed | currency:'INR':'symbol':'1.2-2' }}
+                </p>
               </div>
               <div class="stat-icon">
                 <i class="pi pi-angle-double-up up-icon"></i>
@@ -101,24 +111,97 @@
             </div>
           </div>
         </div>
-        <!-- <div class="summary-row">
-          <div>YOU OWE</div>
-          <div>YOU ARE OWED</div>
-        </div> -->
-        <div class="grid grid-cols-1 lg:grid-cols-2">
+        <div class="grid grid-cols-1 lg:grid-cols-2 p-6 divide-x divide-gray-200 dark:divide-gray-700">
           <div class="lg:col-span-1">
-            <div class="flex flex-col">
-              <div class="summary-col1 px-6 py-4">YOU OWE</div>
-              <div class="border-rt">
-                l
+            <div class="flex flex-col gap-2">
+              <div class="summary-col1">YOU OWE</div>
+              <div>
+                <div *ngIf="membersYouOwe && membersYouOwe.length > 0; else noOwe">
+                  <div *ngFor="let item of membersYouOwe" class="px-6 py-4 hover:bg-gray-400/15">
+                    <div class="flex items-start gap-3">
+                      <img [src]="item.avatar" [alt]="item.memberName" class="w-10 h-10 rounded-full flex-shrink-0"
+                        loading="lazy"
+                        onerror="this.src='https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64'">
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between">
+                          <span class="font-medium text-gray-850 dark:text-gray-300" [style]="{fontSize: '1.275rem'}">{{ item.memberName }}</span>
+                          <div class="text-red-600">
+                            <span class="font-medium">
+                              you owe </span><span class="font-medium" [style]="{fontSize: '1.2rem'}">{{ item.amount
+                              | currency:'INR':'symbol':'1.2-2'
+                              }}</span>
+                          </div>
+                        </div>
+                        <ul class="text-sm pt-1 list-disc list-inside">
+                          <li *ngFor="let group of item.groupBreakdown"
+                            (click)="navigateToGroupByName(group.groupName)"  class="hover:underline">
+                            <span *ngIf="group.amount < 0" class="text-gray-500">
+                              You owe {{ item.memberName }}
+                            </span>
+
+                            <span *ngIf="group.amount > 0" class="text-gray-500">
+                              {{ item.memberName }} owes you
+                            </span>
+                            <span class="font-medium"
+                              [ngClass]="group.amount > 0 ? 'text-green-600' : group.amount < 0 ? 'text-red-600' : 'text-gray-600'">
+                              {{ (group.amount < 0 ? -group.amount : group.amount) | currency:'INR':'symbol':'1.2-2' }}
+                                </span>
+                                <span class="text-gray-400 dark:text-gray-600">for "{{ group.groupName }}"</span>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <ng-template #noOwe>
+                  <div class="px-6 py-6 text-sm text-gray-600">No outstanding amounts you owe.</div>
+                </ng-template>
               </div>
             </div>
           </div>
           <div class="lg:col-span-1">
-            <div class="flex flex-col">
-              <div class="summary-col2 px-6 py-4">YOU ARE OWED</div>
-              <div class="border-lt">
-                r
+            <div class="flex flex-col gap-2">
+              <div class="summary-col2">YOU ARE OWED</div>
+              <div>
+                <div *ngIf="membersWhoOweYou && membersWhoOweYou.length > 0; else noOwed">
+                  <div *ngFor="let item of membersWhoOweYou" class="px-6 py-4 hover:bg-gray-400/15">
+                    <div class="flex items-start gap-3">
+                      <img [src]="item.avatar" [alt]="item.memberName" class="w-10 h-10 rounded-full flex-shrink-0"
+                        loading="lazy"
+                        onerror="this.src='https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64'">
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between">
+                          <span class="font-medium text-gray-850 dark:text-gray-300" [style]="{fontSize: '1.275rem'}">{{ item.memberName }}</span>
+                          <div class="text-green-600">
+                            <span class="font-medium">
+                              owes you </span><span class="font-medium" [style]="{fontSize: '1.2rem'}">{{ item.amount
+                              | currency:'INR':'symbol':'1.2-2'
+                              }}</span>
+                          </div>
+                        </div>
+                        <ul class="text-sm pt-1 list-disc list-inside">
+                          <li *ngFor="let group of item.groupBreakdown"
+                            (click)="navigateToGroupByName(group.groupName)" class="hover:underline">
+                            <span *ngIf="group.amount < 0" class="text-gray-500">
+                              You owe {{ item.memberName }}
+                            </span>
+                            <span *ngIf="group.amount > 0" class="text-gray-500">
+                              {{ item.memberName }} owes you
+                            </span>
+                            <span class="font-medium"
+                              [ngClass]="group.amount > 0 ? 'text-green-600' : group.amount < 0 ? 'text-red-600' : 'text-gray-600'">
+                              {{ (group.amount < 0 ? -group.amount : group.amount) | currency:'INR':'symbol':'1.2-2' }}
+                                </span>
+                                <span class="text-gray-400 dark:text-gray-600">for "{{ group.groupName }}"</span>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <ng-template #noOwed>
+                  <div class="px-6 py-6 text-sm text-gray-600">No one owes you currently.</div>
+                </ng-template>
               </div>
             </div>
           </div>
