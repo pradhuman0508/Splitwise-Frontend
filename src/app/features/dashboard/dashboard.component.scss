@@ -118,7 +118,7 @@
   }
   .summary-col2 {
     text-align: right;
-    color: var(--text-color-secondary); 
+    color: var(--text-color-secondary);
     font-size: 1.3rem;
   }
 
@@ -147,5 +147,22 @@
         }
       }
     }
+  }
+}
+// Subtle Undo button styling for Activity section
+.undo-btn {
+  color: var(--primary-color);
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  transition: color 0.2s ease;
+
+  i {
+    font-size: 0.85rem;
+  }
+
+  &:hover {
+    color: var(--primary-color-text);
+    background-color: rgba(59, 130, 246, 0.1); // subtle blue hover
+    border-radius: 0.375rem;
   }
 }
