@@ -66,6 +66,7 @@
                 cursor: pointer;
                 color: var(--text-color);
                 text-decoration: none;
+                gap: 0.75rem;
 
                 &:hover {
                     background-color: var(--surface-hover);
@@ -223,3 +224,23 @@
     border-top: 1px solid var(--surface-border);
     border-bottom: 1px solid var(--surface-border);
 }
+
+.icon-gradient {
+    display: inline-block;
+    transition: all 0.3s ease;
+    padding-top: 0.1rem;
+  
+    // gradient on hover via parent
+    .nav-item:hover & {
+      background: linear-gradient(45deg, #ff6b6b, #f7c948, #4ecdc4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  
+    // gradient when active
+    &.active {
+      background: linear-gradient(45deg, #ff6b6b, #f7c948, #4ecdc4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  }

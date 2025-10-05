@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, HostListener, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormArray, ReactiveFormsModule } from '@angular/forms';
-import { GroupsService, GroupMember } from '../../../../features/groups/services/groups.service';
+import { GroupsService, GroupMember, Expense } from '../../../../features/groups/services/groups.service';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { ButtonModule } from 'primeng/button';
 import { FloatLabelModule } from "primeng/floatlabel"
@@ -31,6 +31,13 @@ export class ManageMembersComponent implements OnInit, OnDestroy {
   isSubmitting = false;
   canScrollLeftFlag = false;
   canScrollRightFlag = false;
+
+  // Debt calculation properties
+  youAreOwed: Record<string, Record<string, number>> = {};
+  youOwe: Record<string, Record<string, number>> = {};
+  netBalances: Record<string, Record<string, number>> = {};
+  calculatedOwesTo: Array<{ name: string; amount: number }> = [];
+  calculatedOwedBy: Array<{ name: string; amount: number }> = [];
 
   private readonly destroy$ = new Subject<void>();
 
@@ -161,13 +168,121 @@ export class ManageMembersComponent implements OnInit, OnDestroy {
   }
 
   isDebtListEmpty(member: GroupMember): boolean {
-    const isEmpty = (!member.owesTo || member.owesTo.length === 0)
-                 && (!member.owedBy || member.owedBy.length === 0);
-      return isEmpty;
+    // Use calculated debt data instead of member properties
+    const isEmpty = this.calculatedOwesTo.length === 0 && this.calculatedOwedBy.length === 0;
+    return isEmpty;
   }
 
   selectMember(member: GroupMember): void {
     this.selectedMember = member;
+    this.calculateDebts();
+  }
+
+  private calculateDebts(): void {
+    if (!this.groupId || !this.selectedMember) {
+      return;
+    }
+
+    // Get expenses for the group
+    this.groupsService.getGroupExpenses(this.groupId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (expenses) => {
+          this.processDebtCalculation(expenses);
+        },
+        error: (error) => {
+          console.error('Error fetching expenses for debt calculation:', error);
+        }
+      });
+  }
+
+  private processDebtCalculation(expenses: Expense[]): void {
+    // Reset debt data
+    this.youAreOwed = {};
+    this.youOwe = {};
+    this.netBalances = {};
+    this.calculatedOwesTo = [];
+    this.calculatedOwedBy = [];
+
+    if (!this.selectedMember) return;
+
+    const currentUserUid = this.selectedMember.uid;
+
+    // --- STEP 1: Build "YOU ARE OWED" and "YOU OWE" maps ---
+    for (const exp of expenses) {
+      const payer = exp.paidByUid;
+
+      if (!this.youAreOwed[payer]) this.youAreOwed[payer] = {};
+
+      for (const owed of exp.owedBy) {
+        const member = owed.userUid;
+        const amt = owed.amount;
+
+        // YOU ARE OWED (payer → member)
+        this.youAreOwed[payer][member] = (this.youAreOwed[payer][member] || 0) + amt;
+
+        // YOU OWE (member → payer)
+        if (!this.youOwe[member]) this.youOwe[member] = {};
+        this.youOwe[member][payer] = (this.youOwe[member][payer] || 0) + amt;
+      }
+    }
+
+
+    // --- STEP 2: Compute Net Balances ---
+    const users = new Set([
+      ...Object.keys(this.youAreOwed),
+      ...Object.keys(this.youOwe),
+    ]);
+
+    for (const userA of users) {
+      this.netBalances[userA] = {};
+      for (const userB of users) {
+        if (userA === userB) continue;
+
+        const aOwesB = this.youOwe[userA]?.[userB] || 0;
+        const bOwesA = this.youOwe[userB]?.[userA] || 0;
+        const net = aOwesB - bOwesA;
+
+        if (net !== 0) {
+          this.netBalances[userA][userB] = net;
+        }
+      }
+    }
+
+
+    // --- STEP 3: Calculate specific debts for selected member ---
+    this.calculateMemberDebts(currentUserUid);
+  }
+
+  private calculateMemberDebts(currentUserUid: string): void {
+    if (!this.selectedMember) return;
+
+    // Calculate what the selected member owes to others
+    const owesTo = this.netBalances[currentUserUid] || {};
+    for (const [otherUserUid, amount] of Object.entries(owesTo)) {
+      if (amount > 0) {
+        const otherMember = this.members.find(m => m.uid === otherUserUid);
+        if (otherMember) {
+          this.calculatedOwesTo.push({
+            name: otherMember.name,
+            amount: amount
+          });
+        }
+      }
+    }
+
+    // Calculate what others owe to the selected member
+    for (const [userUid, debts] of Object.entries(this.netBalances)) {
+      if (userUid !== currentUserUid && debts[currentUserUid] && debts[currentUserUid] > 0) {
+        const otherMember = this.members.find(m => m.uid === userUid);
+        if (otherMember) {
+          this.calculatedOwedBy.push({
+            name: otherMember.name,
+            amount: debts[currentUserUid]
+          });
+        }
+      }
+    }
   }
 
 

@@ -8,26 +8,38 @@
 
     <div class="layout-topbar-navigation">
         <div class="navigation-container">
-            <div routerLink="dashboard" (click)="setActiveTab('dashboard')" class="nav-item flex flex-row gap-3" [ngClass]="{
-                    'bg-[var(--surface-hover)]': isActiveTab('dashboard')
-                }">
-                <i class="pi pi-objects-column"></i>
-                <div>
-                    <span class="nav-text">Dashboard</span>
-                    <span class="nav-text-mobile">Home</span>
-                </div>
+
+            <div
+              routerLink="dashboard"
+              (click)="setActiveTab('dashboard')"
+              class="nav-item flex flex-row gap-3"
+              [ngClass]="{'bg-[var(--surface-hover)]': isActiveTab('dashboard')}"
+            >
+              <i class="pi pi-objects-column icon-gradient" [class.active]="isActiveTab('dashboard')"></i>
+              <div>
+                <span class="nav-text">Dashboard</span>
+                <span class="nav-text-mobile">Home</span>
+              </div>
             </div>
-            <div routerLink="groups" (click)="setActiveTab('groups')" class="nav-item flex flex-row gap-3" [ngClass]="{
-                    'bg-[var(--surface-hover)]': isActiveTab('groups')
-                }">
-                <i class="pi pi-users"></i>
-                <span class="nav-text">Groups</span>
+
+            <div
+              routerLink="groups"
+              (click)="setActiveTab('groups')"
+              class="nav-item flex flex-row gap-3"
+              [ngClass]="{'bg-[var(--surface-hover)]': isActiveTab('groups')}"
+            >
+              <i class="pi pi-users icon-gradient" [class.active]="isActiveTab('groups')"></i>
+              <span class="nav-text">Groups</span>
             </div>
-            <button type="button" (click)="setActiveTab('friends')" class="nav-item flex flex-row gap-3" [ngClass]="{
-                    'bg-[var(--surface-hover)]': isActiveTab('friends')
-                }">
-                <i class="pi pi-face-smile"></i>
-                <span class="nav-text">Friends</span>
+
+            <button
+              type="button"
+              (click)="setActiveTab('friends')"
+              class="nav-item flex flex-row gap-3"
+              [ngClass]="{'bg-[var(--surface-hover)]': isActiveTab('friends')}"
+            >
+              <i class="pi pi-face-smile icon-gradient" [class.active]="isActiveTab('friends')"></i>
+              <span class="nav-text">Friends</span>
             </button>
         </div>
     </div>

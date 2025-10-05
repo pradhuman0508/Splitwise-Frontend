@@ -151,12 +151,9 @@ export class GroupsService {
         "name": "Yash Bakadiya",
         "email": "bakadiyayash@gmail.com",
         "avatar": "https://images.unsplash.com/photo-1599566150163-29194dcaad36",
-        "balance": 50,
+        "balance": 0,
         "owesTo": [],
-        "owedBy": [
-          { "name": "Pradhuman Vaidya", "amount": 30 },
-          { "name": "Yash 0098209295", "amount": 20 }
-        ],
+        "owedBy": [],
         "createdAt": new Date('2024-01-15')
       },
       {
@@ -165,10 +162,8 @@ export class GroupsService {
         "name": "Pradhuman Vaidya",
         "email": "pradhumanvaidya612@gmail.com",
         "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330",
-        "balance": -30,
-        "owesTo": [
-          { "name": "Yash Bakadiya", "amount": 30 }
-        ],
+        "balance": 0,
+        "owesTo": [],
         "owedBy": [],
         "createdAt": new Date('2024-01-16')
       },
@@ -178,10 +173,8 @@ export class GroupsService {
         "name": "Test User",
         "email": "test@gmail.com",
         "avatar": "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61",
-        "balance": -80,
-        "owesTo": [
-          { "name": "Yash 0098209295", "amount": 80 }
-        ],
+        "balance": 0,
+        "owesTo": [],
         "owedBy": [],
         "createdAt": new Date('2024-01-17')
       },
@@ -191,10 +184,8 @@ export class GroupsService {
         "name": "Clone Splitwise",
         "email": "clonesplitwise@gmail.com",
         "avatar": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80",
-        "balance": -80,
-        "owesTo": [
-          { "name": "Yash 0098209295", "amount": 80 }
-        ],
+        "balance": 0,
+        "owesTo": [],
         "owedBy": [],
         "createdAt": new Date('2024-01-18')
       },
@@ -204,14 +195,9 @@ export class GroupsService {
         "name": "Yash 0098209295",
         "email": "yash0098209295@gmail.com",
         "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
-        "balance": 140,
-        "owesTo": [
-          { "name": "Yash Bakadiya", "amount": 20 }
-        ],
-        "owedBy": [
-          { "name": "Test User", "amount": 80 },
-          { "name": "Clone Splitwise", "amount": 80 }
-        ],
+        "balance": 0,
+        "owesTo": [],
+        "owedBy": [],
         "createdAt": new Date('2024-01-19')
       },
       {
@@ -231,10 +217,8 @@ export class GroupsService {
         "name": "Christopher Campbell",
         "email": "ChristopherCampbell@gmail.com",
         "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb",
-        "balance": -180,
-        "owesTo": [
-          { "name": "Hlove", "amount": 180 }
-        ],
+        "balance": 0,
+        "owesTo": [],
         "owedBy": [],
         "createdAt": new Date('2023-01-10')
       },
@@ -244,10 +228,8 @@ export class GroupsService {
         "name": "Hlove",
         "email": "hlovesplit@gmail.com",
         "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
-        "balance": -50,
-        "owesTo": [
-          { "name": "Clone Splitwise", "amount": 50 }
-        ],
+        "balance": 0,
+        "owesTo": [],
         "owedBy": [],
         "createdAt": new Date('2024-03-11')
       },
@@ -257,11 +239,9 @@ export class GroupsService {
         "name": "Akshay Shinde",
         "email": "akshay.shinde@gmail.com",
         "avatar": "https://i.pravatar.cc/150?img=11",
-        "balance": 503.73,
+        "balance": 0,
         "owesTo": [],
-        "owedBy": [
-          { "name": "Yash Bakadiya", "amount": 503.73 }
-        ],
+        "owedBy": [],
         "createdAt": new Date('2024-01-16')
       }
     ],
@@ -272,11 +252,9 @@ export class GroupsService {
         "name": "Yash Bakadiya",
         "email": "bakadiyayash@gmail.com",
         "avatar": "https://images.unsplash.com/photo-1599566150163-29194dcaad36",
-        "balance": 48000,
+        "balance": 0,
         "owesTo": [],
-        "owedBy": [
-          { "name": "Akshay Shinde", "amount": 48000 }
-        ],
+        "owedBy": [],
         "createdAt": new Date('2024-01-15')
       },
       {
@@ -296,10 +274,8 @@ export class GroupsService {
         "name": "Akshay Shinde",
         "email": "akshay.shinde@gmail.com",
         "avatar": "https://i.pravatar.cc/150?img=11",
-        "balance": -48000,
-        "owesTo": [
-          { "name": "Yash Bakadiya", "amount": 48000 }
-        ],
+        "balance": 0,
+        "owesTo": [],
         "owedBy": [],
         "createdAt": new Date('2024-01-16')
       },
@@ -309,10 +285,8 @@ export class GroupsService {
         "name": "Clone Splitwise",
         "email": "clonesplitwise@gmail.com",
         "avatar": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80",
-        "balance": -8000,
-        "owesTo": [
-          { "name": "Pradhuman Vaidya", "amount": 8000 }
-        ],
+        "balance": 0,
+        "owesTo": [],
         "owedBy": [],
         "createdAt": new Date('2024-01-18')
       }

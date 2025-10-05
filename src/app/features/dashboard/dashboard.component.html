@@ -1,214 +1,219 @@
-<div class="grid grid-cols-1 lg:grid-cols-7 gap-3 pt-2">
-  <div class="lg:col-span-2 card rounded-lg shadow-sm p-6 min-h-screen">
-    <div class="flex gap-2 items-center mb-4">
-      <h2 class="text-xl font-semibold mb-0 mr-auto">Recent Activity</h2>
-    </div>
-  </div>
-  <div class="lg:col-span-5">
-    <form [formGroup]="searchForm" class="flex gap-2 pb-4">
-      <div class="relative w-64">
-        <select formControlName="searchCategory"
-          class="w-full p-2 surface-border rounded-lg appearance-none pr-8 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0">
-          <option value="all">All Categories</option>
-          <option value="friends">Friends</option>
-          <option value="groups">Groups</option>
-          <option value="expenses">Expenses</option>
-        </select>
-        <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-          <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-          </svg>
+<div class="contains">
+  <p-splitter [panelSizes]="[28, 72]" class="mb-8 min-h-screen" >
+    <ng-template pTemplate="panel">
+      <div  class="card surface-border rounded-lg shadow-sm p-6 min-h-screen w-full">
+        <div class="flex gap-2 items-center mb-4">
+          <h2 class="text-xl font-semibold mb-0 mr-auto">Recent Activity</h2>
         </div>
       </div>
-      <div class="relative flex-1">
-        <input type="text" formControlName="searchQuery" (input)="onSearch()" placeholder="Search..." class="w-full p-2 surface-border rounded-lg pl-10
-            focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0">
-        <div class="absolute inset-y-0 left-0 flex items-center pl-3">
-          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        </div>
-        <button type="button" (click)="resetSearch()"
-          class="absolute inset-y-0 right-0 px-3 text-gray-400 hover:text-gray-600" title="Clear search">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-    </form>
-
-    <div *ngIf="searchResults.length > 0"
-      class="absolute mt-2 w-full max-w-2xl rounded-lg shadow-lg z-40 max-h-96 overflow-y-auto">
-      <div class="p-4 card">
-        <div *ngFor="let result of searchResults" class="py-2">
-          <div [ngSwitch]="result.type"
-            class="flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-[var(--surface-hover)]">
-            <div class="flex items-center space-x-3">
-              <img [src]="result.avatar" loading="lazy" class="w-10 h-10 rounded-full" [alt]="result.name">
-              <div>
-                <p class="font-medium">{{result.name}}</p>
-                <p class="text-sm">{{result.type | titlecase}}</p>
-              </div>
-            </div>
-            <span *ngIf="result.balance !== undefined" class="text-sm font-medium"
-              [ngClass]="{'text-green-600': result.balance > 0, 'text-red-600': result.balance < 0, 'text-gray-600': result.balance === 0}">
-              {{result.balance | currency:'INR':'symbol':'1.2-2'}}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="dashboard-container">
-      <div class="card">
-        <div class="expense-header">
-          <h2>Overview</h2>
-          <app-add-expense></app-add-expense>
-          <button pButton label="Settle Up" severity="success" class="p-button-primary w-full sm:w-auto"></button>
-        </div>
-        <div class="stats-grid">
-          <div class="stat-item"
-            [ngClass]="totalExpenses > 0 ? 'hover:bg-green-500/10' : totalExpenses < 0 ? 'hover:bg-red-500/10' : 'hover:bg-gray-500/10'">
-            <div class="stat-content">
-              <div class="stat-info">
-                <p class="stat-label">Total Expenses</p>
-                <p class="stat-value"
-                  [ngClass]="totalExpenses > 0 ? 'text-green-600' : totalExpenses < 0 ? 'text-red-600' : 'text-gray-600'">
-                  {{ (totalExpenses < 0 ? -totalExpenses : totalExpenses) | currency:'INR':'symbol':'1.2-2' }}</p>
-              </div>
-              <div class="stat-icon">
-                <i class="pi pi-wallet"
-                  [ngClass]="totalExpenses > 0 ? 'bg-green-500/25 text-green-600' : totalExpenses < 0 ? 'bg-red-500/25 text-red-600' : 'bg-gray-500/25 text-gray-600'"></i>
-              </div>
+    </ng-template>
+    <ng-template pTemplate="panel">
+      <div class="w-full">
+        <form [formGroup]="searchForm" class="flex gap-2 pb-4">
+          <div class="relative w-64">
+            <select formControlName="searchCategory"
+              class="w-full p-2 surface-border rounded-lg appearance-none pr-8 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0">
+              <option value="all">All Categories</option>
+              <option value="friends">Friends</option>
+              <option value="groups">Groups</option>
+              <option value="expenses">Expenses</option>
+            </select>
+            <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              </svg>
             </div>
           </div>
-          <div class="stat-item owe-item">
-            <div class="stat-content">
-              <div class="stat-info">
-                <p class="stat-label">You Owe</p>
-                <p class="stat-value"
-                  [ngClass]="youOwe > 0 ? 'text-red-600' : youOwe < 0 ? 'text-green-600' : 'text-gray-600'">
-                  {{ youOwe | currency:'INR':'symbol':'1.2-2' }}
-                </p>
-              </div>
-              <div class="stat-icon">
-                <i class="pi pi-angle-double-down down-icon"></i>
-              </div>
+          <div class="relative flex-1">
+            <input type="text" formControlName="searchQuery" (input)="onSearch()" placeholder="Search..." class="w-full p-2 surface-border rounded-lg pl-10
+                focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3">
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
             </div>
+            <button type="button" (click)="resetSearch()"
+              class="absolute inset-y-0 right-0 px-3 text-gray-400 hover:text-gray-600" title="Clear search">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
-          <div class="stat-item owed-item">
-            <div class="stat-content">
-              <div class="stat-info">
-                <p class="stat-label">You Are Owed</p>
-                <p class="stat-value"
-                  [ngClass]="youAreOwed > 0 ? 'text-green-600' : youAreOwed < 0 ? 'text-red-600' : 'text-gray-600'">
-                  {{ youAreOwed | currency:'INR':'symbol':'1.2-2' }}
-                </p>
-              </div>
-              <div class="stat-icon">
-                <i class="pi pi-angle-double-up up-icon"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 p-6 divide-x divide-gray-200 dark:divide-gray-700">
-          <div class="lg:col-span-1">
-            <div class="flex flex-col gap-2">
-              <div class="summary-col1">YOU OWE</div>
-              <div>
-                <div *ngIf="membersYouOwe && membersYouOwe.length > 0; else noOwe">
-                  <div *ngFor="let item of membersYouOwe" class="px-6 py-4 hover:bg-gray-400/15">
-                    <div class="flex items-start gap-3">
-                      <img [src]="item.avatar" [alt]="item.memberName" class="w-10 h-10 rounded-full flex-shrink-0"
-                        loading="lazy"
-                        onerror="this.src='https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64'">
-                      <div class="flex-1 min-w-0">
-                        <div class="flex items-center justify-between">
-                          <span class="font-medium text-gray-850 dark:text-gray-300" [style]="{fontSize: '1.275rem'}">{{ item.memberName }}</span>
-                          <div class="text-red-600">
-                            <span class="font-medium">
-                              you owe </span><span class="font-medium" [style]="{fontSize: '1.2rem'}">{{ item.amount
-                              | currency:'INR':'symbol':'1.2-2'
-                              }}</span>
-                          </div>
-                        </div>
-                        <ul class="text-sm pt-1 list-disc list-inside">
-                          <li *ngFor="let group of item.groupBreakdown"
-                            (click)="navigateToGroupByName(group.groupName)"  class="hover:underline">
-                            <span *ngIf="group.amount < 0" class="text-gray-500">
-                              You owe {{ item.memberName }}
-                            </span>
-
-                            <span *ngIf="group.amount > 0" class="text-gray-500">
-                              {{ item.memberName }} owes you
-                            </span>
-                            <span class="font-medium"
-                              [ngClass]="group.amount > 0 ? 'text-green-600' : group.amount < 0 ? 'text-red-600' : 'text-gray-600'">
-                              {{ (group.amount < 0 ? -group.amount : group.amount) | currency:'INR':'symbol':'1.2-2' }}
-                                </span>
-                                <span class="text-gray-400 dark:text-gray-600">for "{{ group.groupName }}"</span>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
+        </form>
+    
+        <div *ngIf="searchResults.length > 0"
+          class="absolute mt-2 w-full max-w-2xl rounded-lg shadow-lg z-40 max-h-96 overflow-y-auto">
+          <div class="p-4 card">
+            <div *ngFor="let result of searchResults" class="py-2">
+              <div [ngSwitch]="result.type"
+                class="flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-[var(--surface-hover)]">
+                <div class="flex items-center space-x-3">
+                  <img [src]="result.avatar" loading="lazy" class="w-10 h-10 rounded-full" [alt]="result.name">
+                  <div>
+                    <p class="font-medium">{{result.name}}</p>
+                    <p class="text-sm">{{result.type | titlecase}}</p>
                   </div>
                 </div>
-                <ng-template #noOwe>
-                  <div class="px-6 py-6 text-sm text-gray-600">No outstanding amounts you owe.</div>
-                </ng-template>
+                <span *ngIf="result.balance !== undefined" class="text-sm font-medium"
+                  [ngClass]="{'text-green-600': result.balance > 0, 'text-red-600': result.balance < 0, 'text-gray-600': result.balance === 0}">
+                  {{result.balance | currency:'INR':'symbol':'1.2-2'}}
+                </span>
               </div>
             </div>
           </div>
-          <div class="lg:col-span-1">
-            <div class="flex flex-col gap-2">
-              <div class="summary-col2">YOU ARE OWED</div>
-              <div>
-                <div *ngIf="membersWhoOweYou && membersWhoOweYou.length > 0; else noOwed">
-                  <div *ngFor="let item of membersWhoOweYou" class="px-6 py-4 hover:bg-gray-400/15">
-                    <div class="flex items-start gap-3">
-                      <img [src]="item.avatar" [alt]="item.memberName" class="w-10 h-10 rounded-full flex-shrink-0"
-                        loading="lazy"
-                        onerror="this.src='https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64'">
-                      <div class="flex-1 min-w-0">
-                        <div class="flex items-center justify-between">
-                          <span class="font-medium text-gray-850 dark:text-gray-300" [style]="{fontSize: '1.275rem'}">{{ item.memberName }}</span>
-                          <div class="text-green-600">
-                            <span class="font-medium">
-                              owes you </span><span class="font-medium" [style]="{fontSize: '1.2rem'}">{{ item.amount
-                              | currency:'INR':'symbol':'1.2-2'
-                              }}</span>
-                          </div>
-                        </div>
-                        <ul class="text-sm pt-1 list-disc list-inside">
-                          <li *ngFor="let group of item.groupBreakdown"
-                            (click)="navigateToGroupByName(group.groupName)" class="hover:underline">
-                            <span *ngIf="group.amount < 0" class="text-gray-500">
-                              You owe {{ item.memberName }}
-                            </span>
-                            <span *ngIf="group.amount > 0" class="text-gray-500">
-                              {{ item.memberName }} owes you
-                            </span>
-                            <span class="font-medium"
-                              [ngClass]="group.amount > 0 ? 'text-green-600' : group.amount < 0 ? 'text-red-600' : 'text-gray-600'">
-                              {{ (group.amount < 0 ? -group.amount : group.amount) | currency:'INR':'symbol':'1.2-2' }}
-                                </span>
-                                <span class="text-gray-400 dark:text-gray-600">for "{{ group.groupName }}"</span>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
+        </div>
+        <div class="dashboard-container">
+          <div class="card">
+            <div class="expense-header">
+              <h2>Overview</h2>
+              <app-add-expense></app-add-expense>
+              <button pButton label="Settle Up" severity="success" class="p-button-primary w-full sm:w-auto"></button>
+            </div>
+            <div class="stats-grid">
+              <div class="stat-item"
+                [ngClass]="totalExpenses > 0 ? 'hover:bg-green-500/10' : totalExpenses < 0 ? 'hover:bg-red-500/10' : 'hover:bg-gray-500/10'">
+                <div class="stat-content">
+                  <div class="stat-info">
+                    <p class="stat-label">Total Expenses</p>
+                    <p class="stat-value"
+                      [ngClass]="totalExpenses > 0 ? 'text-green-600' : totalExpenses < 0 ? 'text-red-600' : 'text-gray-600'">
+                      {{ (totalExpenses < 0 ? -totalExpenses : totalExpenses) | currency:'INR':'symbol':'1.2-2' }}</p>
+                  </div>
+                  <div class="stat-icon">
+                    <i class="pi pi-wallet"
+                      [ngClass]="totalExpenses > 0 ? 'bg-green-500/25 text-green-600' : totalExpenses < 0 ? 'bg-red-500/25 text-red-600' : 'bg-gray-500/25 text-gray-600'"></i>
                   </div>
                 </div>
-                <ng-template #noOwed>
-                  <div class="px-6 py-6 text-sm text-gray-600">No one owes you currently.</div>
-                </ng-template>
+              </div>
+              <div class="stat-item owe-item">
+                <div class="stat-content">
+                  <div class="stat-info">
+                    <p class="stat-label">You Owe</p>
+                    <p class="stat-value"
+                      [ngClass]="youOwe > 0 ? 'text-red-600' : youOwe < 0 ? 'text-green-600' : 'text-gray-600'">
+                      {{ youOwe | currency:'INR':'symbol':'1.2-2' }}
+                    </p>
+                  </div>
+                  <div class="stat-icon">
+                    <i class="pi pi-angle-double-up up-icon"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="stat-item owed-item">
+                <div class="stat-content">
+                  <div class="stat-info">
+                    <p class="stat-label">You Are Owed</p>
+                    <p class="stat-value"
+                      [ngClass]="youAreOwed > 0 ? 'text-green-600' : youAreOwed < 0 ? 'text-red-600' : 'text-gray-600'">
+                      {{ youAreOwed | currency:'INR':'symbol':'1.2-2' }}
+                    </p>
+                  </div>
+                  <div class="stat-icon">
+                    <i class="pi pi-angle-double-down down-icon"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 p-6 divide-x divide-gray-200 dark:divide-gray-700">
+              <div class="lg:col-span-1">
+                <div class="flex flex-col gap-2">
+                  <div class="summary-col1">YOU OWE</div>
+                  <div>
+                    <div *ngIf="membersYouOwe && membersYouOwe.length > 0; else noOwe">
+                      <div *ngFor="let item of membersYouOwe" class="px-6 py-4 hover:bg-gray-400/15">
+                        <div class="flex items-start gap-3">
+                          <img [src]="item.avatar" [alt]="item.memberName" class="w-10 h-10 rounded-full flex-shrink-0"
+                            loading="lazy"
+                            onerror="this.src='https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64'">
+                          <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between">
+                              <span class="font-medium text-gray-850 dark:text-gray-300" [style]="{fontSize: '1.275rem'}">{{ item.memberName }}</span>
+                              <div class="text-red-600">
+                                <span class="font-medium">
+                                  you owe </span><span class="font-medium" [style]="{fontSize: '1.2rem'}">{{ item.amount
+                                  | currency:'INR':'symbol':'1.2-2'
+                                  }}</span>
+                              </div>
+                            </div>
+                            <ul class="text-sm pt-1 list-disc list-inside">
+                              <li *ngFor="let group of item.groupBreakdown"
+                                (click)="navigateToGroupByName(group.groupName)"  class="hover:underline">
+                                <span *ngIf="group.amount < 0" class="text-gray-500">
+                                  You owe {{ item.memberName }}
+                                </span>
+    
+                                <span *ngIf="group.amount > 0" class="text-gray-500">
+                                  {{ item.memberName }} owes you
+                                </span>
+                                <span class="font-medium"
+                                  [ngClass]="group.amount > 0 ? 'text-green-600' : group.amount < 0 ? 'text-red-600' : 'text-gray-600'">
+                                  {{ (group.amount < 0 ? -group.amount : group.amount) | currency:'INR':'symbol':'1.2-2' }}
+                                    </span>
+                                    <span class="text-gray-400 dark:text-gray-600">for "{{ group.groupName }}"</span>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <ng-template #noOwe>
+                      <div class="px-6 py-6 text-sm text-gray-600">No outstanding amounts you owe.</div>
+                    </ng-template>
+                  </div>
+                </div>
+              </div>
+              <div class="lg:col-span-1">
+                <div class="flex flex-col gap-2">
+                  <div class="summary-col2">YOU ARE OWED</div>
+                  <div>
+                    <div *ngIf="membersWhoOweYou && membersWhoOweYou.length > 0; else noOwed">
+                      <div *ngFor="let item of membersWhoOweYou" class="px-6 py-4 hover:bg-gray-400/15">
+                        <div class="flex items-start gap-3">
+                          <img [src]="item.avatar" [alt]="item.memberName" class="w-10 h-10 rounded-full flex-shrink-0"
+                            loading="lazy"
+                            onerror="this.src='https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64'">
+                          <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between">
+                              <span class="font-medium text-gray-850 dark:text-gray-300" [style]="{fontSize: '1.275rem'}">{{ item.memberName }}</span>
+                              <div class="text-green-600">
+                                <span class="font-medium">
+                                  owes you </span><span class="font-medium" [style]="{fontSize: '1.2rem'}">{{ item.amount
+                                  | currency:'INR':'symbol':'1.2-2'
+                                  }}</span>
+                              </div>
+                            </div>
+                            <ul class="text-sm pt-1 list-disc list-inside">
+                              <li *ngFor="let group of item.groupBreakdown"
+                                (click)="navigateToGroupByName(group.groupName)" class="hover:underline">
+                                <span *ngIf="group.amount < 0" class="text-gray-500">
+                                  You owe {{ item.memberName }}
+                                </span>
+                                <span *ngIf="group.amount > 0" class="text-gray-500">
+                                  {{ item.memberName }} owes you
+                                </span>
+                                <span class="font-medium"
+                                  [ngClass]="group.amount > 0 ? 'text-green-600' : group.amount < 0 ? 'text-red-600' : 'text-gray-600'">
+                                  {{ (group.amount < 0 ? -group.amount : group.amount) | currency:'INR':'symbol':'1.2-2' }}
+                                    </span>
+                                    <span class="text-gray-400 dark:text-gray-600">for "{{ group.groupName }}"</span>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <ng-template #noOwed>
+                      <div class="px-6 py-6 text-sm text-gray-600">No one owes you currently.</div>
+                    </ng-template>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-
+    </ng-template>
+  </p-splitter>
 </div>
 <!-- <router-outlet></router-outlet> -->

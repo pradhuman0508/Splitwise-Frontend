@@ -11,6 +11,7 @@ import { ButtonModule } from 'primeng/button';
 import { AddExpenseComponent } from '../../features/add-expense/add-expense.component';
 import { DashboardService } from './dashboard.service';
 import { MemberInvolvement, MemberWithBreakdown } from './dashboard.util';
+import { SplitterModule } from 'primeng/splitter';
 
 @Component({
   selector: 'app-dashboard',
@@ -22,7 +23,8 @@ import { MemberInvolvement, MemberWithBreakdown } from './dashboard.util';
     ReactiveFormsModule,
     SkeletonModule,
     CardModule,
-    ButtonModule
+    ButtonModule,
+    SplitterModule
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
