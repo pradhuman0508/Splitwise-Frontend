@@ -1,7 +1,13 @@
 <div class="grid grid-cols-1 lg:grid-cols-7 gap-3 pt-2">
   <div class="lg:col-span-2 card rounded-lg shadow-sm p-6 min-h-screen">
     <div class="flex gap-2 items-center mb-4">
-      <p-card header="Activity">
+      <p-card>
+        <div class="flex justify-between items-center mb-2">
+        <h2 class="text-lg font-semibold">Recent Activity</h2>
+        <button pButton label="View All" icon="pi pi-arrow-right" size="small" class="view-all-btn"></button>
+      </div>
+
+      <p class="text-xs text-gray-500 mb-3">Showing your 10 most recent activities</p>
         <div class="flex flex-col">
           <ng-container *ngIf="!isLoading; else skeletonLoader">
             <p-card *ngFor="let activity of activityList" class="mb-3">
