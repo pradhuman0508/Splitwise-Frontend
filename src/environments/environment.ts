@@ -1,5 +1,6 @@
 export const environment = {
   production: false,
+  apiBaseUrl: 'http://localhost:8080/api',
   firebase: {
     projectId: 'splitwiseclone-49479',
     appId: '1:103744049747:web:e84a58ed065d00f35aeca6',
