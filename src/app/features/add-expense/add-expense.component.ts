@@ -82,8 +82,17 @@ export class AddExpenseComponent implements OnInit {
   ngOnInit() {
   if (!isPlatformBrowser(this.platformId)) return;
 
+  // Reconcile pending invites for the current user, then show only their groups
+  this.groupsService.reconcileNullUidsForCurrentUser();
+
   this.groupsService.getGroups().subscribe(groups => {
-    this.groups = groups;
+    const currentUser = getAuth().currentUser;
+    if (!currentUser) {
+      this.groups = [];
+      return;
+    }
+    this.groups = this.groupsService.getGroupsForUser(currentUser.uid, currentUser.email || null);
+
     if (this.groupId) {
       this.expenseForm.patchValue({ groupId: this.groupId });
       this.loadGroupMembers(this.groupId);
