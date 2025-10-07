@@ -16,6 +16,7 @@ import { RouterModule, RouterLink } from '@angular/router';
 import { SplitterModule } from 'primeng/splitter';
 import { AvatarModule } from "primeng/avatar";
 import { TagModule } from "primeng/tag";
+import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { DataViewModule } from 'primeng/dataview';
 import { DividerModule } from "primeng/divider";
 
@@ -37,7 +38,8 @@ import { DividerModule } from "primeng/divider";
     AvatarModule,
     TagModule,
     DataViewModule,
-    DividerModule
+    DividerModule,
+    ScrollPanelModule
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'

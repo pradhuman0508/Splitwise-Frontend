@@ -1,69 +1,65 @@
 <div class="contains">
-  <p-splitter [panelSizes]="[28, 72]" class="mb-8 min-h-screen" >
+  <p-splitter [panelSizes]="[28, 72]" class="mb-8 min-h-screen">
     <ng-template pTemplate="panel">
-      <div  class="card surface-border rounded-lg shadow-sm p-6 min-h-screen w-full">
-        <div class="flex gap-2 items-center mb-4">
-           <p-card>
-        <div class="flex justify-between items-center mb-2">
-        <h2 class="text-lg font-semibold">Recent Activity</h2>
-        <button pButton label="View All" icon="pi pi-arrow-right" size="small" class="view-all-btn"></button>
-      </div>
-
-      <p class="text-xs text-gray-500 mb-3">Showing your 10 most recent activities</p>
+      <div class="surface-border rounded-lg bg-[var(--surface-card)] shadow-sm min-h-screen w-full">
         <div class="flex flex-col">
-          <ng-container *ngIf="!isLoading; else skeletonLoader">
-            <p-card *ngFor="let activity of activityList" class="mb-3">
-              <div class="flex justify-between items-center mb-2">
-                <div class="flex items-center gap-2">
-                  <p-avatar label="{{ activity.userName[0] }}" shape="circle"
-                    styleClass="bg-primary text-white"></p-avatar>
-                  <span class="font-medium">{{ activity.userName }}</span>
-                </div>
-                <small class="text-gray-500">{{ activity.createdAt | date:'medium' }}</small>
-              </div>
+          <div class="flex justify-between items-center px-5 pt-6">
+            <h2 class="text-lg font-semibold mb-0">Recent Activity</h2>
+            <button pButton label="View All" icon="pi pi-arrow-right" size="small" class="view-all-btn"></button>
+          </div>
 
-              <div class="text-xs text-gray-500">
-                {{ activity.description }}
-              </div>
-
-
-              <p-divider></p-divider>
-
-              <div class="flex justify-between items-center text-xs text-gray-500">
-                <div class="flex flex-col">
-                  <span class="ml-3 mb-3" *ngIf="activity.groupName">
-                    <i class="pi pi-users mr-1"></i>{{ activity.groupName }}
-                  </span>
-                  <span *ngIf="activity.expenseName" class="ml-3">
-                    <i class="pi pi-wallet mr-1"></i>{{ activity.expenseName }}
-                  </span>
-                </div>
-                <div class="flex flex-col">
-                  <!-- Revert button only for DELETE_EXPENSE -->
-                  <div *ngIf="activity.actionType === 'DELETE_EXPENSE'" class="mt-2 text-right mb-3">
-                    <button pButton label="Revert" icon="pi pi-undo" size="small"
-                      styleClass="p-button-text p-button-sm undo-btn" (click)="revertDelete(activity)">
-                    </button>
+          <p class="text-xs text-gray-500 mb-0 border-b border-gray-700/25 dark:border-gray-300/25 pb-4 px-5">Showing your 10 most
+            recent activities</p>
+          <p-scrollpanel [style]="{ width: '100%' , height: '95vh'}">
+            <div class="flex flex-col divide-y divide-gray-700/25 dark:divide-gray-300/25">
+              <ng-container *ngIf="!isLoading; else skeletonLoader">
+                <div *ngFor="let activity of activityList" class="py-4 px-6 hover:bg-gray-300/15">
+                  <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                      <p-avatar label="{{ activity.userName[0] }}" shape="circle"
+                        styleClass="bg-primary text-white"></p-avatar>
+                      <span class="font-medium">{{ activity.userName }}</span>
+                    </div>
+                    <small class="text-gray-500">{{ activity.createdAt | date:'medium' }}</small>
                   </div>
-                  <p-tag [severity]="getActionColor(activity.actionType)" value="{{ activity.actionType }}"></p-tag>
+                  <div class="text-xs text-gray-500 border-b border-[var(--surface-border)] p-1">
+                    {{ activity.description }}
+                  </div>
+                  <div class="flex justify-between items-center text-xs text-gray-500 pt-3">
+                    <div class="flex flex-col gap-2">
+                      <span *ngIf="activity.groupName">
+                        <i class="pi pi-users mr-1"></i>{{ activity.groupName }}
+                      </span>
+                      <span *ngIf="activity.expenseName">
+                        <i class="pi pi-wallet mr-1"></i>{{ activity.expenseName }}
+                      </span>
+                    </div>
+                    <div class="flex flex-col">
+                      <!-- Revert button only for DELETE_EXPENSE -->
+                      <div *ngIf="activity.actionType === 'DELETE_EXPENSE'" class="mt-2 text-right mb-3">
+                        <button pButton label="Revert" icon="pi pi-undo" size="small"
+                          styleClass="p-button-text p-button-sm undo-btn" (click)="revertDelete(activity)">
+                        </button>
+                      </div>
+                      <p-tag [severity]="getActionColor(activity.actionType)" value="{{ activity.actionType }}"></p-tag>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </p-card>
-          </ng-container>
+              </ng-container>
 
-          <ng-template #skeletonLoader>
-            <p-card *ngFor="let _ of [1,2,3,4]" class="activity-card mb-3">
-              <div class="flex items-center gap-3 mb-2">
-                <p-skeleton shape="circle" size="2rem"></p-skeleton>
-                <p-skeleton width="6rem"></p-skeleton>
-              </div>
-              <p-skeleton width="100%" height="0.75rem"></p-skeleton>
-              <p-skeleton width="70%" height="0.75rem"></p-skeleton>
-            </p-card>
-          </ng-template>
-        </div>
+              <ng-template #skeletonLoader>
+                <p-card *ngFor="let _ of [1,2,3,4]" class="activity-card mb-3">
+                  <div class="flex items-center gap-3 mb-2">
+                    <p-skeleton shape="circle" size="2rem"></p-skeleton>
+                    <p-skeleton width="6rem"></p-skeleton>
+                  </div>
+                  <p-skeleton width="100%" height="0.75rem"></p-skeleton>
+                  <p-skeleton width="70%" height="0.75rem"></p-skeleton>
+                </p-card>
+              </ng-template>
+            </div>
+          </p-scrollpanel>
 
-      </p-card>
         </div>
       </div>
     </ng-template>
@@ -193,7 +189,9 @@
                             onerror="this.src='https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64'">
                           <div class="flex-1 min-w-0">
                             <div class="flex items-center justify-between">
-                              <span class="font-medium text-gray-850 dark:text-gray-300" [style]="{fontSize: '1.275rem'}">{{ item.memberName }}</span>
+                              <span class="font-medium text-gray-850 dark:text-gray-300"
+                                [style]="{fontSize: '1.275rem'}">{{
+                                item.memberName }}</span>
                               <div class="text-red-600">
                                 <span class="font-medium">
                                   you owe </span><span class="font-medium" [style]="{fontSize: '1.2rem'}">{{ item.amount
@@ -203,7 +201,7 @@
                             </div>
                             <ul class="text-sm pt-1 list-disc list-inside">
                               <li *ngFor="let group of item.groupBreakdown"
-                                (click)="navigateToGroupByName(group.groupName)"  class="hover:underline">
+                                (click)="navigateToGroupByName(group.groupName)" class="hover:underline">
                                 <span *ngIf="group.amount < 0" class="text-gray-500">
                                   You owe {{ item.memberName }}
                                 </span>
@@ -213,8 +211,8 @@
                                 </span>
                                 <span class="font-medium"
                                   [ngClass]="group.amount > 0 ? 'text-green-600' : group.amount < 0 ? 'text-red-600' : 'text-gray-600'">
-                                  {{ (group.amount < 0 ? -group.amount : group.amount) | currency:'INR':'symbol':'1.2-2' }}
-                                    </span>
+                                  {{ (group.amount < 0 ? -group.amount : group.amount) | currency:'INR':'symbol':'1.2-2'
+                                    }} </span>
                                     <span class="text-gray-400 dark:text-gray-600">for "{{ group.groupName }}"</span>
                               </li>
                             </ul>
@@ -241,7 +239,8 @@
                           <div class="flex-1 min-w-0">
                             <div class="flex items-center justify-between">
                               <span class="font-medium text-gray-850 dark:text-gray-300"
-                                [style]="{fontSize: '1.275rem'}">{{ item.memberName }}</span>
+                                [style]="{fontSize: '1.275rem'}">{{
+                                item.memberName }}</span>
                               <div class="text-green-600">
                                 <span class="font-medium">
                                   owes you </span><span class="font-medium" [style]="{fontSize: '1.2rem'}">{{
@@ -261,8 +260,8 @@
                                 </span>
                                 <span class="font-medium"
                                   [ngClass]="group.amount > 0 ? 'text-green-600' : group.amount < 0 ? 'text-red-600' : 'text-gray-600'">
-                                  {{ (group.amount < 0 ? -group.amount : group.amount) | currency:'INR':'symbol':'1.2-2' }}
-                                    </span>
+                                  {{ (group.amount < 0 ? -group.amount : group.amount) | currency:'INR':'symbol':'1.2-2'
+                                    }} </span>
                                     <span class="text-gray-400 dark:text-gray-600">for "{{ group.groupName }}"</span>
                               </li>
                             </ul>
@@ -280,7 +279,8 @@
             <ng-template #showGroups>
               <div class="grid grid-cols-1">
                 <div class="text-center py-8 p-6">
-                  <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-0">You don’t have any expenses yet</h3>
+                  <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-0">You don’t have any expenses
+                    yet</h3>
                   <p class="text-gray-500 dark:text-gray-400 mt-2">Add your first one to get started!</p>
                 </div>
               </div>
