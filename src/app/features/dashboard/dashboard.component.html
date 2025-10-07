@@ -146,7 +146,8 @@
                   </div>
                 </div>
               </div>
-              <div class="stat-item owe-item">
+              <div class="stat-item owe-item"
+                [ngClass]="youOwe < 0 ? 'hover:bg-green-500/10' : youOwe > 0 ? 'hover:bg-red-500/10' : 'hover:bg-gray-500/10'">
                 <div class="stat-content">
                   <div class="stat-info">
                     <p class="stat-label">You Owe</p>
@@ -156,11 +157,13 @@
                     </p>
                   </div>
                   <div class="stat-icon">
-                    <i class="pi pi-angle-double-up up-icon"></i>
+                    <i class="pi pi-angle-double-up"
+                      [ngClass]="youOwe < 0 ? 'bg-green-500/25 text-green-600' : youOwe > 0 ? 'bg-red-500/25 text-red-600' : 'bg-gray-500/25 text-gray-600'"></i>
                   </div>
                 </div>
               </div>
-              <div class="stat-item owed-item">
+              <div class="stat-item owed-item"
+                [ngClass]="youAreOwed > 0 ? 'hover:bg-green-500/10' : youAreOwed < 0 ? 'hover:bg-red-500/10' : 'hover:bg-gray-500/10'">
                 <div class="stat-content">
                   <div class="stat-info">
                     <p class="stat-label">You Are Owed</p>
@@ -170,12 +173,14 @@
                     </p>
                   </div>
                   <div class="stat-icon">
-                    <i class="pi pi-angle-double-down down-icon"></i>
+                    <i class="pi pi-angle-double-down down-icon"
+                      [ngClass]="youAreOwed > 0 ? 'bg-green-500/25 text-green-600' : youAreOwed < 0 ? 'bg-red-500/25 text-red-600' : 'bg-gray-500/25 text-gray-600'"></i>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="grid grid-cols-1 lg:grid-cols-2 p-6 divide-x divide-gray-200 dark:divide-gray-700">
+            <div *ngIf="membersWhoOweYou && membersWhoOweYou.length > 0; else showGroups"
+              class="grid grid-cols-1 lg:grid-cols-2 p-6 divide-x divide-gray-200 dark:divide-gray-700">
               <div class="lg:col-span-1">
                 <div class="flex flex-col gap-2">
                   <div class="summary-col1">YOU OWE</div>
@@ -188,7 +193,8 @@
                             onerror="this.src='https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64'">
                           <div class="flex-1 min-w-0">
                             <div class="flex items-center justify-between">
-                              <span class="font-medium text-gray-850 dark:text-gray-300" [style]="{fontSize: '1.275rem'}">{{ item.memberName }}</span>
+                              <span class="font-medium text-gray-850 dark:text-gray-300"
+                                [style]="{fontSize: '1.275rem'}">{{ item.memberName }}</span>
                               <div class="text-red-600">
                                 <span class="font-medium">
                                   you owe </span><span class="font-medium" [style]="{fontSize: '1.2rem'}">{{ item.amount
@@ -235,10 +241,12 @@
                             onerror="this.src='https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64'">
                           <div class="flex-1 min-w-0">
                             <div class="flex items-center justify-between">
-                              <span class="font-medium text-gray-850 dark:text-gray-300" [style]="{fontSize: '1.275rem'}">{{ item.memberName }}</span>
+                              <span class="font-medium text-gray-850 dark:text-gray-300"
+                                [style]="{fontSize: '1.275rem'}">{{ item.memberName }}</span>
                               <div class="text-green-600">
                                 <span class="font-medium">
-                                  owes you </span><span class="font-medium" [style]="{fontSize: '1.2rem'}">{{ item.amount
+                                  owes you </span><span class="font-medium" [style]="{fontSize: '1.2rem'}">{{
+                                  item.amount
                                   | currency:'INR':'symbol':'1.2-2'
                                   }}</span>
                               </div>
@@ -270,6 +278,77 @@
                 </div>
               </div>
             </div>
+            <ng-template #showGroups>
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                <div class="lg:col-span-1 surface-border rounded-lg shadow-sm p-6">
+                  <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold mb-0">Groups</h2>
+                  </div>
+                  <div class="space-y-3">
+                    <ng-container *ngIf="!isLoading; else groupsLoading">
+                      <div *ngFor="let group of groups.slice(0, 4)">
+                        <p-panel [showHeader]="false"
+                          styleClass="shadow-lg hover:shadow-lg transition-shadow duration-900 cursor-pointer"
+                          (click)="navigateToGroup(group.id)">
+                          <div class="flex items-center justify-between pt-4">
+                            <div class="flex items-center space-x-3">
+                              <img [src]="group.avatar" loading="lazy" class="w-10 h-10 rounded-full"
+                                [alt]="group.name">
+                              <div>
+                                <p class="font-medium">{{group.name}}</p>
+                              </div>
+                            </div>
+                            <span class="text-sm font-medium"
+                              [ngClass]="{'text-green-600': group.balance > 0, 'text-red-600': group.balance < 0}">
+                              {{group.balance | currency:'INR':'symbol':'1.2-2'}}
+                            </span>
+                          </div>
+                        </p-panel>
+                      </div>
+                    </ng-container>
+                    <ng-template #groupsLoading>
+                      <div *ngFor="let i of [1,2,3,4]" class="p-3 border rounded-lg">
+                        <p-skeleton height="4rem"></p-skeleton>
+                      </div>
+                    </ng-template>
+                    <div [routerLink]="['/groups']" class="block text-center text-blue-600 hover:text-blue-800 mt-2">Show More
+                      Groups</div>
+                  </div>
+                </div>
+                <div class="lg:col-span-1 surface-border rounded-lg shadow-sm p-6">
+                  <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold mb-0">Friends</h2>
+                  </div>
+                  <div class="space-y-3">
+                    <ng-container *ngIf="!isLoading; else friendsLoading">
+                      <div *ngFor="let friend of friends.slice(0, 3)">
+                        <p-panel [showHeader]="false" styleClass="shadow-lg hover:shadow-lg transition-shadow duration-900 cursor-pointer">
+                          <div class="flex items-center justify-between pt-4">
+                            <div class="flex items-center space-x-3">
+                              <img [src]="friend.avatar" loading="lazy" class="w-10 h-10 rounded-full" [alt]="friend.name">
+                              <div>
+                                <p class="font-medium mb-0">{{friend.name}}</p>
+                                <p class="text-sm text-gray-500">{{friend.email}}</p>
+                              </div>
+                            </div>
+                            <span class="text-sm font-medium"
+                              [ngClass]="{'text-green-600': friend.balance > 0, 'text-red-600': friend.balance < 0}">
+                              {{friend.balance | currency:'INR':'symbol':'1.2-2'}}
+                            </span>
+                          </div>
+                        </p-panel>
+                      </div>
+                    </ng-container>
+                    <ng-template #friendsLoading>
+                      <div *ngFor="let i of [1,2,3]" class="p-3 border rounded-lg">
+                        <p-skeleton height="4rem"></p-skeleton>
+                      </div>
+                    </ng-template>
+                    <div [routerLink]="['/friends']" class="block text-center text-blue-600 hover:text-blue-800 mt-2">Show More Friends</div>
+                  </div>
+                </div>
+              </div>
+            </ng-template>
           </div>
         </div>
       </div>
