@@ -114,7 +114,7 @@ export class GroupsService {
     {
       id: 2,
       name: 'APY Transactions',
-      description: 'Our amazing vacation',
+      description: 'When we are adding a user, we are checking whether he has UID with his email Id or not, if he has UID then we will add him and if UID is not found then we will set UID as null and also we will trigger inviteNotification on that users email Id \n Whenever a new user will register, his email Id will be found in groupMembers and the null UID will be updated with the new UID.',
       memberCount: 6,
       balance: 0,
       totalExpenses: 0,
@@ -456,6 +456,62 @@ export class GroupsService {
 
   getGroups(): Observable<Group[]> {
     return this.groupsSubject.asObservable();
+  }
+
+  /**
+   * Reconcile members invited by email (uid missing) when the user registers/logs in.
+   * If any member in any group has the same email as the current user and a falsy uid,
+   * update that member's uid with the current user's uid.
+   */
+  reconcileNullUidsForCurrentUser(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const auth = getAuth();
+    const currentUser = auth?.currentUser;
+    if (!currentUser || !currentUser.email) return;
+
+    const userEmail = currentUser.email;
+    const userUid = currentUser.uid;
+
+    let changed = false;
+    Object.keys(this.groupMembers).forEach((gid) => {
+      const groupId = Number(gid);
+      const members = this.groupMembers[groupId] || [];
+      const updated = members.map(m => {
+        if (m.email === userEmail && (!m.uid || m.uid === 'null')) {
+          changed = true;
+          return { ...m, uid: userUid } as GroupMember;
+        }
+        return m;
+      });
+      this.groupMembers[groupId] = updated;
+    });
+
+    // If membership changed, also refresh group balances for UI consumers
+    if (changed) {
+      // Trigger a shallow emit to update any computed fields downstream
+      this.groupsSubject.next([...this.groups]);
+    }
+  }
+
+  /**
+   * Returns true if a user belongs to the given group by uid, or by email where uid is missing.
+   */
+  isUserInGroup(groupId: number, userUid?: string | null, userEmail?: string | null): boolean {
+    const members = this.groupMembers[groupId] || [];
+    if (userUid) {
+      if (members.some(m => m.uid === userUid)) return true;
+    }
+    if (userEmail) {
+      if (members.some(m => m.email === userEmail && (!m.uid || m.uid === 'null'))) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Get groups where the user is a member. Matches by uid, or by email where uid is missing (invited).
+   */
+  getGroupsForUser(userUid?: string | null, userEmail?: string | null): Group[] {
+    return this.groups.filter(g => this.isUserInGroup(g.id, userUid, userEmail));
   }
 
   getGroupMembers(groupId: number): Observable<GroupMember[]> {

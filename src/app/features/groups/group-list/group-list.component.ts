@@ -51,10 +51,16 @@ export class GroupListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.subscription = this.groupsService.getGroups().subscribe(groups => {
-      // Compute totals and balances for current user
+      // Ensure any pending invites (null uid) get reconciled for current user
+      this.groupsService.reconcileNullUidsForCurrentUser();
+
+      // Compute totals and balances only for groups where the user is a member
       this.authService.isLoggedIn().subscribe(user => {
         const currentUid = user?.uid || null;
-        this.groups = groups.map(g => ({
+        const currentEmail = user?.email || null;
+        const visibleGroups = this.groupsService.getGroupsForUser(currentUid, currentEmail);
+
+        this.groups = visibleGroups.map(g => ({
           ...g,
           totalExpenses: this.groupsService.computeGroupTotalExpenses(g.id),
           balance: this.groupsService.computeUserBalanceForGroup(g.id, currentUid)

@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { SkeletonModule } from 'primeng/skeleton';
+import { PanelModule } from 'primeng/panel';
 import { Group } from '../../features/groups/services/groups.service';
 import { Subscription } from 'rxjs';
 import { getAuth, User } from '@angular/fire/auth';
@@ -11,6 +12,7 @@ import { ButtonModule } from 'primeng/button';
 import { AddExpenseComponent } from '../../features/add-expense/add-expense.component';
 import { DashboardService } from './dashboard.service';
 import { MemberInvolvement, MemberWithBreakdown } from './dashboard.util';
+import { RouterModule, RouterLink } from '@angular/router';
 import { SplitterModule } from 'primeng/splitter';
 import { AvatarModule } from "primeng/avatar";
 import { TagModule } from "primeng/tag";
@@ -29,6 +31,9 @@ import { DividerModule } from "primeng/divider";
     CardModule,
     ButtonModule,
     SplitterModule,
+    PanelModule,
+    RouterLink,
+    RouterModule,
     AvatarModule,
     TagModule,
     DataViewModule,
@@ -220,7 +225,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // Data loading methods - now delegate to service
   private async loadGroups(): Promise<void> {
-    this.groups = await this.dashboardService.loadGroups();
+    this.groups = await this.dashboardService.loadGroups(this.currentUser);
   }
 
   private setupReactiveSubscriptions(): void {

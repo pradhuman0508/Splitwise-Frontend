@@ -41,8 +41,12 @@ export class DashboardService {
   /**
    * Load groups data
    */
-  async loadGroups(): Promise<Group[]> {
-    return firstValueFrom(this.groupsService.getGroups());
+  async loadGroups(currentUser?: User | null): Promise<Group[]> {
+    // Reconcile invites for current user, then return only groups where the user belongs
+    this.groupsService.reconcileNullUidsForCurrentUser();
+    const all = await firstValueFrom(this.groupsService.getGroups());
+    if (!currentUser) return all;
+    return this.groupsService.getGroupsForUser(currentUser.uid, currentUser.email || null);
   }
 
   /**
@@ -117,11 +121,11 @@ export class DashboardService {
   }> {
     const perGroupDetails = await this.processAllGroups(groups, userUid);
     const totals = DashboardUtil.updateDashboardTotals(perGroupDetails);
-    
+
     const memberAggregations = DashboardUtil.aggregateMemberInvolvements(perGroupDetails);
     const memberInvolvements = DashboardUtil.buildMemberInvolvements(memberAggregations);
     const { membersYouOwe, membersWhoOweYou } = DashboardUtil.separateMembersByNetAmount(memberAggregations);
-    
+
     DashboardUtil.logAnalysisResults(perGroupDetails, memberAggregations, {
       youOwe: totals.totalYouOwe,
       youAreOwed: totals.totalYouAreOwed,
@@ -157,10 +161,10 @@ export class DashboardService {
 
     // Subscribe to expense changes for all groups
     if (groups.length > 0) {
-      const expenseObservables = groups.map(group => 
+      const expenseObservables = groups.map(group =>
         this.groupsService.getGroupExpenses(group.id)
       );
-      
+
       const expensesSub = combineLatest(expenseObservables).subscribe(() => {
         onDataChange();
       });
