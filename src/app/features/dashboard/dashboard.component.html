@@ -3,7 +3,67 @@
     <ng-template pTemplate="panel">
       <div  class="card surface-border rounded-lg shadow-sm p-6 min-h-screen w-full">
         <div class="flex gap-2 items-center mb-4">
-          <h2 class="text-xl font-semibold mb-0 mr-auto">Recent Activity</h2>
+           <p-card>
+        <div class="flex justify-between items-center mb-2">
+        <h2 class="text-lg font-semibold">Recent Activity</h2>
+        <button pButton label="View All" icon="pi pi-arrow-right" size="small" class="view-all-btn"></button>
+      </div>
+
+      <p class="text-xs text-gray-500 mb-3">Showing your 10 most recent activities</p>
+        <div class="flex flex-col">
+          <ng-container *ngIf="!isLoading; else skeletonLoader">
+            <p-card *ngFor="let activity of activityList" class="mb-3">
+              <div class="flex justify-between items-center mb-2">
+                <div class="flex items-center gap-2">
+                  <p-avatar label="{{ activity.userName[0] }}" shape="circle"
+                    styleClass="bg-primary text-white"></p-avatar>
+                  <span class="font-medium">{{ activity.userName }}</span>
+                </div>
+                <small class="text-gray-500">{{ activity.createdAt | date:'medium' }}</small>
+              </div>
+
+              <div class="text-xs text-gray-500">
+                {{ activity.description }}
+              </div>
+
+
+              <p-divider></p-divider>
+
+              <div class="flex justify-between items-center text-xs text-gray-500">
+                <div class="flex flex-col">
+                  <span class="ml-3 mb-3" *ngIf="activity.groupName">
+                    <i class="pi pi-users mr-1"></i>{{ activity.groupName }}
+                  </span>
+                  <span *ngIf="activity.expenseName" class="ml-3">
+                    <i class="pi pi-wallet mr-1"></i>{{ activity.expenseName }}
+                  </span>
+                </div>
+                <div class="flex flex-col">
+                  <!-- Revert button only for DELETE_EXPENSE -->
+                  <div *ngIf="activity.actionType === 'DELETE_EXPENSE'" class="mt-2 text-right mb-3">
+                    <button pButton label="Revert" icon="pi pi-undo" size="small"
+                      styleClass="p-button-text p-button-sm undo-btn" (click)="revertDelete(activity)">
+                    </button>
+                  </div>
+                  <p-tag [severity]="getActionColor(activity.actionType)" value="{{ activity.actionType }}"></p-tag>
+                </div>
+              </div>
+            </p-card>
+          </ng-container>
+
+          <ng-template #skeletonLoader>
+            <p-card *ngFor="let _ of [1,2,3,4]" class="activity-card mb-3">
+              <div class="flex items-center gap-3 mb-2">
+                <p-skeleton shape="circle" size="2rem"></p-skeleton>
+                <p-skeleton width="6rem"></p-skeleton>
+              </div>
+              <p-skeleton width="100%" height="0.75rem"></p-skeleton>
+              <p-skeleton width="70%" height="0.75rem"></p-skeleton>
+            </p-card>
+          </ng-template>
+        </div>
+
+      </p-card>
         </div>
       </div>
     </ng-template>
