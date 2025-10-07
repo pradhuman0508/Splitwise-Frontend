@@ -41,7 +41,7 @@
             </button>
           </div>
         </form>
-    
+
         <div *ngIf="searchResults.length > 0"
           class="absolute mt-2 w-full max-w-2xl rounded-lg shadow-lg z-40 max-h-96 overflow-y-auto">
           <div class="p-4 card">
@@ -142,7 +142,7 @@
                                 <span *ngIf="group.amount < 0" class="text-gray-500">
                                   You owe {{ item.memberName }}
                                 </span>
-    
+
                                 <span *ngIf="group.amount > 0" class="text-gray-500">
                                   {{ item.memberName }} owes you
                                 </span>

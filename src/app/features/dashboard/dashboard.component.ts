@@ -12,6 +12,10 @@ import { AddExpenseComponent } from '../../features/add-expense/add-expense.comp
 import { DashboardService } from './dashboard.service';
 import { MemberInvolvement, MemberWithBreakdown } from './dashboard.util';
 import { SplitterModule } from 'primeng/splitter';
+import { AvatarModule } from "primeng/avatar";
+import { TagModule } from "primeng/tag";
+import { DataViewModule } from 'primeng/dataview';
+import { DividerModule } from "primeng/divider";
 
 @Component({
   selector: 'app-dashboard',
@@ -24,7 +28,11 @@ import { SplitterModule } from 'primeng/splitter';
     SkeletonModule,
     CardModule,
     ButtonModule,
-    SplitterModule
+    SplitterModule,
+    AvatarModule,
+    TagModule,
+    DataViewModule,
+    DividerModule
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
@@ -49,6 +57,89 @@ export class DashboardComponent implements OnInit, OnDestroy {
   transactions: any[] = [];
   friends: any[] = [];
   currentUser: User | null = null;
+  activityList = [
+  {
+    "userName": "Alice",
+    "actionType": "ADD_EXPENSE",
+    "expenseName": "Dinner at Pizzeria",
+    "groupName": "Goa Trip",
+    "description": "Alice added a new expense 'Dinner at Pizzeria' in group 'Goa Trip'.",
+    "createdAt": "2025-10-04T09:30:00"
+  },
+  {
+    "userName": "Bob",
+    "actionType": "UPDATE_EXPENSE",
+    "expenseName": "Dinner at Pizzeria",
+    "groupName": "Goa Trip",
+    "description": "Bob updated the expense 'Dinner at Pizzeria' amount from ₹1200 to ₹1500.",
+    "createdAt": "2025-10-04T10:00:00"
+  },
+  {
+    "userName": "Charlie",
+    "actionType": "ADD_EXPENSE",
+    "expenseName": "Cab Fare",
+    "groupName": "Goa Trip",
+    "description": "Charlie added a new expense 'Cab Fare' in group 'Goa Trip'.",
+    "createdAt": "2025-10-04T10:45:00"
+  },
+  {
+    "userName": "Alice",
+    "actionType": "SETTLE_UP",
+    "expenseName": null,
+    "groupName": "Goa Trip",
+    "description": "Alice settled up with Bob for ₹500 in group 'Goa Trip'.",
+    "createdAt": "2025-10-04T11:10:00"
+  },
+  {
+    "userName": "David",
+    "actionType": "DELETE_EXPENSE",
+    "expenseName": "Snacks",
+    "groupName": "Flatmates",
+    "description": "David deleted the expense 'Snacks' from group 'Flatmates'.",
+    "createdAt": "2025-10-04T11:45:00"
+  },
+  {
+    "userName": "Eve",
+    "actionType": "ADD_GROUP",
+    "expenseName": null,
+    "groupName": "Office Team Lunch",
+    "description": "Eve created a new group 'Office Team Lunch'.",
+    "createdAt": "2025-10-04T12:15:00"
+  },
+  {
+    "userName": "Eve",
+    "actionType": "ADD_MEMBER",
+    "expenseName": null,
+    "groupName": "Office Team Lunch",
+    "description": "Eve added Bob to group 'Office Team Lunch'.",
+    "createdAt": "2025-10-04T12:20:00"
+  },
+  {
+    "userName": "Bob",
+    "actionType": "ADD_EXPENSE",
+    "expenseName": "Restaurant Bill",
+    "groupName": "Office Team Lunch",
+    "description": "Bob added a new expense 'Restaurant Bill' in group 'Office Team Lunch'.",
+    "createdAt": "2025-10-04T12:40:00"
+  },
+  {
+    "userName": "Charlie",
+    "actionType": "REMOVE_MEMBER",
+    "expenseName": null,
+    "groupName": "Flatmates",
+    "description": "Charlie removed David from group 'Flatmates'.",
+    "createdAt": "2025-10-04T13:05:00"
+  },
+  {
+    "userName": "Alice",
+    "actionType": "SETTLE_UP",
+    "expenseName": null,
+    "groupName": "Flatmates",
+    "description": "Alice settled up with Charlie for ₹300 in group 'Flatmates'.",
+    "createdAt": "2025-10-04T13:40:00"
+  }
+];
+
 
   // Aggregated member involvement across groups for the current user
   memberInvolvements: MemberInvolvement[] = [];
@@ -78,7 +169,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.isLoading = false;
       return;
     }
-    try{
+    try {
       this.currentUser = getAuth().currentUser;
     } catch (error) {
       console.error('Error while fetching current user:', error);
@@ -201,4 +292,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
     this.searchResults = [];
   }
+
+  getActionColor(action: string): any {
+    switch (action) {
+      case 'ADD_EXPENSE': return 'success';
+      case 'UPDATE_EXPENSE': return 'info';
+      case 'DELETE_EXPENSE': return 'danger';
+      case 'SETTLE_UP': return 'warning';
+      default: return undefined;
+    }
+  }
+
+  revertDelete(_t14: { userName: string; actionType: string; expenseName: string; groupName: string; description: string; createdAt: string; }|{ userName: string; actionType: string; expenseName: null; groupName: string; description: string; createdAt: string; }) {
+throw new Error('Method not implemented.');
+}
 }
