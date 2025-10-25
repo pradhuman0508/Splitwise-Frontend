@@ -23,24 +23,13 @@
             </div>
 
             <div
-              routerLink="groups"
-              (click)="setActiveTab('groups')"
+              routerLink="connections"
+              (click)="setActiveTab('connections')"
               class="nav-item flex flex-row gap-3"
-              [ngClass]="{'bg-[var(--surface-hover)]': isActiveTab('groups')}"
-            >
-              <i class="pi pi-users icon-gradient" [class.active]="isActiveTab('groups')"></i>
-              <span class="nav-text">Groups</span>
+              [ngClass]="{'bg-[var(--surface-hover)]': isActiveTab('connections')}">
+              <img src="assets/friends_8131340.svg" alt="Friends" style="width: 30px; height: 30px;"/>
+              <span class="nav-text">Groups & Friends</span>
             </div>
-
-            <button
-              type="button"
-              (click)="setActiveTab('friends')"
-              class="nav-item flex flex-row gap-3"
-              [ngClass]="{'bg-[var(--surface-hover)]': isActiveTab('friends')}"
-            >
-              <i class="pi pi-face-smile icon-gradient" [class.active]="isActiveTab('friends')"></i>
-              <span class="nav-text">Friends</span>
-            </button>
         </div>
     </div>
 

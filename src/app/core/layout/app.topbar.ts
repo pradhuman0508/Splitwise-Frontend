@@ -51,12 +51,10 @@ export class AppTopbar implements OnInit, OnDestroy {
         // Reset activeTab based on current route
         if (url.includes('/dashboard')) {
             this.activeTab = 'dashboard';
-        } else if (url.includes('/groups')) {
-            this.activeTab = 'groups';
-        } else if (url.includes('/friends')) {
-            this.activeTab = 'friends';
+        } else if (url.includes('/connections')) {
+            this.activeTab = 'connections';
         } else {
-            this.activeTab = '';
+            this.activeTab = 'dashboard'; // Default to dashboard
         }
     }
 
@@ -67,6 +65,12 @@ export class AppTopbar implements OnInit, OnDestroy {
     // Tab navigation methods
     setActiveTab(tab: string): void {
         this.activeTab = tab;
+        // Navigate to the appropriate route when tab is clicked
+        if (tab === 'dashboard') {
+            this.router.navigate(['/dashboard']);
+        } else if (tab === 'connections') {
+            this.router.navigate(['/connections']);
+        }
     }
 
     isActiveTab(tab: string): boolean {

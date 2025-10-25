@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { firstValueFrom, Observable, combineLatest, Subscription } from 'rxjs';
-import { GroupsService, Group, Expense, GroupMember } from '../../features/groups/services/groups.service';
+import { GroupsService, Group } from '../groups/services/groups.service';
 import { User } from '@angular/fire/auth';
 import { DashboardUtil, GroupExpenseDetails, MemberInvolvement, MemberWithBreakdown } from './dashboard.util';
 

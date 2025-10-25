@@ -1,16 +1,17 @@
 <div class="contains">
-  <p-splitter [panelSizes]="[28, 72]" class="mb-8 min-h-screen">
+  <p-splitter [panelSizes]="[23, 77]" class="mb-8 min-h-screen">
     <ng-template pTemplate="panel">
-      <div class="surface-border rounded-lg bg-[var(--surface-card)] shadow-sm min-h-screen w-full">
+      <div class="surface-border rounded-lg bg-[var(--surface-card)] shadow-sm w-full">
         <div class="flex flex-col">
           <div class="flex justify-between items-center px-5 pt-6">
             <h2 class="text-lg font-semibold mb-0">Recent Activity</h2>
             <button pButton label="View All" icon="pi pi-arrow-right" size="small" class="view-all-btn"></button>
           </div>
 
-          <p class="text-xs text-gray-500 mb-0 border-b border-gray-700/25 dark:border-gray-300/25 pb-4 px-5">Showing your 10 most
+          <p class="text-xs text-gray-500 mb-0 border-b border-gray-700/25 dark:border-gray-300/25 pb-4 px-5">Showing
+            your 10 most
             recent activities</p>
-          <p-scrollpanel [style]="{ width: '100%' , height: '95vh'}">
+          <p-scrollpanel [style]="{ width: '100%' , height: '81vh'}">
             <div class="flex flex-col divide-y divide-gray-700/25 dark:divide-gray-300/25">
               <ng-container *ngIf="!isLoading; else skeletonLoader">
                 <div *ngFor="let activity of activityList" class="py-4 px-6 hover:bg-gray-300/15">
@@ -68,7 +69,7 @@
         <form [formGroup]="searchForm" class="flex gap-2 pb-4">
           <div class="relative w-64">
             <select formControlName="searchCategory"
-              class="w-full p-2 surface-border rounded-lg appearance-none pr-8 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0">
+              class="w-full p-2  surface-border bg-[var(--surface-card)] rounded-lg appearance-none pr-8 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0">
               <option value="all">All Categories</option>
               <option value="friends">Friends</option>
               <option value="groups">Groups</option>
@@ -81,7 +82,7 @@
             </div>
           </div>
           <div class="relative flex-1">
-            <input type="text" formControlName="searchQuery" (input)="onSearch()" placeholder="Search..." class="w-full p-2 surface-border rounded-lg pl-10
+            <input type="text" formControlName="searchQuery" (input)="onSearch()" placeholder="Search..." class="w-full p-2 surface-border bg-[var(--surface-card)] rounded-lg pl-10
                 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0">
             <div class="absolute inset-y-0 left-0 flex items-center pl-3">
               <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -99,8 +100,8 @@
         </form>
 
         <div *ngIf="searchResults.length > 0"
-          class="absolute mt-2 w-full max-w-2xl rounded-lg shadow-lg z-40 max-h-96 overflow-y-auto">
-          <div class="p-4 card">
+          class="absolute w-full max-w-2xl rounded-lg shadow-lg z-40 max-h-96 overflow-y-auto">
+          <div class="p-4 card surface-border">
             <div *ngFor="let result of searchResults" class="py-2">
               <div [ngSwitch]="result.type"
                 class="flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-[var(--surface-hover)]">
@@ -119,174 +120,8 @@
             </div>
           </div>
         </div>
-        <div class="dashboard-container">
-          <div class="card">
-            <div class="expense-header">
-              <h2>Overview</h2>
-              <app-add-expense></app-add-expense>
-              <button pButton label="Settle Up" severity="success" class="p-button-primary w-full sm:w-auto"></button>
-            </div>
-            <div class="stats-grid">
-              <div class="stat-item"
-                [ngClass]="totalExpenses > 0 ? 'hover:bg-green-500/10' : totalExpenses < 0 ? 'hover:bg-red-500/10' : 'hover:bg-gray-500/10'">
-                <div class="stat-content">
-                  <div class="stat-info">
-                    <p class="stat-label">Total Expenses</p>
-                    <p class="stat-value"
-                      [ngClass]="totalExpenses > 0 ? 'text-green-600' : totalExpenses < 0 ? 'text-red-600' : 'text-gray-600'">
-                      {{ (totalExpenses < 0 ? -totalExpenses : totalExpenses) | currency:'INR':'symbol':'1.2-2' }}</p>
-                  </div>
-                  <div class="stat-icon">
-                    <i class="pi pi-wallet"
-                      [ngClass]="totalExpenses > 0 ? 'bg-green-500/25 text-green-600' : totalExpenses < 0 ? 'bg-red-500/25 text-red-600' : 'bg-gray-500/25 text-gray-600'"></i>
-                  </div>
-                </div>
-              </div>
-              <div class="stat-item owe-item"
-                [ngClass]="youOwe < 0 ? 'hover:bg-green-500/10' : youOwe > 0 ? 'hover:bg-red-500/10' : 'hover:bg-gray-500/10'">
-                <div class="stat-content">
-                  <div class="stat-info">
-                    <p class="stat-label">You Owe</p>
-                    <p class="stat-value"
-                      [ngClass]="youOwe > 0 ? 'text-red-600' : youOwe < 0 ? 'text-green-600' : 'text-gray-600'">
-                      {{ youOwe | currency:'INR':'symbol':'1.2-2' }}
-                    </p>
-                  </div>
-                  <div class="stat-icon">
-                    <i class="pi pi-angle-double-up"
-                      [ngClass]="youOwe < 0 ? 'bg-green-500/25 text-green-600' : youOwe > 0 ? 'bg-red-500/25 text-red-600' : 'bg-gray-500/25 text-gray-600'"></i>
-                  </div>
-                </div>
-              </div>
-              <div class="stat-item owed-item"
-                [ngClass]="youAreOwed > 0 ? 'hover:bg-green-500/10' : youAreOwed < 0 ? 'hover:bg-red-500/10' : 'hover:bg-gray-500/10'">
-                <div class="stat-content">
-                  <div class="stat-info">
-                    <p class="stat-label">You Are Owed</p>
-                    <p class="stat-value"
-                      [ngClass]="youAreOwed > 0 ? 'text-green-600' : youAreOwed < 0 ? 'text-red-600' : 'text-gray-600'">
-                      {{ youAreOwed | currency:'INR':'symbol':'1.2-2' }}
-                    </p>
-                  </div>
-                  <div class="stat-icon">
-                    <i class="pi pi-angle-double-down down-icon"
-                      [ngClass]="youAreOwed > 0 ? 'bg-green-500/25 text-green-600' : youAreOwed < 0 ? 'bg-red-500/25 text-red-600' : 'bg-gray-500/25 text-gray-600'"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div *ngIf="(membersWhoOweYou?.length || 0) > 0 || (membersYouOwe?.length || 0) > 0; else showGroups"
-              class="grid grid-cols-1 lg:grid-cols-2 p-6 divide-x divide-gray-200 dark:divide-gray-700">
-              <div class="lg:col-span-1">
-                <div class="flex flex-col gap-2">
-                  <div class="summary-col1">YOU OWE</div>
-                  <div>
-                    <div *ngIf="membersYouOwe && membersYouOwe.length > 0; else noOwe">
-                      <div *ngFor="let item of membersYouOwe" class="px-6 py-4 hover:bg-gray-400/15">
-                        <div class="flex items-start gap-3">
-                          <img [src]="item.avatar" [alt]="item.memberName" class="w-10 h-10 rounded-full flex-shrink-0"
-                            loading="lazy"
-                            onerror="this.src='https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64'">
-                          <div class="flex-1 min-w-0">
-                            <div class="flex items-center justify-between">
-                              <span class="font-medium text-gray-850 dark:text-gray-300"
-                                [style]="{fontSize: '1.275rem'}">{{
-                                item.memberName }}</span>
-                              <div class="text-red-600">
-                                <span class="font-medium">
-                                  you owe </span><span class="font-medium" [style]="{fontSize: '1.2rem'}">{{ item.amount
-                                  | currency:'INR':'symbol':'1.2-2'
-                                  }}</span>
-                              </div>
-                            </div>
-                            <ul class="text-sm pt-1 list-disc list-inside">
-                              <li *ngFor="let group of item.groupBreakdown"
-                                (click)="navigateToGroupByName(group.groupName)" class="hover:underline">
-                                <span *ngIf="group.amount < 0" class="text-gray-500">
-                                  You owe {{ item.memberName }}
-                                </span>
-
-                                <span *ngIf="group.amount > 0" class="text-gray-500">
-                                  {{ item.memberName }} owes you
-                                </span>
-                                <span class="font-medium"
-                                  [ngClass]="group.amount > 0 ? 'text-green-600' : group.amount < 0 ? 'text-red-600' : 'text-gray-600'">
-                                  {{ (group.amount < 0 ? -group.amount : group.amount) | currency:'INR':'symbol':'1.2-2'
-                                    }} </span>
-                                    <span class="text-gray-400 dark:text-gray-600">for "{{ group.groupName }}"</span>
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <ng-template #noOwe>
-                      <div class="px-6 py-6 text-sm text-gray-600">No outstanding amounts you owe.</div>
-                    </ng-template>
-                  </div>
-                </div>
-              </div>
-              <div class="lg:col-span-1">
-                <div class="flex flex-col gap-2">
-                  <div class="summary-col2">YOU ARE OWED</div>
-                  <div>
-                    <div *ngIf="membersWhoOweYou && membersWhoOweYou.length > 0; else noOwed">
-                      <div *ngFor="let item of membersWhoOweYou" class="px-6 py-4 hover:bg-gray-400/15">
-                        <div class="flex items-start gap-3">
-                          <img [src]="item.avatar" [alt]="item.memberName" class="w-10 h-10 rounded-full flex-shrink-0"
-                            loading="lazy"
-                            onerror="this.src='https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64'">
-                          <div class="flex-1 min-w-0">
-                            <div class="flex items-center justify-between">
-                              <span class="font-medium text-gray-850 dark:text-gray-300"
-                                [style]="{fontSize: '1.275rem'}">{{
-                                item.memberName }}</span>
-                              <div class="text-green-600">
-                                <span class="font-medium">
-                                  owes you </span><span class="font-medium" [style]="{fontSize: '1.2rem'}">{{
-                                  item.amount
-                                  | currency:'INR':'symbol':'1.2-2'
-                                  }}</span>
-                              </div>
-                            </div>
-                            <ul class="text-sm pt-1 list-disc list-inside">
-                              <li *ngFor="let group of item.groupBreakdown"
-                                (click)="navigateToGroupByName(group.groupName)" class="hover:underline">
-                                <span *ngIf="group.amount < 0" class="text-gray-500">
-                                  You owe {{ item.memberName }}
-                                </span>
-                                <span *ngIf="group.amount > 0" class="text-gray-500">
-                                  {{ item.memberName }} owes you
-                                </span>
-                                <span class="font-medium"
-                                  [ngClass]="group.amount > 0 ? 'text-green-600' : group.amount < 0 ? 'text-red-600' : 'text-gray-600'">
-                                  {{ (group.amount < 0 ? -group.amount : group.amount) | currency:'INR':'symbol':'1.2-2'
-                                    }} </span>
-                                    <span class="text-gray-400 dark:text-gray-600">for "{{ group.groupName }}"</span>
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <ng-template #noOwed>
-                      <div class="px-6 py-6 text-sm text-gray-600">No one owes you currently.</div>
-                    </ng-template>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <ng-template #showGroups>
-              <div class="grid grid-cols-1">
-                <div class="text-center py-8 p-6">
-                  <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-0">You don’t have any expenses
-                    yet</h3>
-                  <p class="text-gray-500 dark:text-gray-400 mt-2">Add your first one to get started!</p>
-                </div>
-              </div>
-            </ng-template>
-          </div>
-        </div>
+        <app-overview *ngIf="activeTab === 'dashboard'" />
+        <app-groups-and-friends *ngIf="activeTab === 'connections'" />
       </div>
     </ng-template>
   </p-splitter>

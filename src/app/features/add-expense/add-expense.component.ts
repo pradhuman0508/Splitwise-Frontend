@@ -277,7 +277,13 @@ private async autoSelectUserGroup() {
   }
 
   onMemberSplitChange(event: any, split: any) {
-    split.involved = event.target.checked;
+    // Handle both checkbox events and row click events
+    if (event.target && event.target.type === 'checkbox') {
+      split.involved = event.target.checked;
+    } else {
+      // For row clicks, toggle the current state
+      split.involved = !split.involved;
+    }
     this.calculateSplits();
   }
 

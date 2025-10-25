@@ -1,0 +1,26 @@
+.container-fluid {
+  min-height: 80vh;
+
+  .card {
+    flex: 1;
+    /* take up remaining height in container */
+    background-color: var(--surface-card);
+    border: 1px solid var(--surface-border);
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+    /* Maintain a small gap from the screen edges */
+
+    /* Responsive height behavior */
+    height: calc(100vh - 8.5rem);
+    /* viewport height minus margin gap */
+    box-sizing: border-box;
+
+    /* Smooth resizing when zoom or window resize */
+    transition: height 0.2s ease, margin 0.2s ease;
+  }
+}
+
+h2{
+  margin-bottom: 0;
+}

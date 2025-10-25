@@ -5,20 +5,21 @@ import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { SkeletonModule } from 'primeng/skeleton';
 import { PanelModule } from 'primeng/panel';
-import { Group } from '../../features/groups/services/groups.service';
+import { Group } from '../groups/services/groups.service';
 import { Subscription } from 'rxjs';
 import { getAuth, User } from '@angular/fire/auth';
 import { ButtonModule } from 'primeng/button';
-import { AddExpenseComponent } from '../../features/add-expense/add-expense.component';
 import { DashboardService } from './dashboard.service';
-import { MemberInvolvement, MemberWithBreakdown } from './dashboard.util';
-import { RouterModule, RouterLink } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { SplitterModule } from 'primeng/splitter';
 import { AvatarModule } from "primeng/avatar";
 import { TagModule } from "primeng/tag";
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { DataViewModule } from 'primeng/dataview';
 import { DividerModule } from "primeng/divider";
+import { OverviewComponent } from "./pages/overview/overview.component";
+import { GroupsAndFriendsComponent } from "./pages/groups-and-friends/groups-and-friends.component";
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-dashboard',
@@ -26,21 +27,21 @@ import { DividerModule } from "primeng/divider";
   imports: [
     TableModule,
     CommonModule,
-    AddExpenseComponent,
     ReactiveFormsModule,
     SkeletonModule,
     CardModule,
     ButtonModule,
     SplitterModule,
     PanelModule,
-    RouterLink,
     RouterModule,
     AvatarModule,
     TagModule,
     DataViewModule,
     DividerModule,
-    ScrollPanelModule
-  ],
+    ScrollPanelModule,
+    OverviewComponent,
+    GroupsAndFriendsComponent
+],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
@@ -50,14 +51,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     searchQuery: new FormControl('')
   });
   searchResults: any[] = [];
+  activeTab: string = 'dashboard'; // Default to dashboard
 
   // Getters for easy access to form values
   get searchCategory() { return this.searchForm.get('searchCategory')?.value || 'all'; }
   get searchQuery() { return this.searchForm.get('searchQuery')?.value || ''; }
-
-  totalExpenses: number = 0;
-  youAreOwed: number = 0;
-  youOwe: number = 0;
 
   isLoading: boolean = true;
   groups: Group[] = [];
@@ -147,20 +145,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 ];
 
-
-  // Aggregated member involvement across groups for the current user
-  memberInvolvements: MemberInvolvement[] = [];
-
-  // Separated data for display based on net amount logic
-  membersYouOwe: MemberWithBreakdown[] = [];
-  membersWhoOweYou: MemberWithBreakdown[] = [];
-
-  private isAnalyzing = false;
   private subscriptions: Subscription[] = [];
 
   constructor(
     private dashboardService: DashboardService,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private router: Router
   ) {
     this.initializeEmptyData();
   }
@@ -176,6 +166,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.isLoading = false;
       return;
     }
+
+    // Set initial active tab based on current route
+    this.updateActiveTabFromRoute(this.router.url);
+
+    // Subscribe to router events to update activeTab when URL changes
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        this.updateActiveTabFromRoute(event.url);
+      });
+
     try {
       this.currentUser = getAuth().currentUser;
     } catch (error) {
@@ -188,7 +189,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.loadTransactions(),
       ]);
 
-      this.setupReactiveSubscriptions();
     } finally {
       this.isLoading = false;
     }
@@ -198,30 +198,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
-  private async analyzeUserInvolvement(): Promise<void> {
-    if (this.isAnalyzing || !this.currentUser || !this.groups?.length) {
-      return;
-    }
-
-    this.isAnalyzing = true;
-
-    try {
-      const analysisResult = await this.dashboardService.analyzeUserInvolvement(
-        this.groups,
-        this.currentUser.uid
-      );
-
-      // Update component properties with analysis results
-      this.memberInvolvements = analysisResult.memberInvolvements;
-      this.membersYouOwe = analysisResult.membersYouOwe;
-      this.membersWhoOweYou = analysisResult.membersWhoOweYou;
-
-      // Update totals
-      this.totalExpenses = analysisResult.totals.totalExpenses;
-      this.youAreOwed = analysisResult.totals.youAreOwed;
-      this.youOwe = analysisResult.totals.youOwe;
-    } finally {
-      this.isAnalyzing = false;
+  private updateActiveTabFromRoute(url: string): void {
+    // Update activeTab based on current route
+    if (url.includes('/dashboard')) {
+      this.activeTab = 'dashboard';
+    } else if (url.includes('/connections')) {
+      this.activeTab = 'connections';
+    } else {
+      this.activeTab = 'dashboard'; // Default to dashboard
     }
   }
 
@@ -230,12 +214,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.groups = await this.dashboardService.loadGroups(this.currentUser);
   }
 
-  private setupReactiveSubscriptions(): void {
-    this.subscriptions = this.dashboardService.setupReactiveSubscriptions(
-      this.groups,
-      () => this.analyzeUserInvolvement()
-    );
-  }
 
   private async loadFriends(): Promise<void> {
     this.friends = await this.dashboardService.loadFriends();
@@ -279,18 +257,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  navigateToGroup(groupId: string | number): void {
-    this.dashboardService.navigateToGroup(groupId);
-  }
-
-  navigateToGroupByName(groupName: string): void {
-    const group = this.dashboardService.findGroupByName(this.groups, groupName);
-    if (group) {
-      this.navigateToGroup(group.id);
-    } else {
-      console.warn(`Group not found: ${groupName}`);
-    }
-  }
 
   resetSearch(): void {
     this.searchForm.reset({

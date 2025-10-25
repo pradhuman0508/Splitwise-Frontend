@@ -54,7 +54,8 @@ export class ManageMembersComponent implements OnInit, OnDestroy {
     private router: Router
   ) {
     this.memberForm = this.fb.group({
-      members: this.fb.array([])
+      name: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]]
     });
   }
 
@@ -95,10 +96,6 @@ export class ManageMembersComponent implements OnInit, OnDestroy {
 
   openDialog(): void {
     this.visible = true;
-    // Ensure at least one row is available for input
-    if (this.membersFormArray.length === 0) {
-      this.addMember();
-    }
   }
 
   goBack(): void {
@@ -109,44 +106,22 @@ export class ManageMembersComponent implements OnInit, OnDestroy {
     }
   }
 
-  get membersFormArray(): FormArray {
-    return this.memberForm.get('members') as FormArray;
-  }
-
-  createMember(): FormGroup {
-    return this.fb.group({
-      name: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]]
-    });
-  }
-
-  addMember(): void {
-    if (this.membersFormArray.length < 10) {
-      this.membersFormArray.push(this.createMember());
-    }
-  }
 
   onSubmit(): void {
-    // Expect exactly one member row; validate it
-    const control = this.membersFormArray.at(0) as FormGroup | undefined;
-    if (!control) {
-      return;
-    }
-    if (control.invalid) {
-      control.markAllAsTouched();
+    if (this.memberForm.invalid) {
+      this.memberForm.markAllAsTouched();
       return;
     }
 
     this.isSubmitting = true;
 
     // Add single member from the form
-    const { name, email } = control.value;
+    const { name, email } = this.memberForm.value;
     this.addMemberToList({ name, email });
 
     // Close dialog and reset form state
     this.visible = false;
     this.memberForm.reset();
-    this.membersFormArray.clear();
     this.isSubmitting = false;
   }
 
@@ -286,12 +261,11 @@ export class ManageMembersComponent implements OnInit, OnDestroy {
   }
 
 
-  isArrayFieldInvalid(i: number, field: string): boolean {
-    const control = this.membersFormArray.at(i).get(field);
+  isFieldInvalid(field: string): boolean {
+    const control = this.memberForm.get(field);
     return !!(control && control.invalid && (control.dirty || control.touched));
   }
 
-  // Removed multi-row helpers for single-member add flow
 
   private addMemberToList(memberData: { name: string; email: string }): void {
     if (!this.groupId) return;

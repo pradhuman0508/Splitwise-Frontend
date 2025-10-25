@@ -6,91 +6,37 @@ import { isPlatformBrowser } from '@angular/common';
 import { getAuth, User } from '@angular/fire/auth';
 import { catchError, map } from 'rxjs/operators';
 
-export interface Group {
-  id: number;
-  name: string;
-  description: string;
-  memberCount: number;
-  balance: number;
-  totalExpenses: number;
-  avatar: string;
-  createdAt: Date;
-}
+// Import common interfaces
+import { 
+  Group, 
+  GroupMember, 
+  Expense, 
+  ExpenseWithMembers, 
+  GroupedExpenses, 
+  GroupedExpensesWithMembers,
+  Friend,
+  BalanceDetail,
+  UidResolutionResult,
+  BackendApiResponse,
+  UserLookupResult
+} from '../../shared/interfaces/common.interfaces';
 
-export interface GroupMember {
-  id: number;
-  uid: string; // Firebase UID for unique identification
-  name: string;
-  email: string;
-  avatar: string;
-  balance: number;
-  owesTo: { name: string; amount: number }[];
-  owedBy: { name: string; amount: number }[];
-  createdAt: Date;
-  involved?: boolean; // Optional property for expense involvement
-}
+// Re-export interfaces for backward compatibility
+export type { 
+  Group, 
+  GroupMember, 
+  Expense, 
+  ExpenseWithMembers, 
+  GroupedExpenses, 
+  GroupedExpensesWithMembers,
+  Friend,
+  BalanceDetail,
+  UidResolutionResult,
+  BackendApiResponse,
+  UserLookupResult
+};
 
-export interface Expense {
-  expenseId: string;
-  description: string;
-  amount: number;
-  currency: string;
-  addedByUid: string;        // Just the UID
-  paidByUid: string;         // Just the UID
-  addedAt: Date;
-  updatedAt: Date;
-  receiptImageUrl: string | null;
-  owedBy: { userUid: string; amount: number }[];  // Just UIDs
-}
-
-export interface ExpenseWithMembers {
-  expenseId: string;
-  description: string;
-  amount: number;
-  currency: string;
-  addedBy: GroupMember | undefined;
-  paidBy: GroupMember | undefined;
-  addedAt: Date;
-  updatedAt: Date;
-  receiptImageUrl: string | null;
-  owedBy: { user: GroupMember | undefined; amount: number }[];
-}
-
-export interface GroupedExpenses {
-  month: string;
-  expenses: Expense[];
-}
-
-export interface GroupedExpensesWithMembers {
-  month: string;
-  expenses: ExpenseWithMembers[];
-}
-
-// UID Resolution Interfaces
-export interface UidResolutionResult {
-  success: boolean;
-  uid?: string;
-  error?: string;
-  source: 'current-user' | 'backend-api' | 'signin-methods' | 'not-found';
-}
-
-export interface BackendApiResponse {
-  success: boolean;
-  uid?: string;
-  email?: string;
-  displayName?: string;
-  emailVerified?: boolean;
-  createdAt?: string;
-  error?: string;
-  message?: string;
-}
-
-export interface UserLookupResult {
-  uid: string;
-  email: string;
-  displayName?: string;
-  emailVerified?: boolean;
-}
+// UID Resolution Interfaces are now imported from common.interfaces
 
 interface GroupAvatarResponse {
   avatarUrl: string;
@@ -635,6 +581,11 @@ export class GroupsService {
   computeGroupTotalExpenses(groupId: number): number {
     const expenses = this.groupExpenses[groupId] || [];
     return expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+  }
+
+  computeGroupMemberCount(groupId: number): number {
+    const members = this.groupMembers[groupId] || [];
+    return members.length;
   }
 
   computeUserBalanceForGroup(groupId: number, userUid: string | null | undefined): number {

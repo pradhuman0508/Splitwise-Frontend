@@ -1,0 +1,304 @@
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 container-fluid">
+
+  <div class="col-span-1 card">
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+      <h1 class="text-2xl font-bold mb-0">Groups</h1>
+      <app-create-group />
+    </div>
+    <div class="flex flex-col sm:flex-row justify-between items-center my-4 w-full">
+      <div class="flex gap-2">
+        <p-button icon="pi pi-th-large" variant="text" [severity]="isGridView() ? 'primary' : 'secondary'"
+          (click)="toggleViewMode('grid')" pTooltip="Grid View" tooltipPosition="top">
+        </p-button>
+        <p-button icon="pi pi-list" variant="text" [severity]="isListView() ? 'primary' : 'secondary'"
+          (click)="toggleViewMode('list')" pTooltip="List View" tooltipPosition="top">
+        </p-button>
+      </div>
+      <div class="mt-2 sm:mt-0">
+        <div class="relative sort-menu-container">
+          <p-button icon="pi pi-sort-alt" variant="text" severity="secondary" (click)="toggleSortMenu()"
+            class="w-full sm:w-auto">
+          </p-button>
+
+          <!-- Expandable Sort Menu -->
+          <div *ngIf="showSortMenu"
+            class="absolute right-0 mt-2 w-48 bg-[var(--surface-card)] rounded-md shadow-lg z-50 surface-border">
+            <div class="py-1">
+              <div class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300/100 border-b border-gray-200 dark:border-gray-700/100">
+                Sort Options
+              </div>
+              <div (click)="sortGroups('name')"
+                class="flex items-center justify-between px-4 py-2 text-sm hover:bg-gray-200/25 dark:hover:bg-gray-300/15 cursor-pointer">
+                <span>Name</span>
+                <i [class]="'pi ' + getSortIcon('name')"></i>
+              </div>
+              <div (click)="sortGroups('members')"
+                class="flex items-center justify-between px-4 py-2 text-sm hover:bg-gray-200/25 dark:hover:bg-gray-300/15 cursor-pointer">
+                <span>Members</span>
+                <i [class]="'pi ' + getSortIcon('members')"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Group cards grid -->
+    <div [ngClass]="{
+      'grid grid-cols-1 gap-3': isListView(),
+      'grid grid-cols-1 md:grid-cols-2 gap-3': isGridView()
+    }">
+      <div *ngFor="let group of filteredGroups"
+        class="rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer bg-[var(--surface-card)] surface-border"
+        [ngClass]="{
+          'overflow-hidden': isGridView(),
+          'flex items-center p-4 mb-3': isListView()
+        }" (click)="navigateToGroup(group.id)">
+
+        <!-- Grid View Layout -->
+        <ng-container *ngIf="isGridView()">
+          <!-- Group image and name section -->
+          <div class="relative h-40">
+            <img [src]="group.avatar" [alt]="group.name" class="w-full h-full object-cover" />
+            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+              <h2 class="text-white text-xl font-bold truncate">{{ group.name }}</h2>
+              <p class="text-white/80 text-sm truncate">{{ group.description }}</p>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- List View Layout -->
+        <ng-container *ngIf="isListView()">
+          <div class="flex items-center">
+            <div class="w-16 h-16 rounded-lg overflow-hidden mr-4 flex-shrink-0">
+              <img [src]="group.avatar" [alt]="group.name" class="w-full h-full" />
+            </div>
+            <div class="">
+              <h2 class="text-lg font-bold truncate mb-0 dark:text-gray-300/100">{{ group.name }}</h2>
+              <div class="flex items-center">
+                <i class="pi pi-users mr-2 text-gray-600  dark:text-gray-400/90"></i>
+                <span class="text-gray-600 dark:text-gray-400/90">{{ group.memberCount }} members</span>
+              </div>
+              <!-- <p class="text-sm text-gray-600 truncate">{{ group.description }}</p> -->
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- Group details section -->
+        <div [ngClass]="{'p-4': isGridView(), 'ml-4 flex-grow': isListView()}">
+          <!-- Grid View Details -->
+          <ng-container *ngIf="isGridView()">
+            <!-- Members and balance info -->
+            <div class="flex justify-between items-center mb-3">
+              <div class="flex items-center">
+                <i class="pi pi-users mr-2 text-gray-600 dark:text-gray-300"></i>
+                <span class="text-gray-600 dark:text-gray-300">{{ group.memberCount }} members</span>
+              </div>
+              <div class="text-sm font-medium" [ngClass]="{'text-green-600 dark:text-green-400': group.balance > 0,
+                                  'text-red-600 dark:text-red-400': group.balance < 0,
+                                  'text-gray-600 dark:text-gray-400': group.balance === 0}">
+                <span *ngIf="group.balance > 0">You are owed</span>
+                <span *ngIf="group.balance < 0">You owe</span>
+                <span *ngIf="group.balance === 0">Settled up</span>
+                <span *ngIf="group.balance !== 0"> {{ (group.balance < 0 ? -group.balance : group.balance) |
+                    currency:'INR':'symbol':'1.2-2' }}</span>
+              </div>
+            </div>
+
+            <!-- Total expenses and last activity -->
+            <div class="flex justify-between text-sm text-gray-500 dark:text-gray-400">
+              <div class="flex items-center">
+                <span [pTooltip]="'Total expense'" showDelay="300" hideDelay="400" tooltipPosition="top">
+                  {{ group.totalExpenses | currency:'INR':'symbol':'1.2-2' }}
+                </span>
+              </div>
+              <div class="flex items-center" [pTooltip]="'Created at'" showDelay="300" hideDelay="400"
+                tooltipPosition="top">
+                <i class="pi pi-calendar mr-1"></i>
+                <span>{{ group.createdAt | date:'mediumDate' }}</span>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- List View Details -->
+          <ng-container *ngIf="isListView()">
+            <div class="flex flex-col justify-end gap-2 text-right">
+              <span class="text-gray-500">{{ group.totalExpenses | currency:'INR':'symbol':'1.2-2' }}</span>
+
+              <div class="text-sm font-medium text-right" [ngClass]="{'text-green-600': group.balance > 0,
+                                  'text-red-600': group.balance < 0,
+                                  'text-gray-600': group.balance === 0}">
+                <span *ngIf="group.balance > 0">You are owed</span>
+                <span *ngIf="group.balance < 0">You owe</span>
+                <span *ngIf="group.balance === 0">Settled up</span>
+                <span *ngIf="group.balance !== 0"> {{ (group.balance < 0 ? -group.balance : group.balance) |
+                    currency:'INR':'symbol':'1.2-2' }}</span>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="filteredGroups.length === 0" class="text-center py-8">
+      <i class="pi pi-search text-gray-400"></i>
+      <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-300">No groups found</h3>
+      <p class="text-gray-500 dark:text-gray-400 mt-2">Try adjusting your search or create a new group</p>
+    </div>
+
+  </div>
+
+  <div class="col-span-1 card">
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+      <h1 class="text-2xl font-bold mb-0">Friends</h1>
+      <app-add-friend />
+    </div>
+    <div class="flex flex-col sm:flex-row justify-between items-center my-4 w-full">
+      <div class="flex gap-2">
+        <p-button icon="pi pi-th-large" variant="text" [severity]="isFriendsGridView() ? 'primary' : 'secondary'"
+          (click)="toggleFriendsViewMode('grid')" pTooltip="Grid View" tooltipPosition="top">
+        </p-button>
+        <p-button icon="pi pi-list" variant="text" [severity]="isFriendsListView() ? 'primary' : 'secondary'"
+          (click)="toggleFriendsViewMode('list')" pTooltip="List View" tooltipPosition="top">
+        </p-button>
+      </div>
+      <div class="mt-2 sm:mt-0">
+        <div class="relative friends-sort-menu-container">
+          <p-button icon="pi pi-sort-alt" variant="text" severity="secondary" (click)="toggleFriendsSortMenu()"
+            class="w-full sm:w-auto">
+          </p-button>
+
+          <!-- Expandable Sort Menu -->
+          <div *ngIf="showFriendsSortMenu"
+            class="absolute right-0 mt-2 w-48 bg-[var(--surface-card)] rounded-md shadow-lg z-50 surface-border">
+            <div class="py-1">
+              <div class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300/100 border-b border-gray-200 dark:border-gray-700/100">
+                Sort Options
+              </div>
+              <div (click)="sortFriends('name')"
+                class="flex items-center justify-between px-4 py-2 text-sm hover:bg-gray-200/25 dark:hover:bg-gray-300/15 cursor-pointer">
+                <span>Name</span>
+                <i [class]="'pi ' + getFriendsSortIcon('name')"></i>
+              </div>
+              <div (click)="sortFriends('balance')"
+                class="flex items-center justify-between px-4 py-2 text-sm hover:bg-gray-200/25  dark:hover:bg-gray-300/15 cursor-pointer">
+                <span>Balance</span>
+                <i [class]="'pi ' + getFriendsSortIcon('balance')"></i>
+              </div>
+              <div (click)="sortFriends('status')"
+                class="flex items-center justify-between px-4 py-2 text-sm hover:bg-gray-200/25  dark:hover:bg-gray-300/15 cursor-pointer">
+                <span>Status</span>
+                <i [class]="'pi ' + getFriendsSortIcon('status')"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Friends cards grid -->
+    <div [ngClass]="{
+      'grid grid-cols-1 gap-3': isFriendsListView(),
+      'grid grid-cols-1 md:grid-cols-2 gap-3': isFriendsGridView()
+    }">
+      <div *ngFor="let friend of filteredFriends"
+        class="rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer bg-[var(--surface-card)] surface-border"
+        [ngClass]="{
+          'overflow-hidden': isFriendsGridView(),
+          'flex items-center p-4 mb-3': isFriendsListView()
+        }">
+
+        <!-- Grid View Layout -->
+        <ng-container *ngIf="isFriendsGridView()">
+          <!-- Friend avatar and name section -->
+          <div class="relative h-40">
+            <img [src]="friend.avatar" [alt]="friend.name" class="w-full h-full object-cover" />
+            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+              <h2 class="text-white/100 text-xl font-bold truncate">{{ friend.name }}</h2>
+              <p class="text-white/80 text-sm truncate">{{ friend.email }}</p>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- List View Layout -->
+        <ng-container *ngIf="isFriendsListView()">
+          <div class="flex items-center">
+            <div class="w-16 h-16 rounded-lg overflow-hidden mr-4 flex-shrink-0">
+              <img [src]="friend.avatar" [alt]="friend.name" class="w-full h-full" />
+            </div>
+            <div class="">
+              <h2 class="text-lg font-bold truncate mb-0 dark:text-gray-300/100">{{ friend.name }}</h2>
+              <div class="flex items-center">
+                <i class="pi pi-envelope mr-2 text-gray-700/60 dark:text-gray-400/90"></i>
+                <span class="text-gray-600 dark:text-gray-400/90">{{ friend.email }}</span>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- Friend details section -->
+        <div [ngClass]="{'p-4': isFriendsGridView(), 'ml-4 flex-grow': isFriendsListView()}">
+          <!-- Grid View Details -->
+          <ng-container *ngIf="isFriendsGridView()">
+            <!-- Balance info -->
+            <div class="flex justify-between items-center mb-3">
+              <div class="flex items-center">
+                <i class="pi pi-user mr-2 text-gray-600 dark:text-gray-300"></i>
+                <span class="text-gray-600 dark:text-gray-300">{{ friend.status }}</span>
+              </div>
+              <div class="text-sm font-medium" [ngClass]="{'text-green-600 dark:text-green-400': friend.balance > 0,
+                                  'text-red-600 dark:text-red-400': friend.balance < 0,
+                                  'text-gray-600 dark:text-gray-400': friend.balance === 0}">
+                <span *ngIf="friend.balance > 0">You are owed</span>
+                <span *ngIf="friend.balance < 0">You owe</span>
+                <span *ngIf="friend.balance === 0">Settled up</span>
+                <span *ngIf="friend.balance !== 0"> {{ (friend.balance < 0 ? -friend.balance : friend.balance) |
+                    currency:'INR':'symbol':'1.2-2' }}</span>
+              </div>
+            </div>
+
+            <!-- Last activity -->
+            <div class="flex justify-between text-sm text-gray-500 dark:text-gray-400">
+              <div class="flex items-center" [pTooltip]="'Last activity'" showDelay="300" hideDelay="400"
+                tooltipPosition="top">
+                <i class="pi pi-clock mr-1"></i>
+                <span>{{ friend.lastActivityAt | date:'mediumDate' }}</span>
+              </div>
+              <div class="flex items-center" [pTooltip]="'Added on'" showDelay="300" hideDelay="400"
+                tooltipPosition="top">
+                <i class="pi pi-calendar mr-1"></i>
+                <span>{{ friend.addedAt | date:'mediumDate' }}</span>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- List View Details -->
+          <ng-container *ngIf="isFriendsListView()">
+            <div class="flex flex-col justify-end gap-2 text-right">
+              <span class="text-gray-500">{{ friend.status }}</span>
+
+              <div class="text-sm font-medium text-right" [ngClass]="{'text-green-600': friend.balance > 0,
+                                  'text-red-600': friend.balance < 0,
+                                  'text-gray-600': friend.balance === 0}">
+                <span *ngIf="friend.balance > 0">You are owed</span>
+                <span *ngIf="friend.balance < 0">You owe</span>
+                <span *ngIf="friend.balance === 0">Settled up</span>
+                <span *ngIf="friend.balance !== 0"> {{ (friend.balance < 0 ? -friend.balance : friend.balance) |
+                    currency:'INR':'symbol':'1.2-2' }}</span>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="filteredFriends.length === 0" class="text-center py-8">
+      <i class="pi pi-search text-gray-400"></i>
+      <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-300">No friends found</h3>
+      <p class="text-gray-500 dark:text-gray-400 mt-2">Try adjusting your search or add a new friend</p>
+    </div>
+
+  </div>
+</div>

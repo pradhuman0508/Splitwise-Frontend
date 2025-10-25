@@ -1,4 +1,4 @@
-import { Group, Expense, GroupMember } from '../../features/groups/services/groups.service';
+import { Group, Expense, GroupMember } from '../groups/services/groups.service';
 
 // Type definitions for utility functions
 export interface GroupExpenseDetails {
