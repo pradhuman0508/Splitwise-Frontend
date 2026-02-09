@@ -161,7 +161,7 @@ export class GroupComponent implements OnInit {
           expenses: group.expenses.map(expense => ({
             ...expense,
             createdAt: new Date(expense.addedAt),
-            updatedAt: new Date(expense.updatedAt)
+            updatedAt: expense.updatedAt ? new Date(expense.updatedAt) : null
           }))
         }));
         
@@ -169,7 +169,7 @@ export class GroupComponent implements OnInit {
         this.expenses = groupedExpenses.flatMap(group => group.expenses).map(expense => ({
           ...expense,
           createdAt: new Date(expense.addedAt),
-          updatedAt: new Date(expense.updatedAt)
+          updatedAt: expense.updatedAt ? new Date(expense.updatedAt) : null
         }));
       });
 
@@ -195,7 +195,7 @@ export class GroupComponent implements OnInit {
             expenses: group.expenses.map(expense => ({
               ...expense,
               createdAt: new Date(expense.addedAt),
-              updatedAt: new Date(expense.updatedAt)
+              updatedAt: expense.updatedAt ? new Date(expense.updatedAt) : null
             }))
           }));
 
@@ -203,7 +203,7 @@ export class GroupComponent implements OnInit {
           this.expenses = groupedExpenses.flatMap(group => group.expenses).map(expense => ({
             ...expense,
             createdAt: new Date(expense.addedAt),
-            updatedAt: new Date(expense.updatedAt)
+            updatedAt: expense.updatedAt ? new Date(expense.updatedAt) : null
           }));
         });
       }

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, HostListener } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from "@angular/common";
 import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { CardModule } from 'primeng/card';
@@ -167,6 +167,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Initialize responsive state in browser context
+    if (typeof window !== 'undefined') {
+      this.isSmallScreen = window.innerWidth < 1024;
+    }
+
     // Set initial active tab based on current route
     this.updateActiveTabFromRoute(this.router.url);
 
@@ -197,6 +202,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
+
+  isSmallScreen = false; // initialized in ngOnInit for browser only
+
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    if (isPlatformBrowser(this.platformId) && typeof window !== 'undefined') {
+      this.isSmallScreen = window.innerWidth < 1024;
+    }
+  }
+
 
   private updateActiveTabFromRoute(url: string): void {
     // Update activeTab based on current route

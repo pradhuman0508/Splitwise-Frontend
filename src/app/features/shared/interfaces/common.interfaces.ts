@@ -50,9 +50,10 @@ export interface Expense {
   amount: number;
   currency: string;
   addedByUid: string;        // Just the UID
+  updatedByUid: string | null;
   paidByUid: string;         // Just the UID
   addedAt: Date;
-  updatedAt: Date;
+  updatedAt: Date | null;
   receiptImageUrl: string | null;
   owedBy: { userUid: string; amount: number }[];  // Just UIDs
 }
@@ -63,9 +64,10 @@ export interface ExpenseWithMembers {
   amount: number;
   currency: string;
   addedBy: GroupMember | undefined;
+  updatedBy: GroupMember | undefined;
   paidBy: GroupMember | undefined;
   addedAt: Date;
-  updatedAt: Date;
+  updatedAt: Date | null;
   receiptImageUrl: string | null;
   owedBy: { user: GroupMember | undefined; amount: number }[];
 }

@@ -58,4 +58,22 @@
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(2px);
     border: 1px solid var(--surface-border);
+}  
+
+:host ::ng-deep .contains .p-splitter {
+    border: none !important;
+    background: none !important;
+  }
+  
+:host ::ng-deep .contains .p-splitter-gutter {
+    background: none !important;
+    padding: 0.2rem;
+  }
+  
+  :host ::ng-deep .contains .p-scrollpanel-content {
+    padding-block: 0 !important;
+  }
+
+p{
+    margin-bottom: 0px;
 }

@@ -485,6 +485,7 @@ private async autoSelectUserGroup() {
         amount: formValue.amount,
         currency: 'INR',
         addedByUid: uidData.addedByUid,
+        updatedByUid: null,
         paidByUid: uidData.paidByUid,
         addedAt: formValue.date,
         updatedAt: formValue.date,

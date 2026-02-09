@@ -99,7 +99,7 @@ export class LayoutService {
     }
 
     private handleDarkModeTransition(config: layoutConfig): void {
-        if ((document as any).startViewTransition) {
+        if (typeof document !== 'undefined' && (document as any).startViewTransition) {
             this.startViewTransition(config);
         } else {
             this.toggleDarkMode(config);
@@ -108,6 +108,11 @@ export class LayoutService {
     }
 
     private startViewTransition(config: layoutConfig): void {
+        if (typeof document === 'undefined') {
+            this.toggleDarkMode(config);
+            this.onTransitionEnd();
+            return;
+        }
         const transition = (document as any).startViewTransition(() => {
             this.toggleDarkMode(config);
         });
@@ -121,6 +126,7 @@ export class LayoutService {
 
     toggleDarkMode(config?: layoutConfig): void {
         const _config = config || this.layoutConfig();
+        if (typeof document === 'undefined') return;
         if (_config.darkTheme) {
             document.documentElement.classList.add('app-dark');
         } else {
@@ -156,6 +162,7 @@ export class LayoutService {
     }
 
     isDesktop() {
+        if (typeof window === 'undefined') return true;
         return window.innerWidth > 991;
     }
 

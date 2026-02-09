@@ -1,28 +1,25 @@
-<div class="grid grid-cols-19">
-  <div class="col-span-6 flex border-rt">
-    <p-scrollpanel [style]="{ width: '100%', height: '575px' }">
-      <div class="divide-y divide-gray-200 dark:divide-gray-700 mr-3">
-
-        <div *ngFor="let group of groupedExpenses let last = last let first = first;" class="month-card">
-          <p-card [style]="{ 'box-shadow': 'none', 'border-border-radius': 'none'}">
+<div class="contains">
+  <p-splitter [panelSizes]="[33, 67]" class="mb-8 min-h-screen" [layout]="isSmallScreen ? 'vertical' : 'horizontal'">
+    <ng-template pTemplate="panel">
+      <div class="surface-border rounded-lg bg-[var(--surface-card)] shadow-sm w-full">
+        <p-scrollpanel class="w-full" [style]="{
+          'height': isSmallScreen ? '60vh' : '81vh'
+        }">
+          <div *ngFor="let group of groupedExpenses">
             <!-- Month Header -->
-
-            <div class="divide-y divide-gray-200 dark:divide-gray-700">
+            <div class="divide-y divide-gray-200 dark:divide-gray-700 pr-3">
               <!-- Expenses -->
               <div *ngFor="let expense of group.expenses">
                 <div
-                  class="group border border-transparent hover:border-gray-300 dark:hover:border-gray-600 p-2 hover:bg-[var(--surface-hover)] hover:shadow-lg transition-all duration-200 grid grid-cols-13 items-center cursor-pointer"
+                  class="p-2 hover:bg-[var(--surface-hover)] hover:shadow-lg transition-all duration-200 grid grid-cols-13 items-center cursor-pointer"
                   [class.bg-[var(--surface-hover)]]="selectedExpense?.expenseId === expense.expenseId"
                   (click)="selectExpense(expense)">
-
                   <div class="col-span-1 flex">
                     <div class="date-badge" (mouseenter)="showDateHoverBadge($event, expense?.addedAt)"
                       (mouseleave)="hideDateHoverBadge()">
                       <div class="flex flex-col items-center p-1 rounded-lg shadow-lg">
                         <div class="text-xs font-medium text-gray-600 dark:text-gray-400">{{ expense.addedAt | date:
-                          'MMM'
-                          |
-                          uppercase }}</div>
+                          'MMM' | uppercase }}</div>
                         <div [style]="{ lineHeight: '1.2rem', fontSize: '1rem' }">{{ expense.addedAt | date: 'dd' }}
                         </div>
                       </div>
@@ -32,14 +29,12 @@
                       {{ dateTooltipText }}
                     </div>
                   </div>
-
                   <!-- Description Column (5 cols) -->
                   <div class="col-span-4">
                     <div class="fade-text pl-1 text-gray-700 dark:text-gray-300">
                       {{ expense.description }}
                     </div>
                   </div>
-
                   <!-- User Involvement Column (3 cols) -->
                   <div class="col-span-4 flex items-center justify-center text-center">
                     <div class="flex flex-col items-center">
@@ -50,44 +45,35 @@
                         {{ getUserBalance(expense) > 0 ? 'You are owed' : 'You owe' }}
                       </div>
                       <div *ngIf="isUserInvolved(expense)" class="text-sm font-bold" [ngClass]="{
-                        'text-green-600 dark:text-green-400': getUserBalance(expense) > 0,
-                        'text-red-600 dark:text-red-400': getUserBalance(expense) < 0
-                      }">
+                          'text-green-600 dark:text-green-400': getUserBalance(expense) > 0,
+                          'text-red-600 dark:text-red-400': getUserBalance(expense) < 0
+                        }">
                         ₹{{ getAbsoluteValue(getUserBalance(expense)) | number:'1.2-2' }}
                       </div>
                     </div>
                   </div>
-                    <!-- Amount Column (3 cols) -->
-                    <div class="col-span-4 justify-end items-center">
-                      <div class="text-right">
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-0"><span
-                            class="font-medium text-gray-700 dark:text-gray-300">{{
-                            ((expense?.paidBy?.name?.length || 0) > 17) ? ((expense?.paidBy?.name | slice:0:16) + '.') :
-                            (expense?.paidBy?.name || '')
-                            }}</span> paid</p>
-                        <p class="text-md font-bold mb-0">
-                          ₹{{ expense.amount | number:'1.2-2' }}
-                        </p>
-                      </div>
+                  <!-- Amount Column (3 cols) -->
+                  <div class="col-span-4 justify-end items-center">
+                    <div class="text-right">
+                      <p class="text-sm text-gray-500 dark:text-gray-400 mb-0"><span
+                          class="font-medium text-gray-700 dark:text-gray-300">{{
+                          ((expense?.paidBy?.name?.length || 0) > 17) ? ((expense?.paidBy?.name | slice:0:16) + '.') :
+                          (expense?.paidBy?.name || '')
+                          }}</span> paid</p>
+                      <p class="text-md font-bold mb-0">
+                        ₹{{ expense.amount | number:'1.2-2' }}
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
-          </p-card>
-        </div>
+            </div>
+          </div>
+        </p-scrollpanel>
       </div>
-    </p-scrollpanel>
-  </div>
-  <div class="col-span-13">
-    <!-- Expense Details Section -->
-    <div class="h-full flex flex-col">
-
-
-
-      <!-- Main Content Area -->
-      <div class="flex-1 overflow-y-auto">
-
-        <!-- No Selection State -->
+    </ng-template>
+    <ng-template pTemplate="panel">
+      <div class="surface-border rounded-lg bg-[var(--surface-card)] shadow-sm w-full">
         <div *ngIf="!selectedExpense" class="flex items-center justify-center h-full">
           <div class="text-center py-12">
             <div
@@ -103,132 +89,101 @@
           </div>
         </div>
 
-        <!-- Selected Expense Details -->
-        <div *ngIf="selectedExpense" class="p-6">
-
-          <!-- Expense Header -->
-          <div class="flex items-start justify-between mb-6">
-            <div class="flex-1">
-              <div class="text-2xl font-bold text-gray-900 dark:text-white">
-                {{ selectedExpense.description }}
-              </div>
-                <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                  <span>Added: {{ selectedExpense.addedAt | date:'MMM d, y, h:mm a' }}</span>
-                  <span
-                    *ngIf="selectedExpense.updatedAt && selectedExpense.updatedAt.getTime() !== selectedExpense.addedAt.getTime()">
-                    Updated: {{ selectedExpense.updatedAt | date:'MMM d, y, h:mm a' }}
-                  </span>
-                </div>
-            </div>
-
-            <!-- Edit Button -->
-            <button
-              class="ml-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-              (click)="onEditExpense(selectedExpense.expenseId)" title="Edit expense">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
-                </path>
-              </svg>
-            </button>
-          </div>
-
-          <!-- Main Expense Information -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-
-            <!-- Amount and Payment Info -->
-            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Payment Details</h3>
-
-              <div class="space-y-4">
-                <!-- Total Amount -->
-                <div class="text-center">
-                  <div class="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-                    ₹{{ selectedExpense.amount | number:'1.2-2' }}
-                  </div>
-                  <div class="text-sm text-gray-500 dark:text-gray-400">Total Amount</div>
-                </div>
-
-                <!-- Paid By -->
-                <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-                  <div class="flex items-center justify-between">
-                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Paid by</span>
-                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ selectedExpense?.paidBy?.name || 'Unknown' }}</span>
+        <!-- Selected Expense Details - New Card Layout -->
+        <div *ngIf="selectedExpense" class="p-4 md:p-6">
+          <div class="bg-card text-card-foreground flex flex-col gap-3 rounded-xl border w-full p-5 max-w-3xl mx-auto">
+            <!-- Header -->
+            <div class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex-1 min-w-0">
+                  <h3 class="truncate mb-0 text-xl font-semibold">{{ selectedExpense.description }}</h3>
+                  <div class="flex flex-col gap-0.5">
+                    <p class="text-xs text-muted-foreground">Added by {{ selectedExpense?.addedBy?.name || 'User' }} on {{ selectedExpense.addedAt | date:'MMM d, y, h:mm a' }}</p>
+                    <p class="text-xs text-muted-foreground" *ngIf="selectedExpense.updatedAt && selectedExpense.updatedByUid">
+                      Updated by {{ selectedExpense?.updatedBy?.name || selectedExpense?.addedBy?.name || 'User' }} on {{ selectedExpense.updatedAt | date:'MMM d, y, h:mm a' }}
+                    </p>
                   </div>
                 </div>
-
-                <!-- Added By -->
-                <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-                  <div class="flex items-center justify-between">
-                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Added by</span>
-                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ selectedExpense?.addedBy?.name || 'Unknown' }}</span>
-                  </div>
-                </div>
-
-                <!-- Your Involvement -->
-                <div class="border-t border-gray-200 dark:border-gray-700 pt-4" *ngIf="isUserInvolved(selectedExpense)">
-                  <div class="flex items-center justify-between">
-                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">
-                      {{ getUserBalance(selectedExpense) > 0 ? 'You are owed' : 'You owe' }}
-                    </span>
-                    <span class="text-lg font-bold" [ngClass]="{
-                      'text-green-600 dark:text-green-400': getUserBalance(selectedExpense) > 0,
-                      'text-red-600 dark:text-red-400': getUserBalance(selectedExpense) < 0
-                    }">
-                      ₹{{ getAbsoluteValue(getUserBalance(selectedExpense)) | number:'1.2-2' }}
-                    </span>
-                  </div>
+                <div class="flex gap-2 shrink-0">
+                  <button class="inline-flex items-center justify-center size-9 rounded-md h-8 w-8 hover:bg-accent" (click)="onEditExpense(selectedExpense.expenseId)" title="Edit">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path><path d="m15 5 4 4"></path></svg>
+                  </button>
+                  <button class="inline-flex items-center justify-center size-9 rounded-md h-8 w-8 text-destructive hover:text-destructive hover:bg-accent" title="Delete">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                  </button>
                 </div>
               </div>
             </div>
 
-            <!-- Receipt Section -->
-            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Receipt</h3>
-
-              <div *ngIf="selectedExpense.receiptImageUrl; else noReceipt" class="h-48">
-                <img [src]="selectedExpense.receiptImageUrl" 
-                     [alt]="'Receipt for ' + selectedExpense.description"
-                     class="w-full h-full object-cover rounded-lg border border-gray-200 dark:border-gray-600">
-              </div>
-              
-              <ng-template #noReceipt>
-                <div class="flex items-center justify-center h-48 bg-gray-100 dark:bg-gray-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
-                  <div class="text-center">
-                    <svg class="w-12 h-12 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                      </path>
-                    </svg>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">No receipt uploaded</p>
-                    <button class="mt-2 text-xs text-blue-600 dark:text-blue-400 hover:underline">
-                      Upload receipt
-                    </button>
-                  </div>
+            <!-- Paid by + Amount -->
+            <div class="px-3 space-y-4">
+              <div class="flex items-center gap-3 bg-muted/50 rounded-lg p-3">
+                <span class="relative flex size-10 shrink-0 overflow-hidden rounded-full h-10 w-10">
+                  <ng-container *ngIf="resolveAvatar(selectedExpense?.paidBy, 80) as paidByAvatar; else paidByInitials">
+                    <img [src]="paidByAvatar" [alt]="selectedExpense?.paidBy?.name || 'User'" class="h-10 w-10 rounded-full object-cover" />
+                  </ng-container>
+                  <ng-template #paidByInitials>
+                    <span class="bg-muted flex size-full items-center justify-center rounded-full text-xs">{{ (selectedExpense?.paidBy?.name || 'U').slice(0,2) | uppercase }}</span>
+                  </ng-template>
+                </span>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm text-muted-foreground">Paid by</p>
+                  <p class="text-sm truncate">{{ selectedExpense?.paidBy?.name || 'Unknown' }}</p>
                 </div>
-              </ng-template>
-            </div>
-          </div>
+                <div class="flex items-center gap-1 shrink-0">
+                  <span class="text-lg font-semibold">₹{{ selectedExpense.amount | number:'1.2-2' }}</span>
+                </div>
+              </div>
 
-          <!-- Additional Details -->
-          <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-0">Split Details</h3>
+              <!-- Receipt row -->
+              <div class="flex items-center justify-between p-3 border rounded-lg">
+                <div class="flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-muted-foreground"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"></path><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 17.5v-11"></path></svg>
+                  <a *ngIf="selectedExpense.receiptImageUrl; else noReceiptLink" [href]="selectedExpense.receiptImageUrl" target="_blank" rel="noopener noreferrer" class="text-sm text-primary hover:underline">Receipt attached</a>
+                  <ng-template #noReceiptLink>
+                    <span class="text-sm text-muted-foreground">No receipt</span>
+                  </ng-template>
+                </div>
+                <div class="flex gap-1">
+                  <button class="inline-flex items-center justify-center size-9 rounded-md h-7 w-7 hover:bg-accent" title="Upload">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-3.5 w-3.5"><path d="M12 3v12"></path><path d="m17 8-5-5-5 5"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path></svg>
+                  </button>
+                  <button class="inline-flex items-center justify-center size-9 rounded-md h-7 w-7 text-destructive hover:text-destructive hover:bg-accent" title="Remove">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-3.5 w-3.5"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                  </button>
+                </div>
+              </div>
 
-            <!-- Owed By Section -->
-            <div class="mt-6">
-              <div class="space-y-2">
-                <div *ngFor="let person of (selectedExpense?.owedBy || [])" 
-                     class="flex items-center justify-between py-2 px-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{ person?.user?.name || 'Unknown' }}</span>
-                  <span class="text-sm font-semibold text-gray-900 dark:text-white">
-                    ₹{{ person.amount | number:'1.2-2' }}
-                  </span>
+              <!-- Split list -->
+              <div class="pt-2">
+                <p class="text-sm text-muted-foreground mb-3">Split between {{ (selectedExpense?.owedBy || []).length }} {{ (selectedExpense?.owedBy || []).length === 1 ? 'person' : 'people' }}</p>
+                <div class="grid grid-cols-2 gap-2">
+                  <div *ngFor="let person of (selectedExpense?.owedBy || [])" class="text-card-foreground flex flex-col gap-6 rounded-xl border bg-muted/30">
+                    <div class="p-3">
+                      <div class="flex items-center gap-2">
+                        <span class="relative flex size-10 shrink-0 overflow-hidden rounded-full h-8 w-8">
+                          <ng-container *ngIf="resolveAvatar(person?.user, 64) as owedAvatar; else owedInitials">
+                            <img [src]="owedAvatar" [alt]="person?.user?.name || 'User'" class="h-8 w-8 rounded-full object-cover" />
+                          </ng-container>
+                          <ng-template #owedInitials>
+                            <span class="bg-muted flex size-full items-center justify-center rounded-full text-xs">{{ (person?.user?.name || 'NA').slice(0,2) | uppercase }}</span>
+                          </ng-template>
+                        </span>
+                        <div class="flex-1 min-w-0">
+                          <p class="text-xs truncate">{{ person?.user?.name || 'Unknown' }}</p>
+                          <p class="text-sm">₹{{ person.amount | number:'1.2-2' }}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+        
+
       </div>
-    </div>
-  </div>
+    </ng-template>
+  </p-splitter>
 </div>
